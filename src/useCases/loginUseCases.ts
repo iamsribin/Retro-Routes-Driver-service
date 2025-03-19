@@ -6,6 +6,8 @@ const driverRepo=new driverReposiory()
 
 
 export default class loginUseCase{
+
+    
     loginCheckDriver= async (mobile: number) => {
         try {
             const response = await driverRepo.findDriver(mobile) as DriverInterface

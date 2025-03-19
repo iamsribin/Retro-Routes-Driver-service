@@ -3,8 +3,9 @@ import loginControl from "../controllers/loginController";
 
 import rabbitClient from "./client";
 
-const loginController = new loginControl()
-const registerController = new registerControl()
+const loginController = new loginControl();
+const registerController = new registerControl();
+
 export default class MessageHandler {
   static async handle(
     operation: string,
@@ -17,17 +18,21 @@ export default class MessageHandler {
 
     switch (operation) {
       case "login-check":
-        console.log("rach jer");
-        
-        response=await loginController.checkLogin(data)
+        console.log("reach login-check");
+
+        response = await loginController.checkLogin(data);
         break;
 
       case "google-login":
-        response=await loginController.checkGoogleLoginDriver(data)
+        response = await loginController.checkGoogleLoginDriver(data);
         break;
 
       case "driver-register":
-        response=await registerController.register(data)
+        response = await registerController.register(data);
+        break;
+        
+      case "driver-check":
+        response=await registerController.checkDriver(data)
         break;
 
       default:

@@ -6,8 +6,6 @@ import { DriverData} from "../utilities/interface";
 
 const driverRepo=new driverRepository()
 
-
-
 export default class registrationUseCase{
     register=async(DriverData:DriverData)=>{
         try {
@@ -34,6 +32,8 @@ export default class registrationUseCase{
     checkDriver = async(mobile:number)=>{
         try {
             const response = await driverRepo.findDriver(mobile) as DriverInterface
+            console.log("respose",response);
+            
             if (response) {
             // Get the first driver from the array
                 if (response.identification) {
