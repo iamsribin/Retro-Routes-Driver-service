@@ -35,6 +35,18 @@ export default class MessageHandler {
         response=await registerController.checkDriver(data)
         break;
 
+      case "identification-update":
+        response=await registerController.identificationUpdate(data)
+        break;
+
+      case "vehicle-image-update":
+        response=await registerController.vehicleUpdate(data)
+        break;
+      
+      case "driver-location":
+        response=await registerController.location(data)
+        break;
+
       default:
         response = "Request-key notfound";
         break;

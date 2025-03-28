@@ -13,8 +13,7 @@ class App{
       this.app=express()
       this.server=http.createServer(this.app)
       this.server.listen(PORT,()=>{    
-        console.log(`server  http://localhost:${PORT}`);
-        
+        console.log(`server  http://localhost:${PORT}`);   
       })
         RabbitMQClient.initialize();
         connectDB()        

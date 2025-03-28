@@ -1,7 +1,5 @@
 import Driver, { DriverInterface } from "../entities/driver";
-import {Registration} from "../utilities/interface";
-
-
+import {Identification, locationData, Registration, vehicleDatas} from "../utilities/interface";
 
 
 export default class driverRepository{
@@ -46,6 +44,95 @@ export default class driverRepository{
             return (driverData)
         } catch (error) {
             return (error as Error).message;
+
+        }
+    }
+
+    updateIdentification=async(driverData:Identification)=>{
+        try {
+            console.log("driverData in repo",driverData);
+            
+            const {driverId,aadharID,licenseID,aadharImageUrl,licenseImageUrl}=driverData 
+            const response=await Driver.findByIdAndUpdate(
+                driverId,
+                {
+                    $set:{
+                        aadhar:{
+                            aadharId:aadharID,
+                            aadharImage:aadharImageUrl,
+                        },
+                        license:{
+                            licenseId:licenseID,
+                            licenseImage:licenseImageUrl,
+                        },
+                    },
+                },
+                {
+                    new:true
+                }
+            );
+            return response;
+            
+        } catch (error) {
+            console.log(error);
+            throw new Error((error as Error).message);
+        }
+
+    }
+
+    vehicleUpdate=async(vehicleData:vehicleDatas)=>{
+        try {
+            const {registerationID,
+                model,
+                driverId,
+                rcImageUrl,
+                carImageUrl}=vehicleData
+                const response=await Driver.findByIdAndUpdate(driverId,{
+                    $set:{
+                        vehicle_details:{
+                            registerationID,
+                            model,
+                            rcImageUrl,
+                            carImageUrl
+                        }
+                    }
+                },
+                {
+                    new:true
+                }
+            )
+            
+            return response
+        } catch (error) {
+            throw new Error((error as Error).message);
+
+        }
+    }
+
+    locationUpdate=async(data:locationData)=>{
+        try {
+            const {driverId,longitude,latitude}=data
+            const response=await Driver.findByIdAndUpdate(
+                driverId,
+                {
+                    $set:{
+                        location:{
+                            latitude,
+                            longitude
+                        },
+                        identification:true,
+                        account_status:"Pending"
+                    }
+                },
+                {
+                    new:true
+                }
+            )
+            return response
+            
+        } catch (error) {
+            console.log(error);
+            throw new Error((error as Error).message);
 
         }
     }

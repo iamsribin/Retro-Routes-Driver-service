@@ -16,7 +16,7 @@ export default class registerController{
             joiningDate:Date.now()
         }
         try {
-            const response=await registrationUseCase.register(userData)
+            const response=await registrationUseCase.register(userData);
             return (response)
         } catch (error) {
             return({ error: (error as Error).message });
@@ -32,6 +32,68 @@ export default class registerController{
             
         }
         
+    }
+
+    identificationUpdate=async(data:identification)=>{
+        const {aadharID,licenseID,driverId,aadharImageUrl,licenseImageUrl}=data
+        try {
+            console.log("entered identificationUpdate register controller",);
+            
+            if(driverId){
+                const driverData={
+                    driverId:new ObjectId(driverId),
+                    aadharID,
+                    licenseID,
+                    aadharImageUrl:aadharImageUrl,
+                    licenseImageUrl:licenseImageUrl
+                }
+                const response=await registrationUseCase.identification_update(driverData)
+                return(response)     
+                
+            }else{
+                return({message:"something error"})
+            }
+        } catch (error) {
+            return({ error: (error as Error).message });
+        }
+    }
+
+    vehicleUpdate=async(data:vehicleDatas)=>{
+        try {
+            const {registerationID,model,driverId,rcImageUrl,carImageUrl}=data
+            const vehicleData={
+                registerationID,
+                model,
+                driverId,
+                rcImageUrl,
+                carImageUrl
+            }
+
+            const response= await registrationUseCase.vehicleUpdate(vehicleData)
+             return(response)
+        } catch (error) {
+            return((error as Error).message);
+            
+        }
+    }
+
+    location=async(data:locationData)=>{
+        const {latitude,longitude,driverId}=data
+        try {
+            if(driverId)
+            {
+                const locationData= {
+                    driverId:new ObjectId(driverId),
+                    latitude,
+                    longitude
+
+                }
+                const response=await registrationUseCase.location_update(locationData)
+                return(response)
+            }
+        } catch (error) {
+            return((error as Error).message);
+        }        
     }
     
 }

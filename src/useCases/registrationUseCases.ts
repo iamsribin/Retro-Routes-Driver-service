@@ -2,7 +2,7 @@ import { refferalCode } from "../utilities/referralCode";
 import bcrypt from "../services/bcrypt";
 import driverRepository from "../repositories/driverRepo";
 import { DriverInterface } from "../entities/driver";
-import { DriverData} from "../utilities/interface";
+import { DriverData, Identification, identification, locationData, vehicleDatas} from "../utilities/interface";
 
 const driverRepo=new driverRepository()
 
@@ -46,6 +46,61 @@ export default class registrationUseCase{
             return "Driver not registered";
         } catch (error) {
             return { message: (error as Error).message };
+        }
+    }
+
+    identification_update = async(driverData:identification)=>{
+        const {driverId,aadharID,licenseID,aadharImageUrl,licenseImageUrl}=driverData
+        try {      
+            console.log("enterfd identification_update");
+                  
+            const newDriverData:Identification={
+                driverId:driverId,
+                aadharID,
+                licenseID,
+                aadharImageUrl,
+                licenseImageUrl
+            };
+            const response=await driverRepo.updateIdentification(newDriverData)
+            if(response?.email){
+                return ({message:"Success"})
+            }else{
+                return ({message:"Couldn't update now. Try again later!"})
+            }
+        } catch (error) {
+            return { message: (error as Error).message };
+
+        }
+    }
+
+    vehicleUpdate = async(vehicleData :vehicleDatas )=>{
+        try {
+            const response=await driverRepo.vehicleUpdate(vehicleData)
+
+            if(response)
+                {
+                    return ({message:"Success"});
+                }else{
+                    return ({message:"Something Error"})
+                }
+        } catch (error) {
+            throw new Error((error as Error).message)
+
+        }
+
+    }
+
+    location_update = async(data:locationData)=>{
+        try {
+            
+            const response=await driverRepo.locationUpdate(data)
+            if(response?.email){
+                return ({message:"Success"})
+            }else{
+                return ({message:"User not found"})
+            }
+        } catch (error) {
+            throw new Error((error as Error).message)
         }
     }
 
