@@ -1,4 +1,4 @@
-import registrationUseCases from "../useCases/registrationUseCases";
+import registrationUseCases from "../useCases/registration.use-cases";
 import { ObjectId } from "mongodb";
 import { DriverData, driverImage, identification, locationData, vehicleDatas } from "../utilities/interface";
 

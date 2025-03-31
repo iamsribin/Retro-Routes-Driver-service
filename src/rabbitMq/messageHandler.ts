@@ -1,10 +1,11 @@
 import registerControl from "../controllers/registerController";
 import loginControl from "../controllers/loginController";
-
+import AdminController from "../controllers/admin-controller";
 import rabbitClient from "./client";
 
 const loginController = new loginControl();
 const registerController = new registerControl();
+const adminController = new AdminController();
 
 export default class MessageHandler {
   static async handle(
@@ -46,12 +47,26 @@ export default class MessageHandler {
       case "driver-location":
         response=await registerController.location(data)
         break;
+      
+      case "get-admin-pending-drivers":
+        response = await adminController.getDriversByAccountStatus(data)
+        break;
 
+      case "get-admin-blocked-drivers":
+          response = await adminController.getDriversByAccountStatus(data)
+          break;
+        
+       case "get-admin-active-drivers":
+          response = await adminController.getDriversByAccountStatus(data)
+          break;
+        
       default:
         response = "Request-key notfound";
         break;
     }
 
+    console.log("===================",response);
+    
     //Produce the response back to the client
     await rabbitClient.produce(response, correlationId, replyTo);
   }

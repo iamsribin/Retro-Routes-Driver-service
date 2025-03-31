@@ -1,6 +1,6 @@
 import { refferalCode } from "../utilities/referralCode";
 import bcrypt from "../services/bcrypt";
-import driverRepository from "../repositories/driverRepo";
+import driverRepository from "../repositories/driver-repo";
 import { DriverInterface } from "../entities/driver";
 import { DriverData, Identification, identification, locationData, vehicleDatas} from "../utilities/interface";
 

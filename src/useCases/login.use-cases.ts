@@ -1,4 +1,4 @@
-import driverReposiory from "../repositories/driverRepo";
+import driverReposiory from "../repositories/driver-repo";
 import auth from "../middleware/auth";
 import { DriverInterface } from "../entities/driver";
 

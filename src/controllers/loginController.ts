@@ -1,5 +1,5 @@
-import loginUseCases from "../useCases/loginUseCases";
-import registrationUseCases from "../useCases/registrationUseCases";
+import loginUseCases from "../useCases/login.use-cases";
+import registrationUseCases from "../useCases/registration.use-cases";
 
 const loginUseCase = new loginUseCases();
 const registrationUseCase = new registrationUseCases();
