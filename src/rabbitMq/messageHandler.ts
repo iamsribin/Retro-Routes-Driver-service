@@ -39,35 +39,46 @@ export default class MessageHandler {
       case "identification-update":
         response=await registerController.identificationUpdate(data)
         break;
+      
+      case "driver-image-update":
+        response = await registerController.updateDriverImage(data)
+        break;
 
       case "vehicle-image-update":
         response=await registerController.vehicleUpdate(data)
         break;
-      
+
       case "driver-location":
         response=await registerController.location(data)
         break;
-      
+          
       case "get-admin-pending-drivers":
+         response = await adminController.getDriversByAccountStatus(data)
+         break;
+            
+      case "get-admin-blocked-drivers":
+         response = await adminController.getDriversByAccountStatus(data)
+         break;
+              
+      case "get-admin-active-drivers":
         response = await adminController.getDriversByAccountStatus(data)
         break;
-
-      case "get-admin-blocked-drivers":
-          response = await adminController.getDriversByAccountStatus(data)
-          break;
-        
-       case "get-admin-active-drivers":
-          response = await adminController.getDriversByAccountStatus(data)
-          break;
-        
+                
+      case "get-admin-driver-details":
+        response=await adminController.getDriverDetails(data)
+        break;
+      
+      case "admin-update-driver-account-status":
+        response = await adminController.updateDriverAccountStatus(data)
+        break;
       default:
         response = "Request-key notfound";
         break;
     }
 
-    console.log("===================",response);
+    console.log("message handiser",response);
     
-    //Produce the response back to the client
+    // Produce the response back to the client
     await rabbitClient.produce(response, correlationId, replyTo);
   }
 }

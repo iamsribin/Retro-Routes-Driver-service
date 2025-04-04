@@ -2,7 +2,7 @@ import { refferalCode } from "../utilities/referralCode";
 import bcrypt from "../services/bcrypt";
 import driverRepository from "../repositories/driver-repo";
 import { DriverInterface } from "../entities/driver";
-import { DriverData, Identification, identification, locationData, vehicleDatas} from "../utilities/interface";
+import { DriverData, driverImage, Identification, identification, locationData, vehicleDatas} from "../utilities/interface";
 
 const driverRepo=new driverRepository()
 
@@ -98,6 +98,25 @@ export default class registrationUseCase{
                 return ({message:"Success"})
             }else{
                 return ({message:"User not found"})
+            }
+        } catch (error) {
+            throw new Error((error as Error).message)
+        }
+    }
+
+    driverImage_update = async(driverData:driverImage)=>{
+        try {
+            const {driverId,driverImageUrl}=driverData
+            
+            const newDriverData={
+                driverId,
+                imageUrl:driverImageUrl
+            }
+            const response = await driverRepo.updateDriverImage(newDriverData)
+            if(response?.email){
+                return ({message:"Success"})
+            }else{
+                return({message:"User not found"})
             }
         } catch (error) {
             throw new Error((error as Error).message)

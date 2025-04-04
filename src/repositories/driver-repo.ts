@@ -1,5 +1,5 @@
 import Driver, { DriverInterface } from "../entities/driver";
-import {Identification, locationData, Registration, vehicleDatas} from "../utilities/interface";
+import {DriverImage, Identification, locationData, Registration, vehicleDatas} from "../utilities/interface";
 
 
 export default class driverRepository{
@@ -44,7 +44,6 @@ export default class driverRepository{
             return (driverData)
         } catch (error) {
             return (error as Error).message;
-
         }
     }
 
@@ -133,9 +132,27 @@ export default class driverRepository{
         } catch (error) {
             console.log(error);
             throw new Error((error as Error).message);
-
         }
     }
 
+    updateDriverImage=async(driverData : DriverImage)=>{
+        try {
+            const {driverId,imageUrl}=driverData
+            const response = await Driver.findByIdAndUpdate(
+                driverId,
+                {
+                    $set:{
+                        driverImage:imageUrl,
+                    },
+                },
+                {
+                    new:true,
+                }
+            )
+            return response
+        } catch (error) {
+            throw new Error((error as Error).message);
+        }
+    }
 
 }

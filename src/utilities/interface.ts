@@ -20,6 +20,11 @@ export interface DriverData{
   reffered_code:string,
 }
 
+export interface getDriverDetails{
+  id:mongodb.ObjectId,
+  status:string
+}
+
 
 
 export interface identification {
@@ -65,4 +70,10 @@ export interface locationData{
   driverId:mongodb.ObjectId,
   latitude:number,
   longitude:number
+}
+
+export interface updateDriverStatusRequset{
+  status:"Verified" | "Rejected" | "Block" | "UnBlock",
+  reason: string,
+  id:string,
 }
