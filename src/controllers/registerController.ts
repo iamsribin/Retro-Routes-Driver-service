@@ -4,6 +4,7 @@ import {
   DriverData,
   driverImage,
   identification,
+  insurancePoluiton,
   locationData,
   vehicleDatas,
 } from "../utilities/interface";
@@ -40,7 +41,11 @@ export default class registerController {
   };
 
   identificationUpdate = async (data: identification) => {
-    const { aadharID, licenseID, driverId, aadharImageUrl, licenseImageUrl } =
+    const { 
+      aadharID, licenseID, driverId, aadharFrontImage, 
+      aadharBackImage,licenseFrontImage,licenseBackImage,
+      licenseValidity
+    } =
       data;
     try {
       console.log("entered identificationUpdate register controller");
@@ -50,12 +55,13 @@ export default class registerController {
           driverId: new ObjectId(driverId),
           aadharID,
           licenseID,
-          aadharImageUrl: aadharImageUrl,
-          licenseImageUrl: licenseImageUrl,
+          aadharFrontImage,
+          aadharBackImage,
+          licenseFrontImage,
+          licenseBackImage,
+          licenseValidity: new Date(licenseValidity),
         };
-        const response = await registrationUseCase.identification_update(
-          driverData
-        );
+        const response = await registrationUseCase.identification_update(driverData);
         return response;
       } else {
         return { message: "something error" };
@@ -67,16 +73,7 @@ export default class registerController {
 
   vehicleUpdate = async (data: vehicleDatas) => {
     try {
-      const { registerationID, model, driverId, rcImageUrl, carImageUrl } = data;
-      const vehicleData = {
-        registerationID,
-        model,
-        driverId,
-        rcImageUrl,
-        carImageUrl,
-      };
-
-      const response = await registrationUseCase.vehicleUpdate(vehicleData);
+      const response = await registrationUseCase.vehicleUpdate(data);
       return response;
     } catch (error) {
       return (error as Error).message;
@@ -120,6 +117,32 @@ export default class registerController {
     } catch (error) {
         return((error as Error).message);
     }
+}
+vehicleInsurancePoluitonUpdate = async(data:insurancePoluiton)=>{
+console.log("data========data::",data);
+try {
+  const {driverId,pollutionImageUrl,insuranceImageUrl,
+    insuranceStartDate,insuranceExpiryDate,pollutionStartDate,
+    pollutionExpiryDate
+  }=data
+
+  const driverData = {
+    driverId:new ObjectId(driverId),
+    insuranceImageUrl,
+    insuranceStartDate:new Date(insuranceStartDate),
+    insuranceExpiryDate:new Date(insuranceExpiryDate),
+    pollutionImageUrl,
+    pollutionStartDate:new Date(pollutionStartDate),
+    pollutionExpiryDate:new Date(pollutionExpiryDate),
+  }
+  console.log("=====driver dara",driverData);
+
+  const response = await registrationUseCase.vehicleInsurancePoluitonUpdate(driverData);
+  return response
+} catch (error) {
+  console.log(error);
+  return((error as Error).message);
+}
 }
 
 }

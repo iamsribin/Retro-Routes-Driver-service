@@ -46,7 +46,6 @@ export interface DriverInterface extends Document {
     location: Location;
     license: License;
     account_status: string;
-    identification: boolean |string;
     vehicle_details: Vehicle;
     joiningDate: Date;
     wallet: {
@@ -75,13 +74,15 @@ export interface DriverInterface extends Document {
 }
 
 interface Aadhar {
-    id: string;
+    aadharId: string;
     image: string;
 }
 
 interface License {
-    id: string;
-    image: string;
+    licenseId: string;
+    licenseFrontImageUrl: string,       
+    licenseBackImageUrl:string,
+    licenseValidity:string
 }
 
 interface Location {
@@ -92,8 +93,18 @@ interface Location {
 interface Vehicle {
     registerationID: string;
     model: string;
-    rcImageUrl: string;
-    carImageUrl: string;
+    rcFrondImageUrl:string,
+    rcBackImageUrl:string,
+    carFrondImageUrl:string,
+    carBackImageUrl:string,
+    rcStartDate:string,
+    rcExpiryDate:Date,
+    insuranceImageUrl:string,
+    insuranceStartDate:Date,
+    insuranceExpiryDate:Date,
+    pollutionImageUrl:string,
+    pollutionStartDate:Date,
+    pollutionExpiryDate:Date,
 }
 
 const DriverSchema: Schema = new Schema({
@@ -127,7 +138,10 @@ const DriverSchema: Schema = new Schema({
         aadharId: {
             type: String,
         },
-        aadharImage: {
+        aadharFrontImageUrl: {
+            type: String,
+        },
+        aadharBackImageUrl: {
             type: String,
         },
     },
@@ -136,9 +150,15 @@ const DriverSchema: Schema = new Schema({
         licenseId: {
             type: String,
         },
-        licenseImage: {
+        licenseFrontImageUrl: {
+            type: String,
+        },       
+        licenseBackImageUrl: {
             type: String,
         },
+        licenseValidity:{
+            type: Date,
+        }
     },
 
     location: {
@@ -157,21 +177,47 @@ const DriverSchema: Schema = new Schema({
         model: {
             type: String,
         },
-        rcImageUrl: {
+        rcFrondImageUrl: {
             type: String,
         },
-        carImageUrl: {
+        rcBackImageUrl: {
             type: String,
+        },
+        carFrondImageUrl: {
+            type: String,   
+        },
+        carBackImageUrl: {
+            type: String,
+        },
+        rcStartDate:{
+            type:Date
+        },
+        rcExpiryDate:{
+            type:Date
+        },
+        insuranceImageUrl:{
+            type:String
+        },
+        insuranceStartDate:{
+            type:Date,
+        },
+        insuranceExpiryDate:{
+            type:Date,
+        },
+        pollutionImageUrl:{
+            type:String
+        },
+        pollutionStartDate:{
+            type:Date
+        },
+        pollutionExpiryDate:{
+            type:Date
         },
     },
 
     account_status: {
         type: String,
     },
-    identification: {
-        type: Boolean,
-    },
-
     wallet: {
         balance: {
             type: Number,

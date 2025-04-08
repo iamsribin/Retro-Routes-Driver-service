@@ -18,13 +18,12 @@ export default class AdminRepo {
   getDriverDetails = async (requestData: getDriverDetails) => {
     try {
 
-      const response = await Driver.findOne({
-        _id: requestData.id,
-        account_status: requestData.status,
-      });
+      const response = await Driver.findById(requestData.id);
 
       return response;
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   updateDriverAccountStatus = async(request: updateDriverStatusRequset) =>{

@@ -16,8 +16,7 @@ export default class loginUseCase{
                 if (                
                     response.account_status !== "Pending" &&
                     response.account_status !== "Rejected" &&
-                    response.account_status !== "Blocked"&&
-                    response.identification
+                    response.account_status !== "Blocked"
                     ) {
                         const token = await auth.createToken(response._id, '15m');
                         const refreshToken = await auth.createToken(response._id,'7d');
@@ -26,7 +25,7 @@ export default class loginUseCase{
                     return { message: "Rejected", driverId:response._id };
                 } else if (response.account_status === "Blocked") {
                     return { message: "Blocked" };
-                } else if (!response.identification) {
+                } else if (response.account_status === "Pending") {
                     return { message: "Incomplete registration", driverId:response._id };
                 } else {
                     return { message: "Not verified" };
@@ -45,8 +44,7 @@ export default class loginUseCase{
                 if (                
                     response.account_status !== "Pending" &&
                     response.account_status !== "Rejected" &&
-                    response.account_status !== "Blocked"&&
-                    response.identification
+                    response.account_status !== "Blocked"
                     ) {
                     const token = await auth.createToken(response._id,'15m');
                     const refreshToken = await auth.createToken(response._id,'7d');
@@ -55,9 +53,9 @@ export default class loginUseCase{
                     return { message: "Rejected", driverId:response._id };
                 } else if (response.account_status === "Blocked") {
                     return { message: "Blocked" };
-                } else if (!response.identification) {
-                    return { message: "Incomplete registration", driverId:response._id };
-                } else {
+                }else if(response.account_status === "Pending"){
+
+                }else {
                     return { message: "Not verified" };
                 }
             } else return { message: "No user found" };

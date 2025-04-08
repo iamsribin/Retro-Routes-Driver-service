@@ -20,7 +20,6 @@ export default class MessageHandler {
     switch (operation) {
       case "login-check":
         console.log("reach login-check");
-
         response = await loginController.checkLogin(data);
         break;
 
@@ -44,12 +43,16 @@ export default class MessageHandler {
         response = await registerController.updateDriverImage(data)
         break;
 
-      case "vehicle-image-update":
+      case "vehicle-image&RC-update":
         response=await registerController.vehicleUpdate(data)
         break;
 
+    case "vehicle-insurance&polution-update":
+        response = await registerController.vehicleInsurancePoluitonUpdate(data)
+        break;
+
       case "driver-location":
-        response=await registerController.location(data)
+        response=await registerController.location(data);
         break;
           
       case "get-admin-pending-drivers":
@@ -71,6 +74,7 @@ export default class MessageHandler {
       case "admin-update-driver-account-status":
         response = await adminController.updateDriverAccountStatus(data)
         break;
+
       default:
         response = "Request-key notfound";
         break;

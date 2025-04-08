@@ -1,5 +1,5 @@
 import Driver, { DriverInterface } from "../entities/driver";
-import {DriverImage, Identification, locationData, Registration, vehicleDatas} from "../utilities/interface";
+import {DriverImage, identification, insurancePoluiton, locationData, Registration, vehicleDatas} from "../utilities/interface";
 
 
 export default class driverRepository{
@@ -47,22 +47,30 @@ export default class driverRepository{
         }
     }
 
-    updateIdentification=async(driverData:Identification)=>{
+    updateIdentification=async(driverData:identification)=>{
         try {
             console.log("driverData in repo",driverData);
             
-            const {driverId,aadharID,licenseID,aadharImageUrl,licenseImageUrl}=driverData 
+            const {
+                driverId,aadharID,licenseID,aadharFrontImage,
+                aadharBackImage,licenseFrontImage,licenseBackImage,
+                licenseValidity
+            }=driverData 
             const response=await Driver.findByIdAndUpdate(
                 driverId,
                 {
                     $set:{
                         aadhar:{
                             aadharId:aadharID,
-                            aadharImage:aadharImageUrl,
+                            aadharFrontImageUrl:aadharFrontImage,
+                            aadharBackImageUrl:aadharBackImage
+
                         },
                         license:{
                             licenseId:licenseID,
-                            licenseImage:licenseImageUrl,
+                            licenseFrontImageUrl:licenseFrontImage,
+                            licenseBackImageUrl:licenseBackImage,
+                            licenseValidity:licenseValidity,
                         },
                     },
                 },
@@ -81,30 +89,32 @@ export default class driverRepository{
 
     vehicleUpdate=async(vehicleData:vehicleDatas)=>{
         try {
-            const {registerationID,
-                model,
-                driverId,
-                rcImageUrl,
-                carImageUrl}=vehicleData
-                const response=await Driver.findByIdAndUpdate(driverId,{
-                    $set:{
-                        vehicle_details:{
-                            registerationID,
-                            model,
-                            rcImageUrl,
-                            carImageUrl
-                        }
-                    }
-                },
-                {
-                    new:true
+            const { 
+                registerationID, model, driverId,
+                rcFrondImageUrl, rcBackImageUrl,carFrondImageUrl,
+                carBackImageUrl,rcStartDate,
+                rcExpiryDate 
+              } = vehicleData;
+
+              const response = await Driver.findByIdAndUpdate(driverId, {
+                $set: {
+                  'vehicle_details.registerationID': registerationID,
+                  'vehicle_details.model': model,
+                  'vehicle_details.rcFrondImageUrl': rcFrondImageUrl,
+                  'vehicle_details.rcBackImageUrl': rcBackImageUrl,
+                  'vehicle_details.carFrondImageUrl': carFrondImageUrl,
+                  'vehicle_details.carBackImageUrl': carBackImageUrl,
+                  'vehicle_details.rcStartDate': rcStartDate,
+                  'vehicle_details.rcExpiryDate': rcExpiryDate
                 }
-            )
+              }, { new: true });
             
             return response
         } catch (error) {
+            console.log(error);
+            
             throw new Error((error as Error).message);
-
+ 
         }
     }
 
@@ -153,6 +163,35 @@ export default class driverRepository{
         } catch (error) {
             throw new Error((error as Error).message);
         }
+    }
+
+    vehicleInsurancePoluitonUpdate= async(driverData: insurancePoluiton)=>{
+      try {
+
+        const {
+            driverId,
+          insuranceImageUrl,
+          insuranceStartDate,
+          insuranceExpiryDate,
+          pollutionImageUrl,
+          pollutionStartDate,
+          pollutionExpiryDate
+        } = driverData;
+        const response = await Driver.findByIdAndUpdate(driverId, {
+            $set: {
+              'vehicle_details.insuranceImageUrl': insuranceImageUrl,
+              'vehicle_details.insuranceStartDate': insuranceStartDate,
+              'vehicle_details.insuranceExpiryDate': insuranceExpiryDate,
+              'vehicle_details.pollutionImageUrl': pollutionImageUrl,
+              'vehicle_details.pollutionStartDate': pollutionStartDate,
+              'vehicle_details.pollutionExpiryDate': pollutionExpiryDate,
+            }
+          }, { new: true });
+
+    return response;
+      } catch (error) {
+        throw new Error((error as Error).message);
+      }
     }
 
 }

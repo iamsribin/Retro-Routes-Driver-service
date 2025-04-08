@@ -2,7 +2,7 @@ import { refferalCode } from "../utilities/referralCode";
 import bcrypt from "../services/bcrypt";
 import driverRepository from "../repositories/driver-repo";
 import { DriverInterface } from "../entities/driver";
-import { DriverData, driverImage, Identification, identification, locationData, vehicleDatas} from "../utilities/interface";
+import { DriverData, driverImage, Identification, identification, insurancePoluiton, locationData, vehicleDatas} from "../utilities/interface";
 
 const driverRepo=new driverRepository()
 
@@ -31,37 +31,43 @@ export default class registrationUseCase{
     }
     checkDriver = async(mobile:number)=>{
         try {
-            const response = await driverRepo.findDriver(mobile) as DriverInterface
-            console.log("respose",response);
-            
+            const response = (await driverRepo.findDriver(mobile)) as DriverInterface;
+            console.log("checkDriver response=============", response);
+        
             if (response) {
-            // Get the first driver from the array
-                if (response.identification) {
-                    return { message: "Driver login" };
-                } else {
-                    return { message: "Driver must fill documents", driverId: response._id };
-                }
-            
-        }
-            return "Driver not registered";
+              if (!response.aadhar || !response.aadhar.aadharId) {
+                return { message: "Document is pending", driverId: response._id };
+              }
+        
+              if (!response.driverImage) {
+                return { message: "Driver image is pending", driverId: response._id };
+              }
+        
+              if (!response.vehicle_details || !response.vehicle_details.registerationID) {
+                return { message: "Vehicle details are pending", driverId: response._id };
+              }
+              if (!response.vehicle_details.pollutionImageUrl || !response.vehicle_details.insuranceImageUrl || !response.vehicle_details.insuranceExpiryDate) {
+                return { message: "Insurance is pending", driverId: response._id };
+              }
+              if (!response.location || !response.location.latitude || !response.location.longitude) {
+                return { message: "Location is pending", driverId: response._id };
+              }
+        
+              return { message: "Driver login" };
+            }
+        
+            return { message: "Driver not registered" };
         } catch (error) {
             return { message: (error as Error).message };
         }
     }
 
     identification_update = async(driverData:identification)=>{
-        const {driverId,aadharID,licenseID,aadharImageUrl,licenseImageUrl}=driverData
+
         try {      
             console.log("enterfd identification_update");
                   
-            const newDriverData:Identification={
-                driverId:driverId,
-                aadharID,
-                licenseID,
-                aadharImageUrl,
-                licenseImageUrl
-            };
-            const response=await driverRepo.updateIdentification(newDriverData)
+            const response=await driverRepo.updateIdentification(driverData)
             if(response?.email){
                 return ({message:"Success"})
             }else{
@@ -75,7 +81,7 @@ export default class registrationUseCase{
 
     vehicleUpdate = async(vehicleData :vehicleDatas )=>{
         try {
-            const response=await driverRepo.vehicleUpdate(vehicleData)
+            const response=await driverRepo.vehicleUpdate(vehicleData);
 
             if(response)
                 {
@@ -121,6 +127,19 @@ export default class registrationUseCase{
         } catch (error) {
             throw new Error((error as Error).message)
         }
+    }
+
+    vehicleInsurancePoluitonUpdate = async(driverData:insurancePoluiton)=>{
+      try {
+        const response = await driverRepo.vehicleInsurancePoluitonUpdate(driverData);
+        if(response?.email){
+            return ({message:"Success"})
+        }else{
+            return({message:"User not found"})
+        }
+      } catch (error) {
+        throw new Error((error as Error).message)
+      }
     }
 
 }

@@ -22,7 +22,7 @@ export interface DriverData{
 
 export interface getDriverDetails{
   id:mongodb.ObjectId,
-  status:string
+  // status:string
 }
 
 
@@ -31,8 +31,11 @@ export interface identification {
   driverId: mongodb.ObjectId;
   aadharID: string;
   licenseID: string;
-  licenseImageUrl: string;
-  aadharImageUrl: string;
+  aadharFrontImage: string;
+  aadharBackImage: string;
+  licenseFrontImage:string;
+  licenseBackImage:string;
+  licenseValidity:Date;
 }
 
 export interface Identification {
@@ -62,8 +65,22 @@ export interface vehicleDatas{
   registerationID:string,
   model:string,
   driverId:mongodb.ObjectId,
-  rcImageUrl:string,
-  carImageUrl:string
+  rcFrondImageUrl:string,
+  rcBackImageUrl:string,
+  carFrondImageUrl:string,
+  carBackImageUrl:string,
+  rcStartDate:string,
+  rcExpiryDate:Date,
+}
+
+export interface insurancePoluiton{
+  driverId:mongodb.ObjectId,
+  insuranceImageUrl:string,
+  insuranceStartDate:Date,
+  insuranceExpiryDate:Date,
+  pollutionImageUrl:string,
+  pollutionStartDate:Date,
+  pollutionExpiryDate:Date,
 }
 
 export interface locationData{

@@ -19,12 +19,14 @@ export default class AdminController {
 
   getDriverDetails = async (data: getDriverDetails) => {
     try {
-      const { id, status } = data;
+      const { id } = data;
       const requestData = {
         id: new ObjectId(id),
-        status:status,
       };      
-      const response = await adminUsecases.getDriverDetails(requestData);      
+      const response = await adminUsecases.getDriverDetails(requestData); 
+      
+      console.log("driver details details",response);
+      
       return response
     } catch (error) {
       console.log(error); 
