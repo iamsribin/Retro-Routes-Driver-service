@@ -11,12 +11,10 @@ export default class loginUseCase{
     loginCheckDriver= async (mobile: number) => {
         try {
             const response = await driverRepo.findDriver(mobile) as DriverInterface
-            console.log(response)
+            console.log("response===========",response.account_status);
             if (response) {
                 if (                
-                    response.account_status !== "Pending" &&
-                    response.account_status !== "Rejected" &&
-                    response.account_status !== "Blocked"
+                    response.account_status ==="Good"
                     ) {
                         const token = await auth.createToken(response._id, '15m');
                         const refreshToken = await auth.createToken(response._id,'7d');
@@ -26,9 +24,9 @@ export default class loginUseCase{
                 } else if (response.account_status === "Blocked") {
                     return { message: "Blocked" };
                 } else if (response.account_status === "Pending") {
-                    return { message: "Incomplete registration", driverId:response._id };
-                } else {
-                    return { message: "Not verified" };
+                    return { message: "Pending", driverId:response._id };
+                } else if(response.account_status === "Incomplete"){
+                    return { message: "Incomplete" };
                 }
             } else return { message: "No user found" };
             

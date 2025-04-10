@@ -12,7 +12,8 @@ export default class driverRepository{
                 password:DriverData.password,
                 referral_code:DriverData.referral_code,
                 joiningDate:Date.now(),
-                identification:false
+                identification:false,
+                account_status:"Incomplet"
             })
             const saveDriver : DriverInterface=await newDriver.save() as DriverInterface
             return saveDriver

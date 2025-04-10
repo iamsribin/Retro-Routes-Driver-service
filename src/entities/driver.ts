@@ -217,6 +217,7 @@ const DriverSchema: Schema = new Schema({
 
     account_status: {
         type: String,
+        enum:["Good","Rejected","Blocked","Pending","Incomplete"]
     },
     wallet: {
         balance: {
