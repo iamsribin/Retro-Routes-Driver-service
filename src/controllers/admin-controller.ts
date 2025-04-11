@@ -24,9 +24,7 @@ export default class AdminController {
         id: new ObjectId(id),
       };      
       const response = await adminUsecases.getDriverDetails(requestData); 
-      
-      console.log("driver details details",response);
-      
+            
       return response
     } catch (error) {
       console.log(error); 
@@ -37,14 +35,13 @@ export default class AdminController {
 
   updateDriverAccountStatus = async (data:updateDriverStatusRequset)=>{
 try {
-  console.log(data);
-  
+  console.log("updateDriverAccountStatus",data);
   const response = await adminUsecases.updateDriverAccountStatus(data);
   console.log("updateDriverAccountStatus res",response);
   return response
   
 } catch (error) {
-  console.log();
+  console.log(error);
   throw new Error((error as Error).message);
 }
   }

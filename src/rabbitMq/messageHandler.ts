@@ -78,10 +78,7 @@ export default class MessageHandler {
       default:
         response = "Request-key notfound";
         break;
-    }
-
-    console.log("message handiser",response);
-    
+    }    
     // Produce the response back to the client
     await rabbitClient.produce(response, correlationId, replyTo);
   }

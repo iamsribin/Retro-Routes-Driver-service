@@ -1,4 +1,6 @@
+import { ObjectId, Types } from "mongoose";
 import Driver, { DriverInterface } from "../entities/driver";
+import Resubmission, { ResubmissionInterface } from "../entities/resubmission";
 import { getDriverDetails, updateDriverStatusRequset } from "../utilities/interface";
 
 export default class AdminRepo {
@@ -28,12 +30,14 @@ export default class AdminRepo {
 
   updateDriverAccountStatus = async(request: updateDriverStatusRequset) =>{
 try {
-  const account_status = request.status ==="Verified" || request.status ==="UnBlock" ? "Good" : request.status
+  
+  const account_status = request.status ==="Verified" || request.status ==="UnBlock" ? "Good" : request.status;
+  
   const driverData:DriverInterface=await Driver.findByIdAndUpdate(
     request.id,
     {
         $set:{
-            account_status
+            account_status,
         }
     },{
         new:true
@@ -43,8 +47,23 @@ try {
 return driverData
 
 } catch (error) {
-  console.log(error);
+  console.log("updateDriverAccountStatus error=-==",error);
   throw new Error((error as Error).message)
 }
+  }
+
+  addResubmissionFields = async (data: { driverId: Types.ObjectId; fields: ResubmissionInterface["fields"] }) => {
+    try {
+      const resubmission = await Resubmission.findOneAndUpdate(
+        { driverId: data.driverId },
+        { $set: { driverId: data.driverId }, $addToSet: { fields: { $each: data.fields } } },
+        { upsert: true, new: true }
+      ) as ResubmissionInterface;
+  
+      return resubmission;
+    } catch (error) {
+      console.log(error);
+      throw new Error((error as Error).message);
+    }
   }
 }

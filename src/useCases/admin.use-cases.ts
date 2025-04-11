@@ -1,7 +1,9 @@
+import mongoose from "mongoose";
 import { DriverInterface } from "../entities/driver";
 import AdminRepo from "../repositories/admin-repo";
 import { sendMail } from "../services/nodeMailer";
 import { getDriverDetails, updateDriverStatusRequset } from "../utilities/interface";
+import { ResubmissionInterface } from "../entities/resubmission";
 
 const adminRepo = new AdminRepo()
 export default class AdminUsecases{
@@ -21,13 +23,21 @@ export default class AdminUsecases{
         } catch (error) {
             console.log(error);  
             throw new Error((error as Error).message);
-  
         }
     }
 
     updateDriverAccountStatus = async (request: updateDriverStatusRequset)=>{
-        try{
+        try{            
+            if (request.status === "Rejected" && request.fields) {
+                const resubmissionData = {
+                  driverId: new mongoose.Types.ObjectId(request.id),
+                  fields: request.fields as ResubmissionInterface["fields"]
+                };
+                await adminRepo.addResubmissionFields(resubmissionData);
+              }
+
         const response=await adminRepo.updateDriverAccountStatus(request) as DriverInterface
+
         if(response?.email){
             let subject;
             let text;

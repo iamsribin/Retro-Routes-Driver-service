@@ -93,4 +93,5 @@ export interface updateDriverStatusRequset{
   status:"Verified" | "Rejected" | "Block" | "UnBlock",
   reason: string,
   id:string,
+  fields?:string[]
 }

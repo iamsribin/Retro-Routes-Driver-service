@@ -1,18 +1,18 @@
-import mongoose, { Document, Schema, Types } from "mongoose";
+import mongoose, { Document, ObjectId, Schema, Types } from "mongoose";
 
-interface DriverInterface extends Document {
-  driverId: Types.ObjectId;
+export interface ResubmissionInterface extends Document {
+  driverId: ObjectId;
   fields: (
     | "rc"
     | "model"
     | "registerationID"
     | "carImage"
     | "insurance"
-    | "polution"
+    | "pollution"
     | "location"
     | "license"
     | "aadhar"
-    | "driverImge"
+    | "driverImage"
   )[];
 }
 
@@ -20,6 +20,7 @@ const ResubmissionSchema: Schema = new Schema({
   driverId: {
     type: Schema.Types.ObjectId,
     required: true,
+    unique:true,
     ref: "Drivers", 
   },
   fields: [
@@ -31,15 +32,15 @@ const ResubmissionSchema: Schema = new Schema({
         "registerationID",
         "carImage",
         "insurance",
-        "polution",
+        "pollution",
         "location",
         "license",
         "aadhar",
-        "driverImge",
+        "driverImage",
       ],
     },
   ],
 });
 
-const driverModel = mongoose.model<DriverInterface>("resubmission", ResubmissionSchema);
-export default driverModel;
+const resubmissionModel = mongoose.model<ResubmissionInterface>("resubmission", ResubmissionSchema);
+export default resubmissionModel;
