@@ -48,7 +48,6 @@ export default class registerController {
     } =
       data;
     try {
-      console.log("entered identificationUpdate register controller");
 
       if (driverId) {
         const driverData = {
@@ -119,7 +118,6 @@ export default class registerController {
     }
 }
 vehicleInsurancePoluitonUpdate = async(data:insurancePoluiton)=>{
-console.log("data========data::",data);
 try {
   const {driverId,pollutionImageUrl,insuranceImageUrl,
     insuranceStartDate,insuranceExpiryDate,pollutionStartDate,
@@ -135,7 +133,6 @@ try {
     pollutionStartDate:new Date(pollutionStartDate),
     pollutionExpiryDate:new Date(pollutionExpiryDate),
   }
-  console.log("=====driver dara",driverData);
 
   const response = await registrationUseCase.vehicleInsurancePoluitonUpdate(driverData);
   return response
@@ -144,5 +141,29 @@ try {
   return((error as Error).message);
 }
 }
+
+getResubmissionDocuments = async(id:string)=>{
+try {
+  const response = await registrationUseCase.getResubmissionDocuments(id);
+  console.log("getResubmissionDocuments controller==",response);
+  return response
+  
+} catch (error) {
+  console.log(error);
+  
+  return((error as Error).message);
+
+}
+}
+postResubmissionDocuments = async (data: any) => {
+  try {
+    const response = await registrationUseCase.postResubmissionDocuments(data);
+    console.log("postResubmissionDocuments controller==", response);
+    return response;
+  } catch (error) {
+    console.error("Error in postResubmissionDocuments:", error);
+    return { message: (error as Error).message };
+  }
+};
 
 }

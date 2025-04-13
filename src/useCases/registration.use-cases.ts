@@ -3,6 +3,8 @@ import bcrypt from "../services/bcrypt";
 import driverRepository from "../repositories/driver-repo";
 import { DriverInterface } from "../entities/driver";
 import { DriverData, driverImage, Identification, identification, insurancePoluiton, locationData, vehicleDatas} from "../utilities/interface";
+import { ObjectId } from "mongodb";
+import mongoose from "mongoose";
 
 const driverRepo=new driverRepository()
 
@@ -141,5 +143,110 @@ export default class registrationUseCase{
         throw new Error((error as Error).message)
       }
     }
+
+    getResubmissionDocuments = async(id:string) =>{
+        try {
+            const response = await driverRepo.findResubmissonData(id);
+            return response
+        } catch (error) {
+            throw new Error((error as Error).message)
+        }
+    }
+
+    postResubmissionDocuments = async (data: any) => {
+        try {
+          const { driverId, ...updateData } = data;
+    
+          if (!mongoose.Types.ObjectId.isValid(driverId)) {
+            throw new Error("Invalid driver ID");
+          }
+    
+          const resubmission = await driverRepo.findResubmissonData(driverId);
+          if (!resubmission) {
+            throw new Error("No resubmission data found for driver");
+          }
+    
+          const fields = resubmission.fields;
+    
+          const update: any = { account_status: "Pending" };
+    
+          const addToUpdate = (field: string, schemaPath: string, value: any) => {
+            if (value !== undefined && value !== null) {
+              update[`${schemaPath}`] = value;
+            }
+          };
+    
+          fields.forEach((field: string) => {
+            switch (field) {
+              case "aadhar":
+                addToUpdate("aadharID", "aadhar.aadharId", updateData.aadharID);
+                addToUpdate("aadharFrontImage", "aadhar.aadharFrontImageUrl", updateData.aadharFrontImage);
+                addToUpdate("aadharBackImage", "aadhar.aadharBackImageUrl", updateData.aadharBackImage);
+                break;
+    
+              case "license":
+                addToUpdate("licenseID", "license.licenseId", updateData.licenseID);
+                addToUpdate("licenseFrontImage", "license.licenseFrontImageUrl", updateData.licenseFrontImage);
+                addToUpdate("licenseBackImage", "license.licenseBackImageUrl", updateData.licenseBackImage);
+                addToUpdate("licenseValidity", "license.licenseValidity", updateData.licenseValidity);
+                break;
+    
+              case "registerationID":
+                addToUpdate("registerationID", "vehicle_details.registerationID", updateData.registerationID);
+                break;
+    
+              case "model":
+                addToUpdate("model", "vehicle_details.model", updateData.model);
+                break;
+    
+              case "rc":
+                addToUpdate("rcFrontImage", "vehicle_details.rcFrondImageUrl", updateData.rcFrontImage);
+                addToUpdate("rcBackImage", "vehicle_details.rcBackImageUrl", updateData.rcBackImage);
+                break;
+    
+              case "carImage":
+                addToUpdate("carFrontImage", "vehicle_details.carFrondImageUrl", updateData.carFrontImage);
+                addToUpdate("carBackImage", "vehicle_details.carBackImageUrl", updateData.carBackImage);
+                break;
+    
+              case "insurance":
+                addToUpdate("insuranceImage", "vehicle_details.insuranceImageUrl", updateData.insuranceImage);
+                addToUpdate("insuranceStartDate", "vehicle_details.insuranceStartDate", updateData.insuranceStartDate);
+                addToUpdate("insuranceExpiryDate", "vehicle_details.insuranceExpiryDate", updateData.insuranceExpiryDate);
+                break;
+    
+              case "pollution":
+                addToUpdate("pollutionImage", "vehicle_details.pollutionImageUrl", updateData.pollutionImage);
+                addToUpdate("pollutionStartDate", "vehicle_details.pollutionStartDate", updateData.pollutionStartDate);
+                addToUpdate("pollutionExpiryDate", "vehicle_details.pollutionExpiryDate", updateData.pollutionExpiryDate);
+                break;
+    
+              case "driverImage":
+                addToUpdate("driverImage", "driverImage", updateData.driverImage);
+                break;
+    
+              case "location":
+                addToUpdate("latitude", "location.latitude", updateData.latitude);
+                addToUpdate("longitude", "location.longitude", updateData.longitude);
+                break;
+            }
+          });
+    console.log("👋🏿❤️update",update);
+    
+          const updatedDriver = await driverRepo.updateDriver(driverId, update);
+          if (!updatedDriver) {
+            throw new Error("Failed to update driver document");
+          }
+    
+          await driverRepo.deleteResubmission(driverId);
+    
+          return { message: "Success", driverId };
+        } catch (error) {
+            console.log(error);
+            
+          throw new Error((error as Error).message);
+        }
+      };
+
 
 }

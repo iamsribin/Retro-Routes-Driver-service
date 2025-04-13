@@ -11,7 +11,7 @@ export default class loginUseCase{
     loginCheckDriver= async (mobile: number) => {
         try {
             const response = await driverRepo.findDriver(mobile) as DriverInterface
-            console.log("response===========",response.account_status);
+            console.log("response===========",response?.account_status);
             if (response) {
                 if (                
                     response.account_status ==="Good"
@@ -21,7 +21,7 @@ export default class loginUseCase{
                     return { message: "Success", name: response.name, refreshToken,token, _id:response._id };
                 } else if (response.account_status === "Rejected") {
                     return { message: "Rejected", driverId:response._id };
-                } else if (response.account_status === "Blocked") {
+                } else if (response.account_status === "Block") {
                     return { message: "Blocked" };
                 } else if (response.account_status === "Pending") {
                     return { message: "Pending", driverId:response._id };

@@ -54,6 +54,13 @@ export default class MessageHandler {
       case "driver-location":
         response=await registerController.location(data);
         break;
+      
+      case "get-resubmission-documents":
+        response = await registerController.getResubmissionDocuments(data)
+        break;
+      case "post-resubmission-documents":
+        response = await registerController.postResubmissionDocuments(data);
+        break;
           
       case "get-admin-pending-drivers":
          response = await adminController.getDriversByAccountStatus(data)
