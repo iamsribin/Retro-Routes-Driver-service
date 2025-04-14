@@ -1,8 +1,12 @@
 import { Channel, ConsumeMessage } from "amqplib";
 import MessageHandler from './messageHandler'
 
+
 export default class Consumer {
-  constructor(private channel: Channel, private rpcQueue: string) {}
+  private messageHandler:MessageHandler;
+  constructor(private channel: Channel, private rpcQueue: string, messageHandler:MessageHandler) {
+ this.messageHandler = messageHandler;
+  }
 
   async consumeMessages() {
     console.log("Ready to consume-order messages...");
@@ -19,7 +23,7 @@ export default class Consumer {
           }
          
         if (message.content) { 
-          await MessageHandler.handle(
+           await this.messageHandler.handle(
             operation,
             JSON.parse(message.content.toString()),
             correlationId,

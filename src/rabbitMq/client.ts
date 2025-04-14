@@ -2,9 +2,27 @@ import { Channel, Connection, connect } from "amqplib";
 import rabbitMq from "../config/rabbitMq";
 import Consumer from './consumer'
 import Producer from './producer'
+import RegisterControl from "../controllers/registerController";
+import LoginControl from "../controllers/loginController";
+import AdminController from "../controllers/admin-controller";
+import RegistrationUseCases from "../useCases/registration.use-cases";
+import LoginUseCases from "../useCases/login.use-cases";
+import AdminUsecases from "../useCases/admin.use-cases";
+import DriverReposiory from "../repositories/driver-repo";
+import AdminReposiory from "../repositories/admin-repo";
+import MessageHandler from "./messageHandler";
+
+  const driverReposiory = new DriverReposiory();
+  const adminReposiory = new AdminReposiory();
+  const loginUseCase = new LoginUseCases(driverReposiory)
+  const registrationUseCase = new RegistrationUseCases(driverReposiory);
+  const adminUsecases = new AdminUsecases(adminReposiory);
+  const loginController = new LoginControl(loginUseCase,registrationUseCase);
+  const registerController = new RegisterControl(registrationUseCase);
+  const adminController = new AdminController(adminUsecases);
+  const messageHandler = new MessageHandler(loginController,registerController,adminController);
 
 class RabbitMQClient {
-    private constructor() {}
     private static instance: RabbitMQClient;
     private isInitialized = false;
   
@@ -42,7 +60,7 @@ class RabbitMQClient {
             );
       
             this.producer = new Producer(this.producerChannel);
-            this.consumer = new Consumer(this.consumerChannel, rpcQueue);
+            this.consumer = new Consumer(this.consumerChannel, rpcQueue,messageHandler);
       
             this.consumer.consumeMessages();
       

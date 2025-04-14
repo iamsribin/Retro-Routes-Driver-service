@@ -1,15 +1,18 @@
-import { DriverInterface } from "../entities/driver";
+import { DriverInterface } from "../entities/driver.interface";
 import AdminUsecases from "../useCases/admin.use-cases";
 import { getDriverDetails, updateDriverStatusRequset } from "../utilities/interface";
 import { ObjectId } from "mongodb";
 
-
-const adminUsecases = new AdminUsecases();
-
 export default class AdminController {
+  private adminUsecases : AdminUsecases;
+
+  constructor(adminUsecases: AdminUsecases){
+    this.adminUsecases = adminUsecases;
+  }
+  
   getDriversByAccountStatus = async (account_status:string): Promise<DriverInterface | {}> => {
     try {      
-      const response: DriverInterface | {} = (await adminUsecases.findDrivers(account_status)) as DriverInterface | {};
+      const response: DriverInterface | {} = (await this.adminUsecases.findDrivers(account_status)) as DriverInterface | {};
       
       return response;
     } catch (error) {
@@ -23,7 +26,7 @@ export default class AdminController {
       const requestData = {
         id: new ObjectId(id),
       };      
-      const response = await adminUsecases.getDriverDetails(requestData); 
+      const response = await this.adminUsecases.getDriverDetails(requestData); 
             
       return response
     } catch (error) {
@@ -36,7 +39,7 @@ export default class AdminController {
   updateDriverAccountStatus = async (data:updateDriverStatusRequset)=>{
 try {
   console.log("updateDriverAccountStatus",data);
-  const response = await adminUsecases.updateDriverAccountStatus(data);
+  const response = await this.adminUsecases.updateDriverAccountStatus(data);
   console.log("updateDriverAccountStatus res",response);
   return response
   

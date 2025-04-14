@@ -1,14 +1,20 @@
-import loginUseCases from "../useCases/login.use-cases";
-import registrationUseCases from "../useCases/registration.use-cases";
+import LoginUseCases from "../useCases/login.use-cases";
+import RegistrationUseCases from "../useCases/registration.use-cases";
 
-const loginUseCase = new loginUseCases();
-const registrationUseCase = new registrationUseCases();
 
 export default class loginController {
+  private loginUseCase: LoginUseCases;
+  private registrationUseCase: RegistrationUseCases;
+
+  constructor(loginUseCase:LoginUseCases, registrationUseCase:RegistrationUseCases){
+    this.loginUseCase = loginUseCase;
+    this.registrationUseCase = registrationUseCase;
+  }
+
   checkLogin = async (data: { mobile: number }) => {
     try {
       const { mobile } = data;
-      const response = await loginUseCase.loginCheckDriver(mobile);
+      const response = await this.loginUseCase.loginCheckDriver(mobile);
       return response;
     } catch (error) {
       return { error: (error as Error).message };
@@ -18,7 +24,7 @@ export default class loginController {
   checkDriver = async (data: { mobile: number }) => {
     const { mobile } = data;
     try {
-      const response = await registrationUseCase.checkDriver(mobile);
+      const response = await this.registrationUseCase.checkDriver(mobile);
       return response;
     } catch (error) {
       return { error: (error as Error).message };
@@ -28,7 +34,7 @@ export default class loginController {
   checkGoogleLoginDriver = async (data: { email: string }) => {
     try {
       const { email } = data;
-      const response = await loginUseCase.checkGoogleLoginDriver(email);
+      const response = await this.loginUseCase.checkGoogleLoginDriver(email);
       return response;
     } catch (error) {
       return { error: (error as Error).message };

@@ -1,15 +1,21 @@
 import mongoose from "mongoose";
-import { DriverInterface } from "../entities/driver";
 import AdminRepo from "../repositories/admin-repo";
 import { sendMail } from "../services/nodeMailer";
 import { getDriverDetails, updateDriverStatusRequset } from "../utilities/interface";
-import { ResubmissionInterface } from "../entities/resubmission";
+import { ResubmissionInterface } from "../entities/resubmission.model";
+import { DriverInterface } from "../entities/driver.interface";
 
-const adminRepo = new AdminRepo()
+
 export default class AdminUsecases{
+    private adminRepo : AdminRepo;
+
+    constructor(adminRepo:AdminRepo){
+    this.adminRepo = adminRepo;
+    }
+    
     async findDrivers(account_status:string):Promise<DriverInterface | string| {}>{
        try {
-        const result = await adminRepo.getDriversByAccountStatus(account_status);
+        const result = await this.adminRepo.getDriversByAccountStatus(account_status);
         return result
        } catch (error) {
         throw new Error((error as Error).message)
@@ -18,7 +24,7 @@ export default class AdminUsecases{
 
     async getDriverDetails(requestData:getDriverDetails){
         try {
-            const response = adminRepo.getDriverDetails(requestData)        
+            const response =  this.adminRepo.getDriverDetails(requestData)        
             return response
         } catch (error) {
             console.log(error);  
@@ -33,10 +39,10 @@ export default class AdminUsecases{
                   driverId: new mongoose.Types.ObjectId(request.id),
                   fields: request.fields as ResubmissionInterface["fields"]
                 };
-                await adminRepo.addResubmissionFields(resubmissionData);
+                await  this.adminRepo.addResubmissionFields(resubmissionData);
               }
 
-        const response=await adminRepo.updateDriverAccountStatus(request) as DriverInterface
+        const response=await  this.adminRepo.updateDriverAccountStatus(request) as DriverInterface
 
         if(response?.email){
             let subject;

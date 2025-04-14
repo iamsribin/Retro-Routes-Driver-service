@@ -1,18 +1,23 @@
 import { refferalCode } from "../utilities/referralCode";
 import bcrypt from "../services/bcrypt";
-import driverRepository from "../repositories/driver-repo";
-import { DriverInterface } from "../entities/driver";
-import { DriverData, driverImage, Identification, identification, insurancePoluiton, locationData, vehicleDatas} from "../utilities/interface";
-import { ObjectId } from "mongodb";
+import DriverRepository from "../repositories/driver-repo";
+import { DriverData, driverImage, identification, insurancePoluiton, locationData, vehicleDatas} from "../utilities/interface";
 import mongoose from "mongoose";
+import { DriverInterface } from "../entities/driver.interface";
 
-const driverRepo=new driverRepository()
 
 export default class registrationUseCase{
+
+  private driverRepo : DriverRepository;
+
+  constructor(driverRepo : DriverRepository){
+  this.driverRepo = driverRepo;
+  }
+
     register=async(DriverData:DriverData)=>{
         try {
     
-            const {name ,email,mobile ,password ,reffered_code}=DriverData
+            const {name ,email,mobile ,password }=DriverData
             const referral_code=refferalCode()
             const hashedPassword=await bcrypt.securePassword(password)
             const newDriver={
@@ -23,17 +28,23 @@ export default class registrationUseCase{
                 referral_code
                 
             }
-            const response=await driverRepo.saveDriver(newDriver)
+            console.log("newDriver",newDriver);
+            
+            const response=await this.driverRepo.saveDriver(newDriver)
             if(typeof response !== "string" && response.email){
                 return {message: "Success",driverId:response._id};
             }
-        } catch (error) {
+            console.log(response);
             
+          //  return response
+
+        } catch (error) {
+              return { message: (error as Error).message };
         }
     }
     checkDriver = async(mobile:number)=>{
         try {
-            const response = (await driverRepo.findDriver(mobile)) as DriverInterface;
+            const response = (await this.driverRepo.findDriver(mobile)) as DriverInterface;
             console.log("checkDriver response=============", response);
         
             if (response) {
@@ -69,7 +80,7 @@ export default class registrationUseCase{
         try {      
             console.log("enterfd identification_update");
                   
-            const response=await driverRepo.updateIdentification(driverData)
+            const response=await this.driverRepo.updateIdentification(driverData)
             if(response?.email){
                 return ({message:"Success"})
             }else{
@@ -83,7 +94,7 @@ export default class registrationUseCase{
 
     vehicleUpdate = async(vehicleData :vehicleDatas )=>{
         try {
-            const response=await driverRepo.vehicleUpdate(vehicleData);
+            const response=await this.driverRepo.vehicleUpdate(vehicleData);
 
             if(response)
                 {
@@ -101,7 +112,7 @@ export default class registrationUseCase{
     location_update = async(data:locationData)=>{
         try {
             
-            const response=await driverRepo.locationUpdate(data)
+            const response=await this.driverRepo.locationUpdate(data)
             if(response?.email){
                 return ({message:"Success"})
             }else{
@@ -120,7 +131,7 @@ export default class registrationUseCase{
                 driverId,
                 imageUrl:driverImageUrl
             }
-            const response = await driverRepo.updateDriverImage(newDriverData)
+            const response = await this.driverRepo.updateDriverImage(newDriverData)
             if(response?.email){
                 return ({message:"Success"})
             }else{
@@ -133,7 +144,7 @@ export default class registrationUseCase{
 
     vehicleInsurancePoluitonUpdate = async(driverData:insurancePoluiton)=>{
       try {
-        const response = await driverRepo.vehicleInsurancePoluitonUpdate(driverData);
+        const response = await this.driverRepo.vehicleInsurancePoluitonUpdate(driverData);
         if(response?.email){
             return ({message:"Success"})
         }else{
@@ -146,7 +157,7 @@ export default class registrationUseCase{
 
     getResubmissionDocuments = async(id:string) =>{
         try {
-            const response = await driverRepo.findResubmissonData(id);
+            const response = await this.driverRepo.findResubmissonData(id);
             return response
         } catch (error) {
             throw new Error((error as Error).message)
@@ -161,7 +172,7 @@ export default class registrationUseCase{
             throw new Error("Invalid driver ID");
           }
     
-          const resubmission = await driverRepo.findResubmissonData(driverId);
+          const resubmission = await this.driverRepo.findResubmissonData(driverId);
           if (!resubmission) {
             throw new Error("No resubmission data found for driver");
           }
@@ -233,12 +244,12 @@ export default class registrationUseCase{
           });
     console.log("👋🏿❤️update",update);
     
-          const updatedDriver = await driverRepo.updateDriver(driverId, update);
+          const updatedDriver = await this.driverRepo.updateDriver(driverId, update);
           if (!updatedDriver) {
             throw new Error("Failed to update driver document");
           }
     
-          await driverRepo.deleteResubmission(driverId);
+          await this.driverRepo.deleteResubmission(driverId);
     
           return { message: "Success", driverId };
         } catch (error) {

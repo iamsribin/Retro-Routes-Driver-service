@@ -1,4 +1,4 @@
-import registrationUseCases from "../useCases/registration.use-cases";
+import RegistrationUseCases from "../useCases/registration.use-cases";
 import { ObjectId } from "mongodb";
 import {
   DriverData,
@@ -9,9 +9,15 @@ import {
   vehicleDatas,
 } from "../utilities/interface";
 
-const registrationUseCase = new registrationUseCases();
 
 export default class registerController {
+
+private registrationUseCase :RegistrationUseCases;
+
+constructor(registrationUseCase:RegistrationUseCases){
+  this.registrationUseCase = registrationUseCase;
+}
+
   register = async (data: DriverData) => {
     const { name, email, mobile, password, reffered_code } = data;
     const userData = {
@@ -23,7 +29,7 @@ export default class registerController {
       joiningDate: Date.now(),
     };
     try {
-      const response = await registrationUseCase.register(userData);
+      const response = await this.registrationUseCase.register(userData);
       return response;
     } catch (error) {
       return { error: (error as Error).message };
@@ -33,7 +39,7 @@ export default class registerController {
   checkDriver = async (data: { mobile: number }) => {
     const { mobile } = data;
     try {
-      const response = await registrationUseCase.checkDriver(mobile);
+      const response = await this.registrationUseCase.checkDriver(mobile);
       return response;
     } catch (error) {
       return { error: (error as Error).message };
@@ -41,14 +47,17 @@ export default class registerController {
   };
 
   identificationUpdate = async (data: identification) => {
-    const { 
-      aadharID, licenseID, driverId, aadharFrontImage, 
-      aadharBackImage,licenseFrontImage,licenseBackImage,
-      licenseValidity
-    } =
-      data;
+    const {
+      aadharID,
+      licenseID,
+      driverId,
+      aadharFrontImage,
+      aadharBackImage,
+      licenseFrontImage,
+      licenseBackImage,
+      licenseValidity,
+    } = data;
     try {
-
       if (driverId) {
         const driverData = {
           driverId: new ObjectId(driverId),
@@ -60,7 +69,9 @@ export default class registerController {
           licenseBackImage,
           licenseValidity: new Date(licenseValidity),
         };
-        const response = await registrationUseCase.identification_update(driverData);
+        const response = await this.registrationUseCase.identification_update(
+          driverData
+        );
         return response;
       } else {
         return { message: "something error" };
@@ -72,7 +83,7 @@ export default class registerController {
 
   vehicleUpdate = async (data: vehicleDatas) => {
     try {
-      const response = await registrationUseCase.vehicleUpdate(data);
+      const response = await this.registrationUseCase.vehicleUpdate(data);
       return response;
     } catch (error) {
       return (error as Error).message;
@@ -88,7 +99,7 @@ export default class registerController {
           latitude,
           longitude,
         };
-        const response = await registrationUseCase.location_update(
+        const response = await this.registrationUseCase.location_update(
           locationData
         );
         return response;
@@ -98,72 +109,80 @@ export default class registerController {
     }
   };
 
-  updateDriverImage=async(data:{driverId:string,url:string})=>{
-    const {driverId,url}=data
+  updateDriverImage = async (data: { driverId: string; url: string }) => {
+    const { driverId, url } = data;
     try {
-        if(driverId && url)
-            {
-                const driverData={
-                    driverId:new ObjectId(driverId),
-                    driverImageUrl:url
-                };
-                const response= await registrationUseCase.driverImage_update(driverData)
-                return(response)
-
-            }else{
-                return({message:"Something error"});
-            }
+      if (driverId && url) {
+        const driverData = {
+          driverId: new ObjectId(driverId),
+          driverImageUrl: url,
+        };
+        const response = await this.registrationUseCase.driverImage_update(
+          driverData
+        );
+        return response;
+      } else {
+        return { message: "Something error" };
+      }
     } catch (error) {
-        return((error as Error).message);
+      return (error as Error).message;
     }
-}
-vehicleInsurancePoluitonUpdate = async(data:insurancePoluiton)=>{
-try {
-  const {driverId,pollutionImageUrl,insuranceImageUrl,
-    insuranceStartDate,insuranceExpiryDate,pollutionStartDate,
-    pollutionExpiryDate
-  }=data
+  };
+  vehicleInsurancePoluitonUpdate = async (data: insurancePoluiton) => {
+    try {
+      const {
+        driverId,
+        pollutionImageUrl,
+        insuranceImageUrl,
+        insuranceStartDate,
+        insuranceExpiryDate,
+        pollutionStartDate,
+        pollutionExpiryDate,
+      } = data;
 
-  const driverData = {
-    driverId:new ObjectId(driverId),
-    insuranceImageUrl,
-    insuranceStartDate:new Date(insuranceStartDate),
-    insuranceExpiryDate:new Date(insuranceExpiryDate),
-    pollutionImageUrl,
-    pollutionStartDate:new Date(pollutionStartDate),
-    pollutionExpiryDate:new Date(pollutionExpiryDate),
-  }
+      const driverData = {
+        driverId: new ObjectId(driverId),
+        insuranceImageUrl,
+        insuranceStartDate: new Date(insuranceStartDate),
+        insuranceExpiryDate: new Date(insuranceExpiryDate),
+        pollutionImageUrl,
+        pollutionStartDate: new Date(pollutionStartDate),
+        pollutionExpiryDate: new Date(pollutionExpiryDate),
+      };
 
-  const response = await registrationUseCase.vehicleInsurancePoluitonUpdate(driverData);
-  return response
-} catch (error) {
-  console.log(error);
-  return((error as Error).message);
-}
-}
+      const response = await this.registrationUseCase.vehicleInsurancePoluitonUpdate(
+        driverData
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+      return (error as Error).message;
+    }
+  };
 
-getResubmissionDocuments = async(id:string)=>{
-try {
-  const response = await registrationUseCase.getResubmissionDocuments(id);
-  console.log("getResubmissionDocuments controller==",response);
-  return response
-  
-} catch (error) {
-  console.log(error);
-  
-  return((error as Error).message);
+  getResubmissionDocuments = async (id: string) => {
+    try {
+      const response = await this.registrationUseCase.getResubmissionDocuments(id);
+      return response;
+    } catch (error) {
+      console.log(error);
 
-}
-}
-postResubmissionDocuments = async (data: any) => {
-  try {
-    const response = await registrationUseCase.postResubmissionDocuments(data);
-    console.log("postResubmissionDocuments controller==", response);
-    return response;
-  } catch (error) {
-    console.error("Error in postResubmissionDocuments:", error);
-    return { message: (error as Error).message };
-  }
-};
+      return (error as Error).message;
+    }
+  };
 
+  postResubmissionDocuments = async (data: any) => {
+    try {
+      console.log("postResubmissionDocuments data",data);
+      
+      const response = await this.registrationUseCase.postResubmissionDocuments(
+        data
+      );
+      console.log("postResubmissionDocuments controller==", response);
+      return response;
+    } catch (error) {
+      console.error("Error in postResubmissionDocuments:", error);
+      return { message: (error as Error).message };
+    }
+  };
 }

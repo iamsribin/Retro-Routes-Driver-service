@@ -1,6 +1,7 @@
-import { response } from "express";
-import Driver, { DriverInterface } from "../entities/driver";
-import Resubmission, { ResubmissionInterface } from "../entities/resubmission";
+import { DriverInterface } from "../entities/driver.interface";
+import Driver from "../entities/driver.model";
+import Resubmission from "../entities/resubmission.model";
+import mongoose from "mongoose";
 import {
   DriverImage,
   identification,
@@ -9,10 +10,10 @@ import {
   Registration,
   vehicleDatas,
 } from "../utilities/interface";
-import { ObjectId } from "mongodb";
-import mongoose from "mongoose";
+
 
 export default class driverRepository {
+  
   saveDriver = async (
     DriverData: Registration
   ): Promise<DriverInterface | string> => {
@@ -25,10 +26,11 @@ export default class driverRepository {
         referral_code: DriverData.referral_code,
         joiningDate: Date.now(),
         identification: false,
-        account_status: "Incomplet",
+        account_status: "Incomplete",
       });
-      const saveDriver: DriverInterface =
-        (await newDriver.save()) as DriverInterface;
+      const saveDriver: DriverInterface = (await newDriver.save()) as DriverInterface;
+      console.log("saveDriver",saveDriver);
+      
       return saveDriver;
     } catch (error) {
       return (error as Error).message;
