@@ -1,6 +1,7 @@
 import RegisterControl from "../controllers/registerController";
 import LoginControl from "../controllers/loginController";
 import AdminController from "../controllers/admin-controller";
+import BookingController from "../controllers/booking-controller";
 import rabbitClient from "./client";
 
 
@@ -8,11 +9,13 @@ export default class MessageHandler {
   private loginController: LoginControl;
   private registerController: RegisterControl;
   private adminController: AdminController;
+  private bookingController: BookingController;
 
-  constructor(loginController:LoginControl, registerController:RegisterControl,adminController:AdminController){
+  constructor(loginController:LoginControl, registerController:RegisterControl,adminController:AdminController,bookingController:BookingController){
      this.loginController = loginController;
      this.registerController = registerController;
-     this.adminController = adminController;
+     this.adminController = adminController; 
+     this.bookingController = bookingController;
   }
 
    async handle(
@@ -37,6 +40,10 @@ export default class MessageHandler {
       case "driver-register":
         response = await this.registerController.register(data);
         break;
+
+      case "get-online-driver":
+          response = await this.bookingController.getDriverDetails(data);
+          break;
         
       case "driver-check":
         response=await this.registerController.checkDriver(data)
@@ -54,7 +61,7 @@ export default class MessageHandler {
         response=await this.registerController.vehicleUpdate(data)
         break;
 
-    case "vehicle-insurance&polution-update":
+    case "vehicle-insurance&pollution-update":
         response = await this.registerController.vehicleInsurancePoluitonUpdate(data)
         break;
 
@@ -65,6 +72,11 @@ export default class MessageHandler {
       case "get-resubmission-documents":
         response = await this.registerController.getResubmissionDocuments(data)
         break;
+
+      case "get-driver-details":
+          response = await this.registerController.getResubmissionDocuments(data)
+          break;
+
       case "post-resubmission-documents":
         response = await this.registerController.postResubmissionDocuments(data);
         break;

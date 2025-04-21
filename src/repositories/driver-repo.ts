@@ -4,6 +4,7 @@ import Resubmission from "../entities/resubmission.model";
 import mongoose from "mongoose";
 import {
   DriverImage,
+  getDriverDetails,
   identification,
   insurancePoluiton,
   locationData,
@@ -269,4 +270,13 @@ export default class driverRepository {
       throw new Error("Failed to delete resubmission document");
     }
   };
+    getDriverDetails = async (requestData: getDriverDetails) => {
+      try {
+        const response = await Driver.findById(requestData.id);
+        return response;
+      } catch (error) {
+        console.log(error);
+      }
+    };
 }
+

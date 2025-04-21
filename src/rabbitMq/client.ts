@@ -11,6 +11,8 @@ import AdminUsecases from "../useCases/admin.use-cases";
 import DriverReposiory from "../repositories/driver-repo";
 import AdminReposiory from "../repositories/admin-repo";
 import MessageHandler from "./messageHandler";
+import BookingUseCase from "../useCases/booking.use-cases";
+import BookingController from "../controllers/booking-controller";
 
   const driverReposiory = new DriverReposiory();
   const adminReposiory = new AdminReposiory();
@@ -20,7 +22,10 @@ import MessageHandler from "./messageHandler";
   const loginController = new LoginControl(loginUseCase,registrationUseCase);
   const registerController = new RegisterControl(registrationUseCase);
   const adminController = new AdminController(adminUsecases);
-  const messageHandler = new MessageHandler(loginController,registerController,adminController);
+  const bookingUsecase = new BookingUseCase(driverReposiory);
+  const bookingController = new BookingController(bookingUsecase);
+
+  const messageHandler = new MessageHandler(loginController,registerController,adminController,bookingController);
 
 class RabbitMQClient {
     private static instance: RabbitMQClient;

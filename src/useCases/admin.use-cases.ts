@@ -33,7 +33,9 @@ export default class AdminUsecases{
     }
 
     updateDriverAccountStatus = async (request: updateDriverStatusRequset)=>{
-        try{            
+        try{       
+            console.log("request===",request);
+                 
             if (request.status === "Rejected" && request.fields) {
                 const resubmissionData = {
                   driverId: new mongoose.Types.ObjectId(request.id),
@@ -57,6 +59,8 @@ export default class AdminUsecases{
                 Best regards,
                 Retro Routes India`;
             }else if(request.status==="Rejected"){
+                console.log("resone reject...",request.reason);
+                
                  subject = "Account Registration  Rejected";
                  text = `Hello ${response.name}, 
                 We regret to inform you that your registration with Retro Routes has been rejected. We appreciate your interest, 
