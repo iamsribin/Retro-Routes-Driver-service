@@ -24,7 +24,6 @@ export default class BookingController {
     } catch (error) {
       console.log(error); 
       throw new Error((error as Error).message);
-
     }
   };
 

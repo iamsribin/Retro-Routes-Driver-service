@@ -45,7 +45,7 @@ export interface DriverInterface extends Document {
     aadhar: Aadhar;
     location: Location;
     license: License;
-    account_status: string;
+    account_status?: "Good" | "Rejected" | "Blocked" | "Pending" | "Incomplete";
     vehicle_details: Vehicle;
     joiningDate: Date;
     wallet: {
@@ -62,7 +62,9 @@ export interface DriverInterface extends Document {
         cancelledRides: number;
         totalEarnings: number;
     };
+
     isAvailable: boolean;
+    totalRatings?: number; 
     feedbacks: [
         {
             feedback: string;

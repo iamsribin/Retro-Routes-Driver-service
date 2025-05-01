@@ -26,7 +26,7 @@ export default class loginUseCase {
           };
         } else if (response.account_status === "Rejected") {
           return { message: "Rejected", driverId: response._id };
-        } else if (response.account_status === "Block") {
+        } else if (response.account_status === "Blocked") {
           return { message: "Blocked" };
         } else if (response.account_status === "Pending") {
           return { message: "Pending", driverId: response._id };
@@ -38,6 +38,7 @@ export default class loginUseCase {
       console.log(error);
     }
   };
+  
   checkGoogleLoginDriver = async (email: string) => {
     try {
       const response = (await this.driverRepo.findDriverEmail(
@@ -45,9 +46,9 @@ export default class loginUseCase {
       )) as DriverInterface;
       if (response) {
         if (
-          response.account_status !== "Pending" &&
+          response.account_status !== "Pending" && 
           response.account_status !== "Rejected" &&
-          response.account_status !== "Blocked"
+          response.account_status !== "Blocked"     
         ) {
           const token = await auth.createToken(response._id, "15m","Driver");
           const refreshToken = await auth.createToken(response._id, "7d","Driver");

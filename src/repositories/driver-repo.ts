@@ -273,7 +273,7 @@ export default class driverRepository {
     getDriverDetails = async (requestData: getDriverDetails) => {
       try {
         const response = await Driver.findById(requestData.id);
-        return response;
+        return response; 
       } catch (error) {
         console.log(error);
       }
