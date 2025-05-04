@@ -1,5 +1,5 @@
-import BookingUsecase from "../useCases/booking.use-cases";
-import { getDriverDetails } from "../utilities/interface";
+import BookingUsecase from "../../services/implementation/booking_service";
+import { getDriverDetails } from "../../dto/interface";
 import { ObjectId } from "mongodb";
 
 export default class BookingController {

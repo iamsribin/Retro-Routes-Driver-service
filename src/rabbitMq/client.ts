@@ -2,17 +2,17 @@ import { Channel, Connection, connect } from "amqplib";
 import rabbitMq from "../config/rabbitMq";
 import Consumer from './consumer'
 import Producer from './producer'
-import RegisterControl from "../controllers/registerController";
-import LoginControl from "../controllers/loginController";
-import AdminController from "../controllers/admin-controller";
-import RegistrationUseCases from "../useCases/registration.use-cases";
-import LoginUseCases from "../useCases/login.use-cases";
-import AdminUsecases from "../useCases/admin.use-cases";
-import DriverReposiory from "../repositories/driver-repo";
+import RegisterControl from "../controllers/implementation/registerController";
+import LoginControl from "../controllers/implementation/loginController";
+import AdminController from "../controllers/implementation/admin-controller";
+import RegistrationUseCases from "../services/implementation/registration_service";
+import LoginUseCases from "../services/implementation/login_service";
+import AdminUsecases from "../services/implementation/admin_service";
+import DriverReposiory from "../repositories/implementation/driver-repo";
 import AdminReposiory from "../repositories/admin-repo";
 import MessageHandler from "./messageHandler";
-import BookingUseCase from "../useCases/booking.use-cases";
-import BookingController from "../controllers/booking-controller";
+import BookingUseCase from "../services/implementation/booking_service";
+import BookingController from "../controllers/implementation/booking-controller";
 
   const driverReposiory = new DriverReposiory();
   const adminReposiory = new AdminReposiory();
@@ -24,7 +24,6 @@ import BookingController from "../controllers/booking-controller";
   const adminController = new AdminController(adminUsecases);
   const bookingUsecase = new BookingUseCase(driverReposiory);
   const bookingController = new BookingController(bookingUsecase);
-
   const messageHandler = new MessageHandler(loginController,registerController,adminController,bookingController);
 
 class RabbitMQClient {

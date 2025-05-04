@@ -1,6 +1,5 @@
 import mongodb from "mongodb";
 
-
 export interface Message {
     message: string ;
   }

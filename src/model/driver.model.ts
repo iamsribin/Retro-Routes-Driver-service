@@ -1,6 +1,6 @@
 
 import mongoose, {Schema} from "mongoose";
-import { DriverInterface } from "./driver.interface";
+import { DriverInterface } from "../interface/driver.interface";
 
 const DriverSchema: Schema = new Schema({
     name: {

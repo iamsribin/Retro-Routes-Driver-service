@@ -1,9 +1,8 @@
-import RegisterControl from "../controllers/registerController";
-import LoginControl from "../controllers/loginController";
-import AdminController from "../controllers/admin-controller";
-import BookingController from "../controllers/booking-controller";
+import RegisterControl from "../controllers/implementation/registerController";
+import LoginControl from "../controllers/implementation/loginController";
+import AdminController from "../controllers/implementation/admin-controller";
+import BookingController from "../controllers/implementation/booking-controller";
 import rabbitClient from "./client";
-
 
 export default class MessageHandler {
   private loginController: LoginControl;

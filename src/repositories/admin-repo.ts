@@ -1,13 +1,13 @@
 import { Types } from "mongoose";
-import Driver from "../entities/driver.model";
+import Driver from "../model/driver.model";
 import Resubmission, {
   ResubmissionInterface,
-} from "../entities/resubmission.model";
+} from "../model/resubmission.model";
 import {
   getDriverDetails,
   updateDriverStatusRequset,
-} from "../utilities/interface";
-import { DriverInterface } from "../entities/driver.interface";
+} from "../dto/interface";
+import { DriverInterface } from "../interface/driver.interface";
 
 export default class AdminRepo {
   getDriversByAccountStatus = async (

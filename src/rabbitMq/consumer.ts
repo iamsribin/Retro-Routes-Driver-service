@@ -1,7 +1,6 @@
 import { Channel, ConsumeMessage } from "amqplib";
 import MessageHandler from './messageHandler'
 
-
 export default class Consumer {
   private messageHandler:MessageHandler;
   constructor(private channel: Channel, private rpcQueue: string, messageHandler:MessageHandler) {

@@ -4,7 +4,6 @@ dotenv.config();
 
 export const sendMail=async(email:string,subject:string,text:string)=>{
     try {
-        console.log("==========", process.env.NODEMAILER_USER,process.env.NODEMAILER_PASS);
         
         const transaction=nodemailer.createTransport({
             service:"gmail",

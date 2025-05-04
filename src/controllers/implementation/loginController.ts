@@ -1,6 +1,5 @@
-import LoginUseCases from "../useCases/login.use-cases";
-import RegistrationUseCases from "../useCases/registration.use-cases";
-
+import LoginUseCases from "../../services/implementation/login_service";
+import RegistrationUseCases from "../../services/implementation/registration_service";
 
 export default class loginController {
   private loginUseCase: LoginUseCases;

@@ -1,12 +1,12 @@
-import { refferalCode } from "../utilities/referralCode";
-import bcrypt from "../services/bcrypt";
-import DriverRepository from "../repositories/driver-repo";
-import { DriverData, driverImage, identification, insurancePoluiton, locationData, vehicleDatas} from "../utilities/interface";
+import { refferalCode } from "../../utilities/referralCode";
+import bcrypt from "../../utilities/bcrypt";
+import DriverRepository from "../../repositories/implementation/driver-repo";
+import { DriverData, driverImage, identification, insurancePoluiton, locationData, vehicleDatas} from "../../dto/interface";
 import mongoose from "mongoose";
-import { DriverInterface } from "../entities/driver.interface";
+import { DriverInterface } from "../../interface/driver.interface";
 
 
-export default class registrationUseCase{
+export default class registrationService{
 
   private driverRepo : DriverRepository;
 

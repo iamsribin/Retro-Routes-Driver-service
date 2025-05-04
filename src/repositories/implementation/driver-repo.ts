@@ -1,6 +1,6 @@
-import { DriverInterface } from "../entities/driver.interface";
-import Driver from "../entities/driver.model";
-import Resubmission from "../entities/resubmission.model";
+import { DriverInterface } from "../../interface/driver.interface";
+import Driver from "../../model/driver.model";
+import Resubmission from "../../model/resubmission.model";
 import mongoose from "mongoose";
 import {
   DriverImage,
@@ -10,7 +10,7 @@ import {
   locationData,
   Registration,
   vehicleDatas,
-} from "../utilities/interface";
+} from "../../dto/interface";
 
 
 export default class driverRepository {
@@ -74,8 +74,6 @@ export default class driverRepository {
 
   updateIdentification = async (driverData: identification) => {
     try {
-      console.log("driverData in repo", driverData);
-
       const {
         driverId,
         aadharID,

@@ -1,10 +1,9 @@
 import mongoose from "mongoose";
-import AdminRepo from "../repositories/admin-repo";
-import { sendMail } from "../services/nodeMailer";
-import { getDriverDetails, updateDriverStatusRequset } from "../utilities/interface";
-import { ResubmissionInterface } from "../entities/resubmission.model";
-import { DriverInterface } from "../entities/driver.interface";
-
+import AdminRepo from "../../repositories/admin-repo";
+import { sendMail } from "../../utilities/nodeMailer";
+import { getDriverDetails, updateDriverStatusRequset } from "../../dto/interface";
+import { ResubmissionInterface } from "../../model/resubmission.model";
+import { DriverInterface } from "../../interface/driver.interface";
 
 export default class AdminUsecases{
     private adminRepo : AdminRepo;

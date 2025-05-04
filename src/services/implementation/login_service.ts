@@ -1,9 +1,9 @@
-import DriverReposiory from "../repositories/driver-repo";
-import auth from "../middleware/auth";
-import { DriverInterface } from "../entities/driver.interface";
+import DriverReposiory from "../../repositories/implementation/driver-repo";
+import auth from "../../middleware/auth";
+import { DriverInterface } from "../../interface/driver.interface";
 
 export default class loginUseCase {
-
+  
   private driverRepo: DriverReposiory;
 
   constructor(driverRepo: DriverReposiory){

@@ -1,4 +1,4 @@
-import RegistrationUseCases from "../useCases/registration.use-cases";
+import RegistrationService from "../../services/implementation/registration_service";
 import { ObjectId } from "mongodb";
 import {
   DriverData,
@@ -7,15 +7,15 @@ import {
   insurancePoluiton,
   locationData,
   vehicleDatas,
-} from "../utilities/interface";
+} from "../../dto/interface";
 
 
 export default class registerController {
 
-private registrationUseCase :RegistrationUseCases;
+private registrationService :RegistrationService;
 
-constructor(registrationUseCase:RegistrationUseCases){
-  this.registrationUseCase = registrationUseCase;
+constructor(registrationService:RegistrationService){
+  this.registrationService = registrationService;
 }
 
   register = async (data: DriverData) => {
@@ -29,7 +29,7 @@ constructor(registrationUseCase:RegistrationUseCases){
       joiningDate: Date.now(),
     };
     try {
-      const response = await this.registrationUseCase.register(userData);
+      const response = await this.registrationService.register(userData);
       return response;
     } catch (error) {
       return { error: (error as Error).message };
@@ -39,7 +39,7 @@ constructor(registrationUseCase:RegistrationUseCases){
   checkDriver = async (data: { mobile: number }) => {
     const { mobile } = data;
     try {
-      const response = await this.registrationUseCase.checkDriver(mobile);
+      const response = await this.registrationService.checkDriver(mobile);
       return response;
     } catch (error) {
       return { error: (error as Error).message };
@@ -69,7 +69,7 @@ constructor(registrationUseCase:RegistrationUseCases){
           licenseBackImage,
           licenseValidity: new Date(licenseValidity),
         };
-        const response = await this.registrationUseCase.identification_update(
+        const response = await this.registrationService.identification_update(
           driverData
         );
         return response;
@@ -83,7 +83,7 @@ constructor(registrationUseCase:RegistrationUseCases){
 
   vehicleUpdate = async (data: vehicleDatas) => {
     try {
-      const response = await this.registrationUseCase.vehicleUpdate(data);
+      const response = await this.registrationService.vehicleUpdate(data);
       return response;
     } catch (error) {
       return (error as Error).message;
@@ -99,7 +99,7 @@ constructor(registrationUseCase:RegistrationUseCases){
           latitude,
           longitude,
         };
-        const response = await this.registrationUseCase.location_update(
+        const response = await this.registrationService.location_update(
           locationData
         );
         return response;
@@ -117,7 +117,7 @@ constructor(registrationUseCase:RegistrationUseCases){
           driverId: new ObjectId(driverId),
           driverImageUrl: url,
         };
-        const response = await this.registrationUseCase.driverImage_update(
+        const response = await this.registrationService.driverImage_update(
           driverData
         );
         return response;
@@ -150,7 +150,7 @@ constructor(registrationUseCase:RegistrationUseCases){
         pollutionExpiryDate: new Date(pollutionExpiryDate),
       };
 
-      const response = await this.registrationUseCase.vehicleInsurancePoluitonUpdate(
+      const response = await this.registrationService.vehicleInsurancePoluitonUpdate(
         driverData
       );
       return response;
@@ -162,7 +162,7 @@ constructor(registrationUseCase:RegistrationUseCases){
 
   getResubmissionDocuments = async (id: string) => {
     try {
-      const response = await this.registrationUseCase.getResubmissionDocuments(id);
+      const response = await this.registrationService.getResubmissionDocuments(id);
       return response;
     } catch (error) {
       console.log(error);
@@ -175,7 +175,7 @@ constructor(registrationUseCase:RegistrationUseCases){
     try {
       console.log("postResubmissionDocuments data",data);
       
-      const response = await this.registrationUseCase.postResubmissionDocuments(
+      const response = await this.registrationService.postResubmissionDocuments(
         data
       );
       console.log("postResubmissionDocuments controller==", response);

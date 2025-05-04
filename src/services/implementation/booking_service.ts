@@ -1,5 +1,5 @@
-import DriverRepo from "../repositories/driver-repo";
-import { getDriverDetails } from "../utilities/interface";
+import DriverRepo from "../../repositories/implementation/driver-repo";
+import { getDriverDetails } from "../../dto/interface";
 
 export default class BookingUseCase{
     private driverRepo : DriverRepo;
