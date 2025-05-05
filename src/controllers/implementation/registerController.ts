@@ -1,52 +1,58 @@
-import RegistrationService from "../../services/implementation/registration_service";
-import { ObjectId } from "mongodb";
-import {
-  DriverData,
-  driverImage,
-  identification,
-  insurancePoluiton,
-  locationData,
-  vehicleDatas,
-} from "../../dto/interface";
+import  RegistrationService  from '../../services/implementation/registration_service';
+import { ObjectId } from 'mongodb';
+import { DriverData, identification, vehicleDatas, locationData, insurancePoluiton, driverImage } from '../../dto/interface';
+import { IRegisterController, ControllerResponse } from '../interfaces/IRegisterController';
 
+export default class registerController implements IRegisterController {
+  private registrationService: RegistrationService;
 
-export default class registerController {
+  constructor(registrationService: RegistrationService) {
+    this.registrationService = registrationService;
+  }
 
-private registrationService :RegistrationService;
-
-constructor(registrationService:RegistrationService){
-  this.registrationService = registrationService;
-}
-
-  register = async (data: DriverData) => {
-    const { name, email, mobile, password, reffered_code } = data;
-    const userData = {
+  /**
+   * Registers a new driver
+   * @param data - Driver registration data
+   * @returns Promise resolving to the registration result or error message
+   */
+  async register(data: DriverData): Promise<ControllerResponse | string> {
+    const { name, email, mobile, password, referral_code } = data;
+    const userData:DriverData = {
       name,
       email,
       mobile,
       password,
-      reffered_code,
-      joiningDate: Date.now(),
+      referral_code,
     };
     try {
       const response = await this.registrationService.register(userData);
       return response;
     } catch (error) {
-      return { error: (error as Error).message };
+      return { message: (error as Error).message };
     }
-  };
+  }
 
-  checkDriver = async (data: { mobile: number }) => {
+  /**
+   * Checks if a driver exists by mobile number
+   * @param data - Object containing the mobile number
+   * @returns Promise resolving to the check result or error message
+   */
+  async checkDriver(data: { mobile: number }): Promise<ControllerResponse | string> {
     const { mobile } = data;
     try {
       const response = await this.registrationService.checkDriver(mobile);
       return response;
     } catch (error) {
-      return { error: (error as Error).message };
+      return { message: (error as Error).message };
     }
-  };
+  }
 
-  identificationUpdate = async (data: identification) => {
+  /**
+   * Updates driver identification details
+   * @param data - Identification data including Aadhar and license details
+   * @returns Promise resolving to the update result or error message
+   */
+  async identificationUpdate(data: identification): Promise<ControllerResponse | string> {
     const {
       aadharID,
       licenseID,
@@ -69,28 +75,36 @@ constructor(registrationService:RegistrationService){
           licenseBackImage,
           licenseValidity: new Date(licenseValidity),
         };
-        const response = await this.registrationService.identification_update(
-          driverData
-        );
+        const response = await this.registrationService.identification_update(driverData);
         return response;
       } else {
-        return { message: "something error" };
+        return { message: 'something error' };
       }
     } catch (error) {
-      return { error: (error as Error).message };
+      return { message: (error as Error).message };
     }
-  };
+  }
 
-  vehicleUpdate = async (data: vehicleDatas) => {
+  /**
+   * Updates driver vehicle details
+   * @param data - Vehicle data including registration and images
+   * @returns Promise resolving to the update result or error message
+   */
+  async vehicleUpdate(data: vehicleDatas): Promise<ControllerResponse | string> {
     try {
       const response = await this.registrationService.vehicleUpdate(data);
       return response;
     } catch (error) {
       return (error as Error).message;
     }
-  };
+  }
 
-  location = async (data: locationData) => {
+  /**
+   * Updates driver location
+   * @param data - Location data including latitude and longitude
+   * @returns Promise resolving to the update result or error message
+   */
+  async location(data: locationData): Promise<ControllerResponse | string> {
     const { latitude, longitude, driverId } = data;
     try {
       if (driverId) {
@@ -99,36 +113,48 @@ constructor(registrationService:RegistrationService){
           latitude,
           longitude,
         };
-        const response = await this.registrationService.location_update(
-          locationData
-        );
+        const response = await this.registrationService.location_update(locationData);
         return response;
       }
+      return { message: 'something error' };
     } catch (error) {
       return (error as Error).message;
     }
-  };
+  }
 
-  updateDriverImage = async (data: { driverId: string; url: string }) => {
-    const { driverId, url } = data;
+  /**
+   * Updates driver image
+   * @param data - Driver ID and image URL
+   * @returns Promise resolving to the update result or error message
+   */
+  async updateDriverImage(data: driverImage): Promise<ControllerResponse | string> {
+    const { driverId, driverImageUrl } = data;
     try {
-      if (driverId && url) {
+      console.log("data",data);
+      
+      if (driverId && driverImageUrl) {
         const driverData = {
           driverId: new ObjectId(driverId),
-          driverImageUrl: url,
+          driverImageUrl,
         };
-        const response = await this.registrationService.driverImage_update(
-          driverData
-        );
+        console.log("driverData",driverData);
+        
+        const response = await this.registrationService.driverImage_update(driverData);
         return response;
       } else {
-        return { message: "Something error" };
+        return { message: 'Something error' };
       }
     } catch (error) {
       return (error as Error).message;
     }
-  };
-  vehicleInsurancePoluitonUpdate = async (data: insurancePoluiton) => {
+  }
+
+  /**
+   * Updates vehicle insurance and pollution details
+   * @param data - Insurance and pollution data
+   * @returns Promise resolving to the update result or error message
+   */
+  async vehicleInsurancePollutionUpdate(data: insurancePoluiton): Promise<ControllerResponse | string> {
     try {
       const {
         driverId,
@@ -150,39 +176,38 @@ constructor(registrationService:RegistrationService){
         pollutionExpiryDate: new Date(pollutionExpiryDate),
       };
 
-      const response = await this.registrationService.vehicleInsurancePoluitonUpdate(
-        driverData
-      );
+      const response = await this.registrationService.vehicleInsurancePoluitonUpdate(driverData);
       return response;
     } catch (error) {
-      console.log(error);
       return (error as Error).message;
     }
-  };
+  }
 
-  getResubmissionDocuments = async (id: string) => {
+  /**
+   * Retrieves resubmission documents for a driver
+   * @param id - Driver ID
+   * @returns Promise resolving to the resubmission data or error message
+   */
+  async getResubmissionDocuments(id: string): Promise<ControllerResponse | string> {
     try {
       const response = await this.registrationService.getResubmissionDocuments(id);
       return response;
     } catch (error) {
-      console.log(error);
-
       return (error as Error).message;
     }
-  };
+  }
 
-  postResubmissionDocuments = async (data: any) => {
+  /**
+   * Posts resubmission documents for a driver
+   * @param data - Resubmission data
+   * @returns Promise resolving to the post result or error message
+   */
+  async postResubmissionDocuments(data: any): Promise<ControllerResponse | string> {
     try {
-      console.log("postResubmissionDocuments data",data);
-      
-      const response = await this.registrationService.postResubmissionDocuments(
-        data
-      );
-      console.log("postResubmissionDocuments controller==", response);
+      const response = await this.registrationService.postResubmissionDocuments(data);
       return response;
     } catch (error) {
-      console.error("Error in postResubmissionDocuments:", error);
       return { message: (error as Error).message };
     }
-  };
+  }
 }

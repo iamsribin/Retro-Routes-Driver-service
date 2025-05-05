@@ -61,7 +61,7 @@ export default class MessageHandler {
         break;
 
     case "vehicle-insurance&pollution-update":
-        response = await this.registerController.vehicleInsurancePoluitonUpdate(data)
+        response = await this.registerController.vehicleInsurancePollutionUpdate(data)
         break;
 
       case "driver-location":

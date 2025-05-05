@@ -1,7 +1,7 @@
 import DriverRepo from "../../repositories/implementation/driver-repo";
 import { getDriverDetails } from "../../dto/interface";
 
-export default class BookingUseCase{
+export default class BookingService{
     private driverRepo : DriverRepo;
 
     constructor(driverRepo:DriverRepo){

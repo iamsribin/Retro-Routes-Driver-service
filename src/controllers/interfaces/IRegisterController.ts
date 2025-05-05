@@ -1,22 +1,18 @@
-import  {ServiceResponse}  from '../../services/interfaces/IRegistrationService';
-import {
-  DriverData,
-  Identification,
-  VehicleData,
-  LocationData,
-  DriverImage,
-  InsurancePollution,
-  ResubmissionData,
-} from '../../dto/interface';
+import { DriverData, identification, vehicleDatas, locationData, insurancePoluiton, driverImage } from '../../dto/interface';
+
+export interface ControllerResponse {
+  message: string;
+  data?: any;
+}
 
 export interface IRegisterController {
-  register(data: DriverData): Promise<ServiceResponse>;
-  checkDriver(data: { mobile: number }): Promise<ServiceResponse>;
-  identificationUpdate(data: Identification): Promise<ServiceResponse>;
-  vehicleUpdate(data: VehicleData): Promise<ServiceResponse>;
-  location(data: LocationData): Promise<ServiceResponse>;
-  updateDriverImage(data: DriverImage): Promise<ServiceResponse>;
-  vehicleInsurancePollutionUpdate(data: InsurancePollution): Promise<ServiceResponse>;
-  getResubmissionDocuments(id: string): Promise<ServiceResponse>;
-  postResubmissionDocuments(data: ResubmissionData): Promise<ServiceResponse>;
+  register(data: DriverData): Promise<ControllerResponse | string>;
+  checkDriver(data: { mobile: number }): Promise<ControllerResponse | string>;
+  identificationUpdate(data: identification): Promise<ControllerResponse | string>;
+  vehicleUpdate(data: vehicleDatas): Promise<ControllerResponse | string>;
+  location(data: locationData): Promise<ControllerResponse | string>;
+  updateDriverImage(data: driverImage): Promise<ControllerResponse | string>;
+  vehicleInsurancePollutionUpdate(data: insurancePoluiton): Promise<ControllerResponse | string>;
+  getResubmissionDocuments(id: string): Promise<ControllerResponse | string>;
+  postResubmissionDocuments(data: any): Promise<ControllerResponse | string>;
 }

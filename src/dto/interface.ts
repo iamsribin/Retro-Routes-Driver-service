@@ -16,7 +16,7 @@ export interface DriverData{
   email:string,
   mobile:number,
   password:string,
-  reffered_code:string,
+  referral_code:string,
 }
 
 export interface getDriverDetails{

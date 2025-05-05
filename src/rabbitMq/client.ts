@@ -5,25 +5,25 @@ import Producer from './producer'
 import RegisterControl from "../controllers/implementation/registerController";
 import LoginControl from "../controllers/implementation/loginController";
 import AdminController from "../controllers/implementation/admin-controller";
-import RegistrationUseCases from "../services/implementation/registration_service";
-import LoginUseCases from "../services/implementation/login_service";
-import AdminUsecases from "../services/implementation/admin_service";
-import DriverReposiory from "../repositories/implementation/driver-repo";
-import AdminReposiory from "../repositories/admin-repo";
+import RegistrationService from "../services/implementation/registration_service";
+import LoginService from "../services/implementation/login_service";
+import AdminService from "../services/implementation/admin_service";
+import DriverRepository from "../repositories/implementation/driver-repo";
+import AdminRepository from "../repositories/implementation/admin-repo";
 import MessageHandler from "./messageHandler";
-import BookingUseCase from "../services/implementation/booking_service";
+import BookingService from "../services/implementation/booking_service";
 import BookingController from "../controllers/implementation/booking-controller";
-
-  const driverReposiory = new DriverReposiory();
-  const adminReposiory = new AdminReposiory();
-  const loginUseCase = new LoginUseCases(driverReposiory)
-  const registrationUseCase = new RegistrationUseCases(driverReposiory);
-  const adminUsecases = new AdminUsecases(adminReposiory);
-  const loginController = new LoginControl(loginUseCase,registrationUseCase);
-  const registerController = new RegisterControl(registrationUseCase);
-  const adminController = new AdminController(adminUsecases);
-  const bookingUsecase = new BookingUseCase(driverReposiory);
-  const bookingController = new BookingController(bookingUsecase);
+             
+ const driverRepository = new DriverRepository();
+  const adminRepository = new AdminRepository();
+  const loginService = new LoginService(driverRepository)
+  const registrationService = new RegistrationService(driverRepository);
+  const adminService = new AdminService(adminRepository);
+  const loginController = new LoginControl(loginService,registrationService);
+  const registerController = new RegisterControl(registrationService);
+  const adminController = new AdminController(adminService);
+  const bookingService = new BookingService(driverRepository);
+  const bookingController = new BookingController(bookingService);
   const messageHandler = new MessageHandler(loginController,registerController,adminController,bookingController);
 
 class RabbitMQClient {

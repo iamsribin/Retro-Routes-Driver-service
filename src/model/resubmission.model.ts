@@ -1,7 +1,7 @@
 import mongoose, { Document, ObjectId, Schema, Types } from "mongoose";
 
 export interface ResubmissionInterface extends Document {
-  driverId: ObjectId;
+  driverId: mongoose.Types.ObjectId;
   fields: (
     | "rc"
     | "model"

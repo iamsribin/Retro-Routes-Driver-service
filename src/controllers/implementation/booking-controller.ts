@@ -1,12 +1,12 @@
-import BookingUsecase from "../../services/implementation/booking_service";
+import BookingService from "../../services/implementation/booking_service";
 import { getDriverDetails } from "../../dto/interface";
 import { ObjectId } from "mongodb";
 
 export default class BookingController {
-  private bookingUsecase : BookingUsecase;
+  private BookingService : BookingService;
 
-  constructor(bookingUsecase: BookingUsecase){
-    this.bookingUsecase = bookingUsecase;
+  constructor(BookingService: BookingService){
+    this.BookingService = BookingService;
   }
 
   getDriverDetails = async (data: getDriverDetails) => {
@@ -15,9 +15,9 @@ export default class BookingController {
       const requestData = {
         id: new ObjectId(id),
       };      
-      console.log(requestData);
+      console.log("requestData==",requestData); 
       
-      const response = await this.bookingUsecase.getDriverDetails(requestData); 
+      const response = await this.BookingService.getDriverDetails(data); 
             console.log("response",response);
             
       return response
