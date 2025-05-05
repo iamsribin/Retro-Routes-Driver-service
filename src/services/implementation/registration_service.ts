@@ -144,7 +144,7 @@ export default class registrationService implements IRegistrationService {
 
   async vehicleInsurancePoluitonUpdate(driverData: insurancePoluiton): Promise<ServiceResponse> {
     try {
-      const response = await this.driverRepo.vehicleInsurancePoluitonUpdate(driverData);
+      const response = await this.driverRepo.vehicleInsurancePollutionUpdate(driverData);
       const result: ServiceResponse = response?.email
         ? { message: 'Success' }
         : { message: 'User not found' };
@@ -159,7 +159,7 @@ export default class registrationService implements IRegistrationService {
 
   async getResubmissionDocuments(id: string): Promise<ServiceResponse> {
     try {
-      const response = await this.driverRepo.findResubmissonData(id);
+      const response = await this.driverRepo.findResubmissionData(id);
       const result: ServiceResponse = { message: 'Success', data: response };
       console.log(result);
       return result;
@@ -179,7 +179,7 @@ export default class registrationService implements IRegistrationService {
       if (!mongoose.Types.ObjectId.isValid(driverId)) {
         throw new Error('Invalid driver ID');
       }
-      const resubmission = await this.driverRepo.findResubmissonData(driverId);
+      const resubmission = await this.driverRepo.findResubmissionData(driverId);
       if (!resubmission) {
         throw new Error('No resubmission data found for driver');
       }
