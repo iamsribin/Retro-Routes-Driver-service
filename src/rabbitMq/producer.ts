@@ -1,6 +1,6 @@
 import {Channel} from 'amqplib'
 
-export default class Producer{
+export class Producer{
     constructor(private channel: Channel) {}
 
     async produceMessages(data: any, correlationId: string, replyToQueue: string){

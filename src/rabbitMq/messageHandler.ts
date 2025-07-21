@@ -1,23 +1,23 @@
-import RegisterControl from "../controllers/implementation/registerController";
-import LoginControl from "../controllers/implementation/loginController";
-import AdminController from "../controllers/implementation/admin-controller";
-import BookingController from "../controllers/implementation/booking-controller";
-import rabbitClient from "./client";
-import DriverController from "../controllers/implementation/driver-controller";
+import {rabbitClient} from "./client";
+import { IDriverController } from "../controllers/interfaces/IDriverController";
+import { ILoginController } from "../controllers/interfaces/ILoginController";
+import { IRegisterController } from "../controllers/interfaces/IRegisterController";
+import { IAdminController } from "../controllers/interfaces/i-admin-controller";
+import { IBookingController } from "../controllers/interfaces/IBookingController";
 
-export default class MessageHandler {
-  private loginController: LoginControl;
-  private registerController: RegisterControl;
-  private adminController: AdminController;
-  private bookingController: BookingController;
-  private driverController: DriverController;
+export class MessageHandler {
+  private loginController: ILoginController;
+  private registerController: IRegisterController;
+  private adminController: IAdminController;
+  private bookingController: IBookingController;
+  private driverController: IDriverController;
 
   constructor(
-    driverController: DriverController,
-    loginController: LoginControl,
-    registerController: RegisterControl,
-    adminController: AdminController,
-    bookingController: BookingController
+    driverController: IDriverController,
+    loginController: ILoginController,
+    registerController: IRegisterController,
+    adminController: IAdminController,
+    bookingController: IBookingController
   ) {
     this.loginController = loginController;
     this.registerController = registerController;
@@ -37,7 +37,6 @@ export default class MessageHandler {
 
     switch (operation) {
       case "login-check":
-        console.log("reach login-check");
         response = await this.loginController.checkLogin(data);
         break;
 
@@ -93,24 +92,24 @@ export default class MessageHandler {
         response = await this.registerController.postResubmissionDocuments(data);
         break;
 
-      case "get-admin-pending-drivers":
-        response = await this.adminController.getDriversByAccountStatus(data);
+      case "get-admin-drivers-by-status":
+        response = await this.adminController.getDriversListByAccountStatus(data);
         break;
 
-      case "get-admin-blocked-drivers":
-        response = await this.adminController.getDriversByAccountStatus(data);
+      case "get-admin-drivers-by-status":
+        response = await this.adminController.getDriversListByAccountStatus(data);
         break;
 
-      case "get-admin-active-drivers":
-        response = await this.adminController.getDriversByAccountStatus(data);
+      case "get-admin-drivers-by-status":
+        response = await this.adminController.getDriversListByAccountStatus(data);
         break;
 
       case "get-admin-driver-details":
-        response = await this.adminController.getDriverDetails(data);
+        response = await this.adminController.adminGetDriverDetailsById(data);
         break;
 
       case "admin-update-driver-account-status":
-        response = await this.adminController.updateDriverAccountStatus(data);
+        response = await this.adminController.adminUpdateDriverAccountStatus(data);
         break;
 
       case "get-driver-profile":
@@ -121,9 +120,9 @@ export default class MessageHandler {
         response = await this.driverController.updateDriverDetails(data);
         break;
 
-      case "validate_driver_id_for_payment":
-         response = await this.driverController.fetchDriverDetails(data.driverId);
-        break;
+      // case "validate_driver_id_for_payment":
+      //    response = await this.driverController.fetchDriverDetails(data.driverId);
+      //   break;
 
       default:
         response = "Request-key notfound";

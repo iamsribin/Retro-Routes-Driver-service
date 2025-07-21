@@ -1,21 +1,23 @@
-import { ControllerResponse, DriverProfileUpdate } from "../../dto/interface";
-import DriverService from "../../services/implementation/driver_service";
+import { ControllerResponse, DriverProfileUpdate, IServiceResponse } from "../../dto/interface";
+import {DriverService} from "../../services/implementation/driver_service";
 import mongodb, { ObjectId } from "mongodb";
+import { IDriverController } from "../interfaces/IDriverController";
 
 
-export default class DriverController {
+export class DriverController implements IDriverController {
   private driverService: DriverService;
 
   constructor(DriverService: DriverService) {
     this.driverService = DriverService;
   }
 
-  async fetchDriverDetails(id:mongodb.ObjectId) {
+  async fetchDriverDetails(id:mongodb.ObjectId): Promise<IServiceResponse | string> {
     try {
-          console.log("ethi eda",id);
-
       const response = await this.driverService.fetchDriverDetails(id);
-      return response;
+      return {
+        message: "success",
+        data: response,
+      };;
 
     } catch (error) {
       throw new Error((error as Error).message);

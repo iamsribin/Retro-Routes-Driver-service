@@ -1,60 +1,62 @@
-import  AdminService from '../../services/implementation/admin_service';
-import { getDriverDetails, updateDriverStatusRequset } from '../../dto/interface';
-import { ObjectId } from 'mongodb';
-import { IAdminController, ControllerResponse } from '../interfaces/IAdminController';
-import { DriverInterface } from '../../interface/driver.interface';
+;import { IAdminController } from '../interfaces/i-admin-controller';
+import { IAdminService } from '../../services/interfaces/i-admin-service';
+import { Res_adminGetDriverDetailsById, Res_adminUpdateDriverStatus, Res_getDriversListByAccountStatus } from '../../dto/admin/adminResponse.dto';
+import { StatusCode } from '../../interface/enum';
+import { Req_adminUpdateDriverStatus } from '../../dto/admin/adminRequest.dto';
 
-export default class AdminController implements IAdminController {
-  private AdminService: AdminService;
+export class AdminController implements IAdminController {
+  private _adminService: IAdminService;
 
-  constructor(AdminService: AdminService) {
-    this.AdminService = AdminService;
+  constructor(adminService: IAdminService) {
+    this._adminService = adminService;
   }
 
   /**
    * Retrieves drivers by their account status
-   * @param account_status - The account status to filter drivers
+   * @param accountStatus - The account status to filter drivers
    * @returns Promise resolving to the list of drivers or empty object
    */
-  async getDriversByAccountStatus(account_status: string): Promise<DriverInterface | {}> {
-    try {
-      console.log("account_status",account_status);
-      
-      const response = await this.AdminService.findDrivers(account_status);
-      console.log("response",response);
-      
-      return response;
-    } catch (error) {
-      throw new Error((error as Error).message);
-    }
+async getDriversListByAccountStatus(accountStatus: string): Promise<Res_getDriversListByAccountStatus> {
+  try {
+    return await this._adminService.getDriversListByAccountStatus(accountStatus);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error("Controller Error:", message);
+    return {
+      status: StatusCode.InternalServerError,
+      data: [],
+      message,
+    };
   }
+}
 
   /**
    * Fetches details for a specific driver
    * @param data - Object containing the driver ID
    * @returns Promise resolving to the driver details
    */
-  async getDriverDetails(data: getDriverDetails): Promise<DriverInterface |null> {
+  async adminGetDriverDetailsById(id: string): Promise<Res_adminGetDriverDetailsById> {
     try {
-      const { id } = data;
-      const requestData = {
-        id: new ObjectId(id),
-      };
-      const response = await this.AdminService.getDriverDetails(requestData);
-      return response;
-    } catch (error) {
-      throw new Error((error as Error).message);
-    }
+      return await this._adminService.adminGetDriverDetailsById(id);
+    }  catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error("Controller Error:", message);
+    return {
+      status: StatusCode.InternalServerError,
+      data: null,
+      message,
+    };
   }
-
+  }
+  
   /**
    * Updates a driver's account status
    * @param data - Object containing status update details
    * @returns Promise resolving to the update result or error message
    */
-  async updateDriverAccountStatus(data: updateDriverStatusRequset): Promise<ControllerResponse | string> {
+  async adminUpdateDriverAccountStatus(data: Req_adminUpdateDriverStatus): Promise<Res_adminUpdateDriverStatus> {
     try {
-      const response = await this.AdminService.updateDriverAccountStatus(data);
+      const response = await this._adminService.adminUpdateDriverAccountStatus(data);
       return response;
     } catch (error) {
       throw new Error((error as Error).message);

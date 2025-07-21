@@ -33,80 +33,85 @@ interface DropoffCoordinates {
     latitude: number;
     longitude: number;
 }
-
 export interface DriverInterface extends Document {
-    _id:ObjectId;
-    name: string;
-    email: string;
-    mobile: number;
-    password: string;
-    driverImage: string;
-    referral_code: string;
-    aadhar: Aadhar;
-    location: Location;
-    license: License;
-    account_status?: "Good" | "Rejected" | "Blocked" | "Pending" | "Incomplete";
-    vehicle_details: Vehicle;
-    joiningDate: Date;
-    wallet: {
-        balance: number;
-        transactions: {
-            date: Date;
-            details: string;
-            amount: number;
-            status: string;
-        }[];
-    };
-    RideDetails: {
-        completedRides: number;
-        cancelledRides: number;
-        totalEarnings: number;
-    };
+  _id:ObjectId;
+  name: string;
+  email: string;
+  mobile: number;
+  adminCommission?: number;
+  password: string;
+  driverImage: string;
+  referralCode: string;
+  joiningDate: Date;
 
-    isAvailable: boolean;
-    totalRatings?: number; 
-    feedbacks: [
-        {
-            feedback: string;
-            ride_id: string;
-            rating: number;
-            date:Date;
-        }
-    ];
-}
+  aadhar: {
+    id: string;
+    frontImageUrl: string;
+    backImageUrl: string;
+  };
 
-interface Aadhar {
-    aadharId: string;
-    image: string;
-}
+  license: {
+    id: string;
+    frontImageUrl: string;
+    backImageUrl: string;
+    validity: Date;
+  };
 
-interface License {
-    licenseId: string;
-    licenseFrontImageUrl: string,       
-    licenseBackImageUrl:string,
-    licenseValidity:string
-}
+  location: {
+    longitude: string;
+    latitude: string;
+    address:string;
+  };
 
-interface Location {
-    longitude: number;
-    latitude: number;
-}
-
-interface Vehicle {
-    registerationID: string;
+  vehicleDetails: {
+    registrationId: string;
+    number: string;
+    color: string;
     model: string;
-    rcFrondImageUrl:string,
-    rcBackImageUrl:string,
-    carFrondImageUrl:string,
-    carBackImageUrl:string,
-    rcStartDate:string,
-    rcExpiryDate:Date,
-    insuranceImageUrl:string,
-    insuranceStartDate:Date,
-    insuranceExpiryDate:Date,
-    pollutionImageUrl:string,
-    pollutionStartDate:Date,
-    pollutionExpiryDate:Date,
-    number:number,
-    color: string,
+    rcFrontImageUrl: string;
+    rcBackImageUrl: string;
+    carFrontImageUrl: string;
+    carBackImageUrl: string;
+    rcStartDate: Date;
+    rcExpiryDate: Date;
+    insuranceImageUrl: string;
+    insuranceStartDate: Date;
+    insuranceExpiryDate: Date;
+    pollutionImageUrl: string;
+    pollutionStartDate: Date;
+    pollutionExpiryDate: Date;
+  };
+
+  accountStatus: "Good" | "Warning" | "Rejected" | "Blocked" | "Pending" | "Incomplete";
+
+  wallet?: {
+    balance: number;
+    transactions?: {
+      date: Date;
+      details: string;
+      rideId: string;
+      amount: number;
+      status: "credit" | "debit";
+    }[];
+  };
+
+  rideDetails?: {
+    completedRides?: number;
+    cancelledRides?: number;
+    totalEarnings?: {amount:number, date: Date}[];
+  };
+
+  isAvailable: boolean;
+
+  totalRatings?: number;
+
+  feedbacks?: {
+    feedback: string;
+    rideId: string;
+    rating: number;
+    date: Date;
+  }[];
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }

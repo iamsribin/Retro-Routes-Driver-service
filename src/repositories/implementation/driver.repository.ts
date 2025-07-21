@@ -1,6 +1,6 @@
 import { DriverInterface } from '../../interface/driver.interface';
-import DriverModel from '../../model/driver.model';
-import { BaseRepository } from '../base.repository';
+import {DriverModel} from '../../model/driver.model';
+import { BaseRepository } from './base-repository';
 import { IDriverRepository, ResubmissionData } from '../interfaces/IDriverRepository';
 import {
   Registration,
@@ -119,5 +119,23 @@ export class DriverRepository extends BaseRepository<DriverInterface> implements
     return this.update(data.driverId.toString(), {
       $set: { [data.field]: data.data },
     });
+  }
+
+    async findDriver(mobile: number): Promise<DriverInterface | string> {
+    try {
+      const driverData = await DriverModel.findOne({ mobile }) as DriverInterface;
+      return driverData || 'Driver not found';
+    } catch (error) {
+      return (error as Error).message;
+    }
+  }
+
+   async findDriverEmail(email: string): Promise<DriverInterface | string> {
+    try {
+      const driverData = await DriverModel.findOne({ email }) as DriverInterface;
+      return driverData || 'Driver not found';
+    } catch (error) {
+      return (error as Error).message;
+    }
   }
 } 

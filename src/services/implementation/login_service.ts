@@ -1,9 +1,9 @@
-import  DriverRepository  from '../../repositories/implementation/driver-repo';
+import  {DriverRepository}  from '../../repositories/implementation/driver.repository';
 import auth from '../../middleware/auth';
 import { DriverInterface } from '../../interface/driver.interface';
 import {checkDriverSuccessResponse, ILoginService } from '../interfaces/ILoginService';
 
-export default class loginService implements ILoginService {
+export class LoginService implements ILoginService {
   private driverRepo: DriverRepository;
 
   constructor(driverRepo: DriverRepository) {
@@ -22,7 +22,7 @@ export default class loginService implements ILoginService {
         return { message: 'No user found' };
       }
       if (response) {
-        if (response.account_status === 'Good') {
+        if (response.accountStatus === 'Good') {
           const token = await auth.createToken(response._id, '15m', 'Driver');
           const refreshToken = await auth.createToken(response._id, '7d', 'Driver');
           return {
@@ -33,13 +33,13 @@ export default class loginService implements ILoginService {
             _id: response._id.toString(),
           };
 
-        } else if (response.account_status === 'Rejected') {
+        } else if (response.accountStatus === 'Rejected') {
           return { message: 'Rejected',  driverId: response._id.toString()  };
-        } else if (response.account_status === 'Blocked') {
+        } else if (response.accountStatus === 'Blocked') {
           return { message: 'Blocked' };
-        } else if (response.account_status === 'Pending') {
+        } else if (response.accountStatus === 'Pending') {
           return { message: 'Pending', driverId: response._id.toString() };
-        } else if (response.account_status === 'Incomplete') {
+        } else if (response.accountStatus === 'Incomplete') {
           return { message: 'Incomplete', driverId: response._id.toString() };
         }
       }
@@ -62,9 +62,9 @@ export default class loginService implements ILoginService {
       }
       if (response) {
         if (
-          response.account_status !== 'Pending' &&
-          response.account_status !== 'Rejected' &&
-          response.account_status !== 'Blocked'
+          response.accountStatus !== 'Pending' &&
+          response.accountStatus !== 'Rejected' &&
+          response.accountStatus !== 'Blocked'
         ) {
           const token = await auth.createToken(response._id, '15m', 'Driver');
           const refreshToken = await auth.createToken(response._id, '7d', 'Driver');
@@ -75,11 +75,11 @@ export default class loginService implements ILoginService {
             token,
             _id: response._id.toString(),
           };
-        } else if (response.account_status === 'Rejected') {
+        } else if (response.accountStatus === 'Rejected') {
           return { message: 'Rejected', driverId: response._id.toString() };
-        } else if (response.account_status === 'Blocked') {
+        } else if (response.accountStatus === 'Blocked') {
           return { message: 'Blocked' };
-        } else if (response.account_status === 'Pending') {
+        } else if (response.accountStatus === 'Pending') {
           return { message: 'Pending',  driverId: response._id.toString() };
         } else {
           return { message: 'Not verified' };

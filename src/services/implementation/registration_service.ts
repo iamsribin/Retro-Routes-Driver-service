@@ -1,12 +1,12 @@
 import { refferalCode } from '../../utilities/referralCode';
 import bcrypt from '../../utilities/bcrypt';
-import DriverRepository from '../../repositories/implementation/driver-repo';
+import {DriverRepository} from '../../repositories/implementation/driver.repository';
 import { DriverData, identification, vehicleDatas, insurancePoluiton, locationData, driverImage } from '../../dto/interface';
 import mongoose from 'mongoose';
 import { DriverInterface } from '../../interface/driver.interface';
 import { IRegistrationService, ServiceResponse } from '../interfaces/IRegistrationService';
 
-export default class registrationService implements IRegistrationService {
+export class RegistrationService implements IRegistrationService {
   private driverRepo: DriverRepository;
 
   constructor(driverRepo: DriverRepository) {
@@ -52,21 +52,21 @@ export default class registrationService implements IRegistrationService {
       if (typeof response === 'string') {
         result = { message: response };
       } else if (response) {
-        if (!response.aadhar || !response.aadhar.aadharId) {
+        if (!response.aadhar || !response.aadhar.id) {
           result = { message: 'Document is pending', driverId : response._id.toString() };
         } else if (!response.driverImage) {
           result = { message: 'Driver image is pending', driverId : response._id.toString() };
-        } else if (!response.vehicle_details) {
+        } else if (!response.vehicleDetails) {
           result = { message: 'Vehicle details are pending', driverId : response._id.toString() };
-        } else if (!response.vehicle_details.carBackImageUrl || 
-          !response.vehicle_details.carFrondImageUrl
+        } else if (!response.vehicleDetails.carBackImageUrl || 
+          !response.vehicleDetails.carFrontImageUrl
         ) {
           result = { message: 'Vehicle details are pending', driverId : response._id.toString() };
         }
          else if (
-          !response.vehicle_details.pollutionImageUrl ||
-          !response.vehicle_details.insuranceImageUrl ||
-          !response.vehicle_details.insuranceExpiryDate
+          !response.vehicleDetails.pollutionImageUrl ||
+          !response.vehicleDetails.insuranceImageUrl ||
+          !response.vehicleDetails.insuranceExpiryDate
         ) {
           result = { message: 'Insurance is pending', driverId : response._id.toString() };
         } else if (!response.location || !response.location.latitude || !response.location.longitude) {

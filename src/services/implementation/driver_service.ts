@@ -1,27 +1,34 @@
 import { DriverProfileUpdate, IServiceResponse } from "../../dto/interface";
-import DriverRepository from "../../repositories/implementation/driver-repo";
+import { DriverRepository } from "../../repositories/implementation/driver.repository";
 import mongodb from "mongodb";
 
-export default class BookingService {
+export class DriverService {
   private driverRepo: DriverRepository;
 
   constructor(driverRepo: DriverRepository) {
     this.driverRepo = driverRepo;
   }
 
-  async fetchDriverDetails(id: mongodb.ObjectId) {
-    try {      
-      const response = await this.driverRepo.findById(id);
-      return response;
+  async fetchDriverDetails(
+    id: mongodb.ObjectId
+  ): Promise<IServiceResponse | undefined> {
+    try {
+      const response = await this.driverRepo.findById(id.toString());
+      return {
+        message: "success",
+        data: response,
+      };
     } catch (error) {
       console.log(error);
     }
   }
 
-    async updateDriverDetails(driverData: DriverProfileUpdate): Promise<IServiceResponse> {
+  async updateDriverDetails(
+    driverData: DriverProfileUpdate
+  ): Promise<IServiceResponse> {
     try {
-      console.log("driverData==",driverData);
-      
+      console.log("driverData==", driverData);
+
       const response = await this.driverRepo.updateDriverProfile(driverData);
       if (!response) {
         return { message: "Driver not found" };

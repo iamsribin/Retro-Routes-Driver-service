@@ -1,6 +1,6 @@
 import { Application } from "express";
 import connectDB from "./config/mongo";
-import RabbitMQClient from "./rabbitMq/client";
+import {rabbitClient} from "./rabbitMq/client";
 import express from "express";
 import http from 'http'
 import 'dotenv/config'
@@ -15,7 +15,7 @@ class App{
       this.server.listen(PORT,()=>{    
         console.log(`server  http://localhost:${PORT}`);   
       })
-        RabbitMQClient.initialize();
+        rabbitClient.initialize();
         connectDB()        
     }
   

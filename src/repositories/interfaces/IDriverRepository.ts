@@ -1,6 +1,6 @@
 import { DriverInterface } from '../../interface/driver.interface';
 import { Registration, identification, vehicleDatas, locationData, insurancePoluiton, DriverImage, getDriverDetails } from '../../dto/interface';
-import { IBaseRepository } from './IBaseRepository';
+import { IBaseRepository } from './i-base-repository';
 
 export interface ResubmissionData {
   driverId: string;

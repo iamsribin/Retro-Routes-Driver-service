@@ -1,6 +1,5 @@
 import { DriverInterface } from '../../interface/driver.interface';
 import { Registration, identification, vehicleDatas, locationData, insurancePoluiton, DriverImage, getDriverDetails } from '../../dto/interface';
-import mongodb from "mongodb";
 
 export interface ResubmissionData {
   driverId: string;
@@ -20,5 +19,5 @@ export interface IDriverRepository {
   findResubmissionData(id: string): Promise<ResubmissionData | null>;
   updateDriver(driverId: string, update: any): Promise<DriverInterface | null>;
   deleteResubmission(driverId: string): Promise<void>;
-  findById(id:mongodb.ObjectId): Promise<DriverInterface | null>;
+  getDriverDetails(id: getDriverDetails): Promise<DriverInterface | null>;
 }

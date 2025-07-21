@@ -5,7 +5,7 @@ export interface ResubmissionInterface extends Document {
   fields: (
     | "rc"
     | "model"
-    | "registerationID"
+    | "registrationId"
     | "carImage"
     | "insurance"
     | "pollution"
@@ -29,7 +29,7 @@ const ResubmissionSchema: Schema = new Schema({
       enum: [
         "rc",
         "model",
-        "registerationID",
+        "registrationId",
         "carImage",
         "insurance",
         "pollution",
@@ -42,5 +42,4 @@ const ResubmissionSchema: Schema = new Schema({
   ],
 });
 
-const resubmissionModel = mongoose.model<ResubmissionInterface>("resubmission", ResubmissionSchema);
-export default resubmissionModel;
+export const ResubmissionModel = mongoose.model<ResubmissionInterface>("resubmission", ResubmissionSchema);

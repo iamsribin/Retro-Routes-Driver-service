@@ -1,24 +1,22 @@
 import { Channel, ConsumeMessage } from "amqplib";
-import MessageHandler from './messageHandler'
+import {MessageHandler} from './messageHandler'
 
-export default class Consumer {
+export class Consumer {
   private messageHandler:MessageHandler;
   constructor(private channel: Channel, private rpcQueue: string, messageHandler:MessageHandler) {
  this.messageHandler = messageHandler;
   }
 
   async consumeMessages() {
-    console.log("Ready to consume-order messages...");
 
     this.channel.consume(this.rpcQueue, async (message: ConsumeMessage | null) => {
-        console.log("consumewe");
         
       if (message) {
         if (message.properties) {
           const { correlationId, replyTo } = message.properties;
           const operation = message.properties.headers?.function ;
           if (!correlationId || !replyTo) {
-            console.log("Missing some properties...");
+            console.log("Missing correlationId and replyTo");
           }
          
         if (message.content) { 

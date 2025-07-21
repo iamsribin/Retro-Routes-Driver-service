@@ -1,33 +1,41 @@
 import { Channel, Connection, connect } from "amqplib";
-import rabbitMq from "../config/rabbitMq";
-import Consumer from "./consumer";
-import Producer from "./producer";
-import RegisterControl from "../controllers/implementation/registerController";
-import LoginControl from "../controllers/implementation/loginController";
-import AdminController from "../controllers/implementation/admin-controller";
-import RegistrationService from "../services/implementation/registration_service";
-import LoginService from "../services/implementation/login_service";
-import AdminService from "../services/implementation/admin_service";
-import DriverRepository from "../repositories/implementation/driver-repo";
-import AdminRepository from "../repositories/implementation/admin-repo";
-import MessageHandler from "./messageHandler";
-import BookingService from "../services/implementation/booking_service";
-import BookingController from "../controllers/implementation/booking-controller";
-import DriverController from "../controllers/implementation/driver-controller";
-import DriverService from "../services/implementation/driver_service";
+import {rabbitMq} from "../config/rabbitMq";
+import {Consumer} from "./consumer";
+import {Producer} from "./producer";
+import {RegisterController} from "../controllers/implementation/registerController";
+import {LoginController} from "../controllers/implementation/loginController";
+import {AdminController} from "../controllers/implementation/admin-controller";
+import {RegistrationService} from "../services/implementation/registration_service";
+import {LoginService} from "../services/implementation/login_service";
+import {AdminService} from "../services/implementation/admin-service";
+import {DriverRepository} from "../repositories/implementation/driver.repository";
+import {AdminRepository} from "../repositories/implementation/admin-repo";
+import {MessageHandler} from "./messageHandler";
+import {BookingService} from "../services/implementation/booking_service";
+import {BookingController} from "../controllers/implementation/booking-controller";
+import {DriverController} from "../controllers/implementation/driver-controller";
+import {DriverService} from "../services/implementation/driver_service";
+import { BaseRepository } from "../repositories/implementation/base-repository";
+import { DriverModel } from "../model/driver.model";
+import { ResubmissionModel } from "../model/resubmission.model";
 
 const driverRepository = new DriverRepository();
 const adminRepository = new AdminRepository();
+const baseRepository = new BaseRepository(DriverModel);
+const resubmissionRepository = new BaseRepository(ResubmissionModel);
+
 const loginService = new LoginService(driverRepository);
 const registrationService = new RegistrationService(driverRepository);
-const adminService = new AdminService(adminRepository);
-const loginController = new LoginControl(loginService, registrationService);
-const registerController = new RegisterControl(registrationService);
-const adminController = new AdminController(adminService);
-const bookingService = new BookingService(driverRepository);
-const bookingController = new BookingController(bookingService);
+const adminService = new AdminService(adminRepository,baseRepository,resubmissionRepository);
 const driverService = new DriverService(driverRepository);
+const bookingService = new BookingService(driverRepository);
+
+const loginController = new LoginController(loginService, registrationService);
+const registerController = new RegisterController(registrationService);
+const adminController = new AdminController(adminService);
+const bookingController = new BookingController(bookingService);
 const driverController = new DriverController(driverService);
+
 const messageHandler = new MessageHandler(
   driverController,
   loginController,
@@ -104,4 +112,4 @@ class RabbitMQClient {
   }
 }
 
-export default RabbitMQClient.getInstance();
+export const rabbitClient = RabbitMQClient.getInstance();

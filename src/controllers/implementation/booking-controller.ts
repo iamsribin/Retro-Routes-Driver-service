@@ -1,9 +1,9 @@
-import  BookingService  from '../../services/implementation/booking_service';
+import  {BookingService}  from '../../services/implementation/booking_service';
 import { getDriverDetails } from '../../dto/interface';
 import { ObjectId } from 'mongodb';
 import { IBookingController, ControllerResponse } from '../interfaces/IBookingController';
 
-export default class BookingController implements IBookingController {
+export class BookingController implements IBookingController {
   private BookingService: BookingService;
 
   constructor(BookingService: BookingService) {

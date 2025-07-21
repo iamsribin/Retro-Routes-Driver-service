@@ -1,8 +1,8 @@
-import  LoginService  from '../../services/implementation/login_service';
-import  RegistrationService  from '../../services/implementation/registration_service';
+import  {LoginService}  from '../../services/implementation/login_service';
+import  {RegistrationService}  from '../../services/implementation/registration_service';
 import { ILoginController, checkDriverSuccessResponse } from '../interfaces/ILoginController';
 
-export default class loginController implements ILoginController {
+export class LoginController implements ILoginController {
   private loginService: LoginService;
   private registrationUseCase: RegistrationService;
 

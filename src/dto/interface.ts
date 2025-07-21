@@ -1,5 +1,12 @@
 import mongodb from "mongodb";
 
+export interface mongoId{
+  id:mongodb.ObjectId,
+}
+
+
+// ===================================================
+
 export interface Message {
     message: string ;
   }
@@ -21,7 +28,6 @@ export interface DriverData{
 
 export interface getDriverDetails{
   id:mongodb.ObjectId,
-  // status:string
 }
 
 

@@ -1,20 +1,21 @@
 import { Types } from 'mongoose';
-import Driver from '../../model/driver.model';
-import Resubmission, { ResubmissionInterface } from '../../model/resubmission.model';
-import { getDriverDetails, updateDriverStatusRequset } from '../../dto/interface';
+import {DriverModel} from '../../model/driver.model';
+import { ResubmissionInterface,ResubmissionModel } from '../../model/resubmission.model';
+import { getDriverDetails } from '../../dto/interface';
 import { DriverInterface } from '../../interface/driver.interface';
-import { IAdminRepo } from '../interfaces/IAdminRepo';
+import { IAdminRepository } from '../interfaces/i-admin-repo';
+import { Req_adminUpdateDriverStatus } from '../../dto/admin/adminRequest.dto';
 
-export default class AdminRepo implements IAdminRepo {
+export class AdminRepository implements IAdminRepository {
   /**
    * Retrieves drivers by their account status
    * @param account_status - The account status to filter drivers
    * @returns Promise resolving to the list of drivers or empty object
    */
-  async getDriversByAccountStatus(account_status: string): Promise<DriverInterface[] | {}> {
+  async getDriversListByAccountStatus(accountStatus: string): Promise<DriverInterface[] > {
     try {
-      const response = await Driver.find({ account_status });
-      return response.length ? response : {};
+      const drivers  = await DriverModel.find({ accountStatus }).select('name email mobile accountStatus joiningDate driverImage vehicleDetails.model');
+      return drivers .length ? drivers  : [];
     } catch (error) {
       throw new Error('Internal server Error');
     }
@@ -27,7 +28,7 @@ export default class AdminRepo implements IAdminRepo {
    */
   async getDriverDetails(requestData: getDriverDetails): Promise<DriverInterface | null> {
     try {
-      const response = await Driver.findById(requestData.id);
+      const response = await DriverModel.findById(requestData.id);
       return response;
     } catch (error) {
       throw new Error((error as Error).message);
@@ -39,15 +40,15 @@ export default class AdminRepo implements IAdminRepo {
    * @param request - Object containing status update details
    * @returns Promise resolving to the updated driver or null
    */
-  async updateDriverAccountStatus(request: updateDriverStatusRequset): Promise<DriverInterface | null> {
+  async updateDriverAccountStatus(request: Req_adminUpdateDriverStatus): Promise<DriverInterface | null> {
     try {
-      const account_status =
-        request.status === 'Verified' || request.status === 'UnBlock' ? 'Good' : request.status;
-      const driverData = await Driver.findByIdAndUpdate(
+      // const account_status =
+      //   request.status === 'Good' ? 'Good' : request.status;
+      const driverData = await DriverModel.findByIdAndUpdate(
         request.id,
         {
           $set: {
-            account_status,
+            account_status:request.status,
           },
         },
         { new: true }
@@ -68,7 +69,7 @@ export default class AdminRepo implements IAdminRepo {
     fields: ResubmissionInterface['fields'];
   }): Promise<ResubmissionInterface> {
     try {
-      const resubmission = await Resubmission.findOneAndUpdate(
+      const resubmission = await ResubmissionModel.findOneAndUpdate(
         { driverId: data.driverId },
         {
           $set: { driverId: data.driverId },

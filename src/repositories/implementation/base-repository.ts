@@ -1,5 +1,5 @@
 import { Document, Model, FilterQuery, UpdateQuery } from 'mongoose';
-import { IBaseRepository } from './interfaces/IBaseRepository';
+import { IBaseRepository } from '../interfaces/i-base-repository';
 
 export class BaseRepository<T extends Document> implements IBaseRepository<T> {
   private _model: Model<T>;
@@ -8,9 +8,9 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
     this._model = model;
   }
 
-  async findById(id: string): Promise<T | null> {
-    return this._model.findById(id).exec();
-  }
+async findById(id: string, projection: string = ''): Promise<T | null> {
+  return this._model.findById(id).select(projection).exec();
+}
 
   async findOne(filter: FilterQuery<T>): Promise<T | null> {
     return this._model.findOne(filter).exec();
@@ -32,5 +32,18 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
   async delete(id: string): Promise<boolean> {
     const result = await this._model.findByIdAndDelete(id).exec();
     return !!result;
+  }
+
+  async findMany(filter: FilterQuery<T> = {}, projection = ''): Promise<T[]> {
+    return await this._model.find(filter, projection).lean<T[]>().exec();
+  }
+
+  async updateOne(filter: FilterQuery<T>, update: UpdateQuery<T>): Promise<T | null> {
+    return await this._model.findOneAndUpdate(filter, update, { new: true }).lean<T>().exec();
+  }
+
+  async deleteOne(filter: FilterQuery<T>): Promise<boolean> {
+    const result = await this._model.deleteOne(filter);
+    return result.deletedCount === 1;
   }
 } 

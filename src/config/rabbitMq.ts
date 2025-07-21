@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-export default {
+export const rabbitMq= {
     rabbitMQ: {
       url: String(process.env.RABBITMQ_URL),
     },

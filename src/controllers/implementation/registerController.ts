@@ -1,9 +1,9 @@
-import  RegistrationService  from '../../services/implementation/registration_service';
+import  {RegistrationService}  from '../../services/implementation/registration_service';
 import { ObjectId } from 'mongodb';
 import { DriverData, identification, vehicleDatas, locationData, insurancePoluiton, driverImage } from '../../dto/interface';
 import { IRegisterController, ControllerResponse } from '../interfaces/IRegisterController';
 
-export default class registerController implements IRegisterController {
+export class RegisterController implements IRegisterController {
   private registrationService: RegistrationService;
 
   constructor(registrationService: RegistrationService) {
