@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 import { DriverInterface } from '../../interface/driver.interface';
 import { ResubmissionInterface } from '../../model/resubmission.model';
-import { Req_adminUpdateDriverStatus } from '../../dto/admin/adminRequest.dto';
+import { Req_adminUpdateDriverStatus } from '../../dto/admin/admin-request.dto';
 
 export interface IAdminRepository {
   getDriversListByAccountStatus(account_status: string): Promise<DriverInterface[] | []>;

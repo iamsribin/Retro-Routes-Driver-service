@@ -1,17 +1,17 @@
 import mongoose from "mongoose";
 import { sendMail } from "../../utilities/nodeMailer";
-import { ResubmissionInterface } from "../../model/resubmission.model";
+import { ResubmissionInterface } from "../../interface/resubmission.interface";
 import { DriverInterface } from "../../interface/driver.interface";
 import { IAdminService } from "../interfaces/i-admin-service";
 import { StatusCode } from "../../interface/enum";
 import { IAdminRepository } from "../../repositories/interfaces/i-admin-repo";
 import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
-import { Req_adminUpdateDriverStatus } from "../../dto/admin/adminRequest.dto";
+import { Req_adminUpdateDriverStatus } from "../../dto/admin/admin-request.dto";
 import {
   Res_adminGetDriverDetailsById,
   Res_adminUpdateDriverStatus,
   Res_getDriversListByAccountStatus,
-} from "../../dto/admin/adminResponse.dto";
+} from "../../dto/admin/admin-response.dto";
 
 export class AdminService implements IAdminService {
   private _adminRepo: IAdminRepository;

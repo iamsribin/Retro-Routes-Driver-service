@@ -1,5 +1,5 @@
 import { Channel, ConsumeMessage } from "amqplib";
-import {MessageHandler} from './messageHandler'
+import {MessageHandler} from './message-handler'
 
 export class Consumer {
   private messageHandler:MessageHandler;

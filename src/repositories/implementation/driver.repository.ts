@@ -1,141 +1,122 @@
+import { FilterQuery, UpdateQuery } from 'mongoose';
 import { DriverInterface } from '../../interface/driver.interface';
-import {DriverModel} from '../../model/driver.model';
+import { DriverModel } from '../../model/driver.model';
+import { IDriverRepository } from '../interfaces/IDriverRepository';
 import { BaseRepository } from './base-repository';
-import { IDriverRepository, ResubmissionData } from '../interfaces/IDriverRepository';
 import {
-  Registration,
   identification,
-  vehicleDatas,
+  vehicleData,
+  insurancePollution,
   locationData,
-  insurancePoluiton,
-  DriverImage,
-  getDriverDetails,
-  DriverProfileUpdate
+  driverImage,
 } from '../../dto/interface';
 
-export class DriverRepository extends BaseRepository<DriverInterface> implements IDriverRepository {
+export class DriverRepository
+  extends BaseRepository<DriverInterface>
+  implements IDriverRepository
+{
   constructor() {
     super(DriverModel);
   }
 
-  async saveDriver(driverData: Registration): Promise<DriverInterface | string> {
-    try {
-      const newDriver = await this.create({
-        name: driverData.name,
-        email: driverData.email,
-        mobile: driverData.mobile,
-        password: driverData.password,
-        referral_code: driverData.referral_code,
-        joiningDate: new Date(),
-        account_status: 'Incomplete',
-      } as Partial<DriverInterface>);
-      return newDriver;
-    } catch (error) {
-      return (error as Error).message;
-    }
+  async getByEmail(email: string): Promise<DriverInterface | null> {
+    return this.findOne({ email });
   }
 
-  async updateIdentification(driverData: identification): Promise<DriverInterface | null> {
-    const { driverId, aadharID, licenseID, aadharFrontImage, aadharBackImage, licenseFrontImage, licenseBackImage, licenseValidity } = driverData;
-    return this.update(driverId.toString(), {
+  async getByMobile(mobile: number): Promise<DriverInterface | null> {
+    return this.findOne({ mobile });
+  }
+
+  async getActiveById(id: string): Promise<DriverInterface | null> {
+    return this.findOne({ _id: id, isAvailable: true });
+  }
+
+  async updateProfileById(id: string, updateData: UpdateQuery<DriverInterface>): Promise<DriverInterface | null> {
+    return this.update(id, updateData);
+  }
+
+  async updateOneDriver(filter: FilterQuery<DriverInterface>, updateData: UpdateQuery<DriverInterface>): Promise<DriverInterface | null> {
+    return this.updateOne(filter, updateData);
+  }
+
+  async deleteDriverById(id: string): Promise<boolean> {
+    return this.delete(id);
+  }
+
+  async getDrivers(filter: FilterQuery<DriverInterface> = {}): Promise<DriverInterface[]> {
+    return this.find(filter);
+  }
+
+  async getByIdWithProjection(id: string, projection: string): Promise<DriverInterface | null> {
+    return this.findById(id, projection);
+  }
+
+  async exists(filter: FilterQuery<DriverInterface>): Promise<boolean> {
+    const driver = await this.findOne(filter);
+    return !!driver;
+  }
+
+  async updateIdentification(data: identification): Promise<DriverInterface | null> {
+    return this.update(data.driverId, {
       $set: {
         aadhar: {
-          aadharId: aadharID,
-          aadharFrontImageUrl: aadharFrontImage,
-          aadharBackImageUrl: aadharBackImage,
+          id: data.aadharID,
+          frontImageUrl: data.aadharFrontImage,
+          backImageUrl: data.aadharBackImage,
         },
         license: {
-          licenseId: licenseID,
-          licenseFrontImageUrl: licenseFrontImage,
-          licenseBackImageUrl: licenseBackImage,
-          licenseValidity,
+          id: data.licenseID,
+          frontImageUrl: data.licenseFrontImage,
+          backImageUrl: data.licenseBackImage,
+          validity: data.licenseValidity,
         },
       },
     });
   }
 
-  async vehicleUpdate(vehicleData: vehicleDatas): Promise<DriverInterface | null> {
-    const { registerationID, model, driverId, rcFrondImageUrl, rcBackImageUrl, carFrondImageUrl, carBackImageUrl, rcStartDate, rcExpiryDate } = vehicleData;
-    return this.update(driverId.toString(), {
+  async vehicleUpdate(data: vehicleData): Promise<DriverInterface | null> {
+    return this.update(data.driverId.toString(), {
       $set: {
-        'vehicle_details.registerationID': registerationID,
-        'vehicle_details.model': model,
-        'vehicle_details.rcFrondImageUrl': rcFrondImageUrl,
-        'vehicle_details.rcBackImageUrl': rcBackImageUrl,
-        'vehicle_details.carFrondImageUrl': carFrondImageUrl,
-        'vehicle_details.carBackImageUrl': carBackImageUrl,
-        'vehicle_details.rcStartDate': rcStartDate,
-        'vehicle_details.rcExpiryDate': rcExpiryDate,
+        'vehicleDetails.registrationId': data.registrationId,
+        'vehicleDetails.model': data.model,
+        'vehicleDetails.rcFrontImageUrl': data.rcFrontImageUrl,
+        'vehicleDetails.rcBackImageUrl': data.rcBackImageUrl,
+        'vehicleDetails.carFrontImageUrl': data.carFrontImageUrl,
+        'vehicleDetails.carBackImageUrl': data.carBackImageUrl,
+        'vehicleDetails.rcStartDate': data.rcStartDate,
+        'vehicleDetails.rcExpiryDate': data.rcExpiryDate,
       },
     });
   }
 
   async locationUpdate(data: locationData): Promise<DriverInterface | null> {
-    const { driverId, longitude, latitude } = data;
-    return this.update(driverId.toString(), {
+    return this.update(data.driverId, {
       $set: {
-        location: { latitude, longitude },
-        identification: true,
-        account_status: 'Pending',
+        'location.latitude': data.latitude,
+        'location.longitude': data.longitude,
+        accountStatus: 'Pending',
       },
     });
   }
 
-  async updateDriverImage(driverData: DriverImage): Promise<DriverInterface | null> {
-    const { driverId, imageUrl } = driverData;
-    return this.update(driverId.toString(), {
-      $set: { driverImage: imageUrl },
-    });
-  }
-
-  async vehicleInsurancePollutionUpdate(driverData: insurancePoluiton): Promise<DriverInterface | null> {
-    const { driverId, insuranceImageUrl, insuranceStartDate, insuranceExpiryDate, pollutionImageUrl, pollutionStartDate, pollutionExpiryDate } = driverData;
-    return this.update(driverId.toString(), {
+  async updateDriverImage(data:{driverId:string, imageUrl:string}): Promise<DriverInterface | null> {
+    return this.update(data.driverId, {
       $set: {
-        'vehicle_details.insuranceImageUrl': insuranceImageUrl,
-        'vehicle_details.insuranceStartDate': insuranceStartDate,
-        'vehicle_details.insuranceExpiryDate': insuranceExpiryDate,
-        'vehicle_details.pollutionImageUrl': pollutionImageUrl,
-        'vehicle_details.pollutionStartDate': pollutionStartDate,
-        'vehicle_details.pollutionExpiryDate': pollutionExpiryDate,
+        driverImage: data.imageUrl,
       },
     });
   }
 
-  async findResubmissionData(id: string): Promise<ResubmissionData | null> {
-    // Implement as needed, e.g., query Resubmission model
-    return null;
-  }
-
-  async updateDriver(driverId: string, update: any): Promise<DriverInterface | null> {
-    return this.update(driverId, update);
-  }
-
-  async deleteResubmission(driverId: string): Promise<void> {
-    // Implement as needed, e.g., delete from Resubmission model
-  }
-
-  async updateDriverProfile(data: DriverProfileUpdate): Promise<DriverInterface | null> {
+  async vehicleInsurancePollutionUpdate(data: insurancePollution): Promise<DriverInterface | null> {
     return this.update(data.driverId.toString(), {
-      $set: { [data.field]: data.data },
+      $set: {
+        'vehicleDetails.insuranceImageUrl': data.insuranceImageUrl,
+        'vehicleDetails.insuranceStartDate': data.insuranceStartDate,
+        'vehicleDetails.insuranceExpiryDate': data.insuranceExpiryDate,
+        'vehicleDetails.pollutionImageUrl': data.pollutionImageUrl,
+        'vehicleDetails.pollutionStartDate': data.pollutionStartDate,
+        'vehicleDetails.pollutionExpiryDate': data.pollutionExpiryDate,
+      },
     });
   }
-
-    async findDriver(mobile: number): Promise<DriverInterface | string> {
-    try {
-      const driverData = await DriverModel.findOne({ mobile }) as DriverInterface;
-      return driverData || 'Driver not found';
-    } catch (error) {
-      return (error as Error).message;
-    }
-  }
-
-   async findDriverEmail(email: string): Promise<DriverInterface | string> {
-    try {
-      const driverData = await DriverModel.findOne({ email }) as DriverInterface;
-      return driverData || 'Driver not found';
-    } catch (error) {
-      return (error as Error).message;
-    }
-  }
-} 
+}

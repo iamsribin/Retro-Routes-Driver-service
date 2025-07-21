@@ -1,10 +1,11 @@
 import { Types } from 'mongoose';
 import {DriverModel} from '../../model/driver.model';
-import { ResubmissionInterface,ResubmissionModel } from '../../model/resubmission.model';
+import { ResubmissionModel } from '../../model/resubmission.model';
 import { getDriverDetails } from '../../dto/interface';
 import { DriverInterface } from '../../interface/driver.interface';
 import { IAdminRepository } from '../interfaces/i-admin-repo';
-import { Req_adminUpdateDriverStatus } from '../../dto/admin/adminRequest.dto';
+import { Req_adminUpdateDriverStatus } from '../../dto/admin/admin-request.dto';
+import { ResubmissionInterface } from '../../interface/resubmission.interface';
 
 export class AdminRepository implements IAdminRepository {
   /**

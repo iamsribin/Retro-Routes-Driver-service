@@ -1,5 +1,5 @@
 import { ControllerResponse, DriverProfileUpdate, IServiceResponse } from "../../dto/interface";
-import { checkDriverSuccessResponse } from "./ILoginController";
+import { checkDriverSuccessResponse } from "./i-login-controller";
 import mongodb from "mongodb";
 
  

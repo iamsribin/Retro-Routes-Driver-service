@@ -1,6 +1,5 @@
 import  {RegistrationService}  from '../../services/implementation/registration_service';
-import { ObjectId } from 'mongodb';
-import { DriverData, identification, vehicleDatas, locationData, insurancePoluiton, driverImage } from '../../dto/interface';
+import { DriverData, identification, vehicleData, locationData, insurancePollution, driverImage } from '../../dto/interface';
 import { IRegisterController, ControllerResponse } from '../interfaces/IRegisterController';
 
 export class RegisterController implements IRegisterController {
@@ -83,7 +82,7 @@ console.log("identificationUpdate",{
 
       if (driverId) {
         const driverData = {
-          driverId: new ObjectId(driverId),
+          driverId,
           aadharID,
           licenseID,
           aadharFrontImage,
@@ -92,7 +91,7 @@ console.log("identificationUpdate",{
           licenseBackImage,
           licenseValidity: new Date(licenseValidity),
         };
-        const response = await this.registrationService.identification_update(driverData);
+        const response = await this.registrationService.identificationUpdate(driverData);
         return response;
       } else {
         return { message: 'something error' };
@@ -107,7 +106,7 @@ console.log("identificationUpdate",{
    * @param data - Vehicle data including registration and images
    * @returns Promise resolving to the update result or error message
    */
-  async vehicleUpdate(data: vehicleDatas): Promise<ControllerResponse | string> {
+  async vehicleUpdate(data: vehicleData): Promise<ControllerResponse | string> {
     try {
 
       console.log("vehicleUpdate",data);
@@ -129,11 +128,11 @@ console.log("identificationUpdate",{
     try {
       if (driverId) {
         const locationData = {
-          driverId: new ObjectId(driverId),
+          driverId,
           latitude,
           longitude,
         };
-        const response = await this.registrationService.location_update(locationData);
+        const response = await this.registrationService.locationUpdate(locationData);
         return response;
       }
       return { message: 'something error' };
@@ -154,12 +153,12 @@ console.log("identificationUpdate",{
       
       if (driverId && driverImageUrl) {
         const driverData = {
-          driverId: new ObjectId(driverId),
+          driverId,
           driverImageUrl,
         };
         console.log("driverData",driverData);
         
-        const response = await this.registrationService.driverImage_update(driverData);
+        const response = await this.registrationService.driverImageUpdate(driverData);
         return response;
       } else {
         return { message: 'Something error' };
@@ -174,7 +173,7 @@ console.log("identificationUpdate",{
    * @param data - Insurance and pollution data
    * @returns Promise resolving to the update result or error message
    */
-  async vehicleInsurancePollutionUpdate(data: insurancePoluiton): Promise<ControllerResponse | string> {
+  async vehicleInsurancePollutionUpdate(data: insurancePollution): Promise<ControllerResponse | string> {
     try {
       const {
         driverId,
@@ -197,7 +196,7 @@ console.log("vehicleInsurancePollutionUpdate",{
       });
 
       const driverData = {
-        driverId: new ObjectId(driverId),
+        driverId,
         insuranceImageUrl,
         insuranceStartDate: new Date(insuranceStartDate),
         insuranceExpiryDate: new Date(insuranceExpiryDate),
@@ -206,40 +205,11 @@ console.log("vehicleInsurancePollutionUpdate",{
         pollutionExpiryDate: new Date(pollutionExpiryDate),
       };
 
-      const response = await this.registrationService.vehicleInsurancePoluitonUpdate(driverData);
+      const response = await this.registrationService.vehicleInsurancePollutionUpdate(driverData);
       return response;
     } catch (error) {
       return (error as Error).message;
     }
   }
 
-  /**
-   * Retrieves resubmission documents for a driver
-   * @param id - Driver ID
-   * @returns Promise resolving to the resubmission data or error message
-   */
-  async getResubmissionDocuments(id: string): Promise<ControllerResponse | string> {
-    try {
-      const response = await this.registrationService.getResubmissionDocuments(id);
-      return response;
-    } catch (error) {
-      return (error as Error).message;
-    }
-  }
-
-  /**
-   * Posts resubmission documents for a driver
-   * @param data - Resubmission data
-   * @returns Promise resolving to the post result or error message
-   */
-  async postResubmissionDocuments(data: any): Promise<ControllerResponse | string> {
-    try {
-      console.log("postResubmissionDocuments",data);
-      
-      const response = await this.registrationService.postResubmissionDocuments(data);
-      return response;
-    } catch (error) {
-      return { message: (error as Error).message };
-    }
-  }
 }

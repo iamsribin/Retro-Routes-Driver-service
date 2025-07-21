@@ -33,6 +33,8 @@ interface DropoffCoordinates {
     latitude: number;
     longitude: number;
 }
+
+// =============================================
 export interface DriverInterface extends Document {
   _id:ObjectId;
   name: string;

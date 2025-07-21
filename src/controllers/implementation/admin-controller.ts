@@ -1,8 +1,8 @@
 ;import { IAdminController } from '../interfaces/i-admin-controller';
 import { IAdminService } from '../../services/interfaces/i-admin-service';
-import { Res_adminGetDriverDetailsById, Res_adminUpdateDriverStatus, Res_getDriversListByAccountStatus } from '../../dto/admin/adminResponse.dto';
+import { Res_adminGetDriverDetailsById, Res_adminUpdateDriverStatus, Res_getDriversListByAccountStatus } from '../../dto/admin/admin-response.dto';
 import { StatusCode } from '../../interface/enum';
-import { Req_adminUpdateDriverStatus } from '../../dto/admin/adminRequest.dto';
+import { Req_adminUpdateDriverStatus } from '../../dto/admin/admin-request.dto';
 
 export class AdminController implements IAdminController {
   private _adminService: IAdminService;

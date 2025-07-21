@@ -3,7 +3,6 @@ import {DriverService} from "../../services/implementation/driver_service";
 import mongodb, { ObjectId } from "mongodb";
 import { IDriverController } from "../interfaces/IDriverController";
 
-
 export class DriverController implements IDriverController {
   private driverService: DriverService;
 
