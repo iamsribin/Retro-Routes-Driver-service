@@ -21,9 +21,13 @@ export default class BookingController implements IBookingController {
       const requestData = {
         id: new ObjectId(id),
       };
+      
       const response = await this.BookingService.getDriverDetails(requestData);
+
       return response;
     } catch (error) {
+      console.log(error);
+      
       throw new Error((error as Error).message);
     }
   }

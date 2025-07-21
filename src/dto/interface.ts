@@ -94,3 +94,20 @@ export interface updateDriverStatusRequset{
   id:string,
   fields?:string[]
 }
+
+export interface DriverProfileUpdate {
+  driverId: string | mongodb.ObjectId;
+  field: string;
+  data: any;
+}
+
+export interface ControllerResponse {
+  message: string;
+  data?: any;
+  driverId?: string;
+}
+
+export interface IServiceResponse {
+  message: string;
+  data?: any;
+}

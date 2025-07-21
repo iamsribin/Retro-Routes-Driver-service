@@ -1,17 +1,26 @@
-import { DriverInterface } from '../../interface/driver.interface';
+import { DriverInterface } from "../../interface/driver.interface";
 import Resubmission from "../../model/resubmission.model";
-import Driver from '../../model/driver.model';
-import mongoose from 'mongoose';
-import { Registration, identification, vehicleDatas, insurancePoluiton, locationData, DriverImage, getDriverDetails } from '../../dto/interface';
-import { IDriverRepository, ResubmissionData } from '../interfaces/IDriverRepo';
+import Driver from "../../model/driver.model";
+import mongoose from "mongoose";
+import mongodb from "mongodb";
+
+import {
+  Registration,
+  identification,
+  vehicleDatas,
+  insurancePoluiton,
+  locationData,
+  DriverImage,
+  getDriverDetails,
+  DriverProfileUpdate,
+} from "../../dto/interface";
+import { IDriverRepository, ResubmissionData } from "../interfaces/IDriverRepo";
+import { log } from "util";
 
 export default class driverRepository implements IDriverRepository {
-  /**
-   * Saves a new driver to the database
-   * @param driverData - Driver registration data
-   * @returns Promise resolving to the saved driver or error message
-   */
-  async saveDriver(driverData: Registration): Promise<DriverInterface | string> {
+  async saveDriver(
+    driverData: Registration
+  ): Promise<DriverInterface | string> {
     try {
       const newDriver = new Driver({
         name: driverData.name,
@@ -21,63 +30,47 @@ export default class driverRepository implements IDriverRepository {
         referral_code: driverData.referral_code,
         joiningDate: new Date(),
         identification: false,
-        account_status: 'Incomplete',
+        account_status: "Incomplete",
       });
-      const saveDriver = await newDriver.save() as DriverInterface;
+      const saveDriver = (await newDriver.save()) as DriverInterface;
       return saveDriver;
     } catch (error) {
       return (error as Error).message;
     }
   }
 
-  /**
-   * Finds a driver by mobile number
-   * @param mobile - Driver's mobile number
-   * @returns Promise resolving to the driver or error message
-   */
-  async findDriver(mobile: number): Promise<DriverInterface | string> {
+  async findDriver(mobile: number| string): Promise<DriverInterface | string> {
     try {
-      const driverData = await Driver.findOne({ mobile }) as DriverInterface;
-      return driverData || 'Driver not found';
+      const driverData = (await Driver.findOne({ mobile })) as DriverInterface;
+      return driverData || "Driver not found";
     } catch (error) {
       return (error as Error).message;
     }
   }
 
-  /**
-   * Retrieves driver data by ID
-   * @param driver_id - Driver ID
-   * @returns Promise resolving to the driver or error message
-   */
   async getDriverData(driver_id: string): Promise<DriverInterface | string> {
     try {
-      const driverData = await Driver.findOne({ _id: driver_id }).sort({ date: 1 }) as DriverInterface;
-      return driverData || 'Driver not found';
+      const driverData = (await Driver.findOne({ _id: driver_id }).sort({
+        date: 1,
+      })) as DriverInterface;
+      return driverData || "Driver not found";
     } catch (error) {
       return (error as Error).message;
     }
   }
 
-  /**
-   * Finds a driver by email
-   * @param email - Driver's email
-   * @returns Promise resolving to the driver or error message
-   */
   async findDriverEmail(email: string): Promise<DriverInterface | string> {
     try {
-      const driverData = await Driver.findOne({ email }) as DriverInterface;
-      return driverData || 'Driver not found';
+      const driverData = (await Driver.findOne({ email })) as DriverInterface;
+      return driverData || "Driver not found";
     } catch (error) {
       return (error as Error).message;
     }
   }
 
-  /**
-   * Updates driver identification details
-   * @param driverData - Identification data
-   * @returns Promise resolving to the updated driver or null
-   */
-  async updateIdentification(driverData: identification): Promise<DriverInterface | null> {
+  async updateIdentification(
+    driverData: identification
+  ): Promise<DriverInterface | null> {
     try {
       const {
         driverId,
@@ -114,12 +107,9 @@ export default class driverRepository implements IDriverRepository {
     }
   }
 
-  /**
-   * Updates driver vehicle details
-   * @param vehicleData - Vehicle data
-   * @returns Promise resolving to the updated driver or null
-   */
-  async vehicleUpdate(vehicleData: vehicleDatas): Promise<DriverInterface | null> {
+  async vehicleUpdate(
+    vehicleData: vehicleDatas
+  ): Promise<DriverInterface | null> {
     try {
       const {
         registerationID,
@@ -136,29 +126,26 @@ export default class driverRepository implements IDriverRepository {
         driverId,
         {
           $set: {
-            'vehicle_details.registerationID': registerationID,
-            'vehicle_details.model': model,
-            'vehicle_details.rcFrondImageUrl': rcFrondImageUrl,
-            'vehicle_details.rcBackImageUrl': rcBackImageUrl,
-            'vehicle_details.carFrondImageUrl': carFrondImageUrl,
-            'vehicle_details.carBackImageUrl': carBackImageUrl,
-            'vehicle_details.rcStartDate': rcStartDate,
-            'vehicle_details.rcExpiryDate': rcExpiryDate,
+            "vehicle_details.registerationID": registerationID,
+            "vehicle_details.model": model,
+            "vehicle_details.rcFrondImageUrl": rcFrondImageUrl,
+            "vehicle_details.rcBackImageUrl": rcBackImageUrl,
+            "vehicle_details.carFrondImageUrl": carFrondImageUrl,
+            "vehicle_details.carBackImageUrl": carBackImageUrl,
+            "vehicle_details.rcStartDate": rcStartDate,
+            "vehicle_details.rcExpiryDate": rcExpiryDate,
           },
         },
         { new: true }
       );
       return response;
     } catch (error) {
+      console.log("vehicleUpdate",error);
+      
       throw new Error((error as Error).message);
     }
   }
 
-  /**
-   * Updates driver location
-   * @param data - Location data
-   * @returns Promise resolving to the updated driver or null
-   */
   async locationUpdate(data: locationData): Promise<DriverInterface | null> {
     try {
       const { driverId, longitude, latitude } = data;
@@ -171,7 +158,7 @@ export default class driverRepository implements IDriverRepository {
               longitude,
             },
             identification: true,
-            account_status: 'Pending',
+            account_status: "Pending",
           },
         },
         { new: true }
@@ -182,12 +169,9 @@ export default class driverRepository implements IDriverRepository {
     }
   }
 
-  /**
-   * Updates driver image
-   * @param driverData - Driver image data
-   * @returns Promise resolving to the updated driver or null
-   */
-  async updateDriverImage(driverData: DriverImage): Promise<DriverInterface | null> {
+  async updateDriverImage(
+    driverData: DriverImage
+  ): Promise<DriverInterface | null> {
     try {
       const { driverId, imageUrl } = driverData;
       const response = await Driver.findByIdAndUpdate(
@@ -201,12 +185,9 @@ export default class driverRepository implements IDriverRepository {
     }
   }
 
-  /**
-   * Updates vehicle insurance and pollution details
-   * @param driverData - Insurance and pollution data
-   * @returns Promise resolving to the updated driver or null
-   */
-  async vehicleInsurancePollutionUpdate(driverData: insurancePoluiton): Promise<DriverInterface | null> {
+  async vehicleInsurancePollutionUpdate(
+    driverData: insurancePoluiton
+  ): Promise<DriverInterface | null> {
     try {
       const {
         driverId,
@@ -221,12 +202,12 @@ export default class driverRepository implements IDriverRepository {
         driverId,
         {
           $set: {
-            'vehicle_details.insuranceImageUrl': insuranceImageUrl,
-            'vehicle_details.insuranceStartDate': insuranceStartDate,
-            'vehicle_details.insuranceExpiryDate': insuranceExpiryDate,
-            'vehicle_details.pollutionImageUrl': pollutionImageUrl,
-            'vehicle_details.pollutionStartDate': pollutionStartDate,
-            'vehicle_details.pollutionExpiryDate': pollutionExpiryDate,
+            "vehicle_details.insuranceImageUrl": insuranceImageUrl,
+            "vehicle_details.insuranceStartDate": insuranceStartDate,
+            "vehicle_details.insuranceExpiryDate": insuranceExpiryDate,
+            "vehicle_details.pollutionImageUrl": pollutionImageUrl,
+            "vehicle_details.pollutionStartDate": pollutionStartDate,
+            "vehicle_details.pollutionExpiryDate": pollutionExpiryDate,
           },
         },
         { new: true }
@@ -237,34 +218,30 @@ export default class driverRepository implements IDriverRepository {
     }
   }
 
-  /**
-   * Retrieves resubmission data for a driver
-   * @param id - Driver ID
-   * @returns Promise resolving to the resubmission data or null
-   */
-  async findResubmissionData(id: string): Promise<ResubmissionData | null> {
-    try {
-      const objectId = new mongoose.Types.ObjectId(id);
-      const response = await Resubmission.findOne({ driverId: objectId });
-      if (response) {
-        return {
-          driverId: response.driverId.toString(),
-          fields: response.fields,
-        };
-      }
-      return null;
-    } catch (error) {
-      throw new Error((error as Error).message);
-    }
-  }
+async findResubmissionData(id: string): Promise<ResubmissionData | null> {
+  try {
+    const objectId = new mongoose.Types.ObjectId(id);
 
-  /**
-   * Updates driver document with specified fields
-   * @param driverId - Driver ID
-   * @param update - Update data
-   * @returns Promise resolving to the updated driver or null
-   */
-  async updateDriver(driverId: string, update: any): Promise<DriverInterface | null> {
+    const response = await Resubmission.findOne({ driverId: objectId });
+
+    if (response) {
+      return {
+        driverId: response.driverId.toString(),
+        fields: response.fields,
+      };
+    }
+    return null;
+  } catch (error) {
+    console.log(error);
+    throw new Error((error as Error).message);
+  }
+}
+
+
+  async updateDriver(
+    driverId: string,
+    update: any
+  ): Promise<DriverInterface | null> {
     try {
       const objectId = new mongoose.Types.ObjectId(driverId);
       const updatedDriver = await Driver.findOneAndUpdate(
@@ -274,35 +251,122 @@ export default class driverRepository implements IDriverRepository {
       );
       return updatedDriver;
     } catch (error) {
-      throw new Error('Failed to update driver');
+      throw new Error("Failed to update driver");
     }
   }
 
-  /**
-   * Deletes resubmission data for a driver
-   * @param driverId - Driver ID
-   * @returns Promise resolving when deletion is complete
-   */
   async deleteResubmission(driverId: string): Promise<void> {
     try {
       const objectId = new mongoose.Types.ObjectId(driverId);
       await Resubmission.deleteOne({ driverId: objectId });
     } catch (error) {
-      throw new Error('Failed to delete resubmission document');
+      throw new Error("Failed to delete resubmission document");
     }
   }
 
-  /**
-   * Retrieves driver details by ID
-   * @param id - Driver ID
-   * @returns Promise resolving to the driver or null
-   */
-  async getDriverDetails(data: getDriverDetails): Promise<DriverInterface | null> {
+  async findById(
+    id: mongodb.ObjectId
+  ): Promise<DriverInterface | null> {
     try {
-      const response = await Driver.findById(data.id);
+      console.log("id==",id);
+      
+      const response = await Driver.findById(id);
       return response;
     } catch (error) {
+      console.log(error);
+      
       throw new Error((error as Error).message);
     }
   }
+
+async updateDriverProfile(
+  data: DriverProfileUpdate
+): Promise<DriverInterface | null> {
+  try {
+    const { driverId, field, data: updateData } = data;
+    let update: any = {};
+
+    switch (field) {
+      case "aadhar":
+        update = {
+          "aadhar.aadharId": updateData.aadharId,
+          "aadhar.aadharFrontImageUrl": updateData.aadharFrontImageUrl,
+          "aadhar.aadharBackImageUrl": updateData.aadharBackImageUrl,
+        };
+        break;
+      case "license":
+        update = {
+          "license.licenseId": updateData.licenseId,
+          "license.licenseFrontImageUrl": updateData.licenseFrontImageUrl,
+          "license.licenseBackImageUrl": updateData.licenseBackImageUrl,
+          "license.licenseValidity": new Date(updateData?.licenseValidity),
+        };
+        break;
+      case "rc":
+        update = {
+          "vehicle_details.rcFrondImageUrl": updateData.rcFrondImageUrl,
+          "vehicle_details.rcBackImageUrl": updateData.rcBackImageUrl,
+          "vehicle_details.rcStartDate": new Date(updateData?.rcStartDate),
+          "vehicle_details.rcExpiryDate": new Date(updateData?.rcExpiryDate),
+        };
+        break;
+      case "carImage":
+        update = {
+          "vehicle_details.carFrondImageUrl": updateData.carFrondImageUrl,
+          "vehicle_details.carBackImageUrl": updateData.carBackImageUrl,
+        };
+        break;
+      case "insurance":
+        update = {
+          "vehicle_details.insuranceImageUrl": updateData.insuranceImageUrl,
+          "vehicle_details.insuranceStartDate": new Date(updateData?.insuranceStartDate),
+          "vehicle_details.insuranceExpiryDate": new Date(updateData?.insuranceExpiryDate),
+        };
+        break;
+      case "pollution":
+        update = {
+          "vehicle_details.pollutionImageUrl": updateData.pollutionImageUrl,
+          "vehicle_details.pollutionStartDate": new Date(updateData?.pollutionStartDate),
+          "vehicle_details.pollutionExpiryDate": new Date(updateData?.pollutionExpiryDate),
+        };
+        break;
+      case "model":
+        update = {
+          "vehicle_details.model": updateData.model,
+        };
+        break;
+      case "registerationID":
+        update = {
+          "vehicle_details.registerationID": updateData.registerationID,
+        };
+        break;
+      case "driverImage":
+        update = {
+          driverImage: updateData.driverImageUrl,
+        };
+        break;
+      case "isAvailable":
+        update = {
+          isAvailable: updateData.isAvailable,
+        };
+        break;
+      default:
+        throw new Error("Invalid field");
+    }
+
+    // Always set account_status to "Pending" for fields that require review
+    if (field !== "isAvailable") {
+      update.account_status = "Pending";
+    }
+
+    const response = await Driver.findByIdAndUpdate(
+      driverId,
+      { $set: update },
+      { new: true, runValidators: true }
+    );
+    return response;
+  } catch (error) {
+    throw new Error((error as Error).message);
+  }
+}
 }

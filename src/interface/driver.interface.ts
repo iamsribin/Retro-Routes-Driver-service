@@ -107,4 +107,6 @@ interface Vehicle {
     pollutionImageUrl:string,
     pollutionStartDate:Date,
     pollutionExpiryDate:Date,
+    number:number,
+    color: string,
 }

@@ -17,6 +17,8 @@ export default class registerController implements IRegisterController {
    */
   async register(data: DriverData): Promise<ControllerResponse | string> {
     const { name, email, mobile, password, referral_code } = data;
+    console.log("register",{ name, email, mobile, password, referral_code });
+    
     const userData:DriverData = {
       name,
       email,
@@ -38,6 +40,7 @@ export default class registerController implements IRegisterController {
    * @returns Promise resolving to the check result or error message
    */
   async checkDriver(data: { mobile: number }): Promise<ControllerResponse | string> {
+    
     const { mobile } = data;
     try {
       const response = await this.registrationService.checkDriver(mobile);
@@ -64,6 +67,20 @@ export default class registerController implements IRegisterController {
       licenseValidity,
     } = data;
     try {
+
+console.log("identificationUpdate",{
+      aadharID,
+      licenseID,
+      driverId,
+      aadharFrontImage,
+      aadharBackImage,
+      licenseFrontImage,
+      licenseBackImage,
+      licenseValidity,
+    });
+
+
+
       if (driverId) {
         const driverData = {
           driverId: new ObjectId(driverId),
@@ -92,6 +109,9 @@ export default class registerController implements IRegisterController {
    */
   async vehicleUpdate(data: vehicleDatas): Promise<ControllerResponse | string> {
     try {
+
+      console.log("vehicleUpdate",data);
+      
       const response = await this.registrationService.vehicleUpdate(data);
       return response;
     } catch (error) {
@@ -130,7 +150,7 @@ export default class registerController implements IRegisterController {
   async updateDriverImage(data: driverImage): Promise<ControllerResponse | string> {
     const { driverId, driverImageUrl } = data;
     try {
-      console.log("data",data);
+      console.log("updateDriverImage",data);
       
       if (driverId && driverImageUrl) {
         const driverData = {
@@ -165,6 +185,16 @@ export default class registerController implements IRegisterController {
         pollutionStartDate,
         pollutionExpiryDate,
       } = data;
+
+console.log("vehicleInsurancePollutionUpdate",{
+        driverId,
+        pollutionImageUrl,
+        insuranceImageUrl,
+        insuranceStartDate,
+        insuranceExpiryDate,
+        pollutionStartDate,
+        pollutionExpiryDate,
+      });
 
       const driverData = {
         driverId: new ObjectId(driverId),
@@ -204,6 +234,8 @@ export default class registerController implements IRegisterController {
    */
   async postResubmissionDocuments(data: any): Promise<ControllerResponse | string> {
     try {
+      console.log("postResubmissionDocuments",data);
+      
       const response = await this.registrationService.postResubmissionDocuments(data);
       return response;
     } catch (error) {

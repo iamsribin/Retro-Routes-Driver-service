@@ -10,10 +10,12 @@ const DriverSchema: Schema = new Schema({
     email: {
         type: String,
         required: true,
+        unique:true,
     },
     mobile: {
         type: Number,
         required: true,
+        unique:true,
     },
     password: {
         type: String,
@@ -40,7 +42,7 @@ const DriverSchema: Schema = new Schema({
             type: String,
         },
     },
-
+    
     license: {
         licenseId: {
             type: String,
@@ -68,6 +70,12 @@ const DriverSchema: Schema = new Schema({
     vehicle_details: {
         registerationID: {
             type: String,
+        },
+        number:{
+         type:String,
+        },
+        color: {
+            type: String
         },
         model: {
             type: String,
@@ -114,6 +122,7 @@ const DriverSchema: Schema = new Schema({
         type: String,
         enum:["Good","Rejected","Block","Pending","Incomplete"]
     },
+
     wallet: {
         balance: {
             type: Number,

@@ -44,6 +44,10 @@ export default class registrationService implements IRegistrationService {
   async checkDriver(mobile: number): Promise<ServiceResponse> {
     try {
       const response = await this.driverRepo.findDriver(mobile) as DriverInterface | string;
+
+      console.log("response====",response);
+      
+
       let result: ServiceResponse;
       if (typeof response === 'string') {
         result = { message: response };
@@ -52,9 +56,14 @@ export default class registrationService implements IRegistrationService {
           result = { message: 'Document is pending', driverId : response._id.toString() };
         } else if (!response.driverImage) {
           result = { message: 'Driver image is pending', driverId : response._id.toString() };
-        } else if (!response.vehicle_details || !response.vehicle_details.registerationID) {
+        } else if (!response.vehicle_details) {
           result = { message: 'Vehicle details are pending', driverId : response._id.toString() };
-        } else if (
+        } else if (!response.vehicle_details.carBackImageUrl || 
+          !response.vehicle_details.carFrondImageUrl
+        ) {
+          result = { message: 'Vehicle details are pending', driverId : response._id.toString() };
+        }
+         else if (
           !response.vehicle_details.pollutionImageUrl ||
           !response.vehicle_details.insuranceImageUrl ||
           !response.vehicle_details.insuranceExpiryDate

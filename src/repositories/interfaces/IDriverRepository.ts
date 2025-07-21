@@ -1,17 +1,14 @@
 import { DriverInterface } from '../../interface/driver.interface';
 import { Registration, identification, vehicleDatas, locationData, insurancePoluiton, DriverImage, getDriverDetails } from '../../dto/interface';
-import mongodb from "mongodb";
+import { IBaseRepository } from './IBaseRepository';
 
 export interface ResubmissionData {
   driverId: string;
   fields: string[];
 }
 
-export interface IDriverRepository {
+export interface IDriverRepository extends IBaseRepository<DriverInterface> {
   saveDriver(driverData: Registration): Promise<DriverInterface | string>;
-  findDriver(mobile: number): Promise<DriverInterface | string>;
-  getDriverData(driver_id: string): Promise<DriverInterface | string>;
-  findDriverEmail(email: string): Promise<DriverInterface | string>;
   updateIdentification(driverData: identification): Promise<DriverInterface | null>;
   vehicleUpdate(vehicleData: vehicleDatas): Promise<DriverInterface | null>;
   locationUpdate(data: locationData): Promise<DriverInterface | null>;
@@ -20,5 +17,5 @@ export interface IDriverRepository {
   findResubmissionData(id: string): Promise<ResubmissionData | null>;
   updateDriver(driverId: string, update: any): Promise<DriverInterface | null>;
   deleteResubmission(driverId: string): Promise<void>;
-  findById(id:mongodb.ObjectId): Promise<DriverInterface | null>;
-}
+  updateDriverProfile(data: any): Promise<DriverInterface | null>;
+} 

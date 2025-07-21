@@ -6,10 +6,15 @@ export interface ControllerResponse {
 }
 
 export interface DriverDetailsResponse {
-  driverId: string;
-  cancelledRides: number;
-  vehicleModel: string;
-  rating: number;
+    driverName: string;
+    mobile: number;
+    driverImage: string;
+    driverId: string;
+    cancelledRides: number;
+    vehicleModel: string;
+    rating: number;
+    number: number;
+    color: string;
 }
 
 export interface IBookingController {
