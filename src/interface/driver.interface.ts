@@ -67,8 +67,8 @@ export interface DriverInterface extends Document {
 
   vehicleDetails: {
     registrationId: string;
-    number: string;
-    color: string;
+    vehicleNumber: string;
+    vehicleColor: string;
     model: string;
     rcFrontImageUrl: string;
     rcBackImageUrl: string;

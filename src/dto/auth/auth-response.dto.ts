@@ -18,8 +18,17 @@ export interface Res_getResubmissionDocuments{
   data?:ResubmissionInterface
 }
 
-export interface Res_postResubmissionDocuments{
+export interface Res_common{
   status:StatusCode,
   message:string,
+  id?:string,
   navigate?:string,
+}
+
+export interface Res_checkRegisterDriver{
+  status: StatusCode;
+  message: string;
+  isFullyRegistered?: boolean;
+  driverId?: string;
+  nextStep?: 'documents' | 'driverImage' | 'location' | 'insurance' | 'vehicle' | null;
 }

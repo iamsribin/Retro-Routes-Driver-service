@@ -1,5 +1,5 @@
 import { DriverProfileUpdate, IServiceResponse } from "../../dto/interface";
-import { DriverRepository } from "../../repositories/implementation/driver.repository";
+import { DriverRepository } from "../../repositories/implementation/driver-repository";
 import mongodb from "mongodb";
 
 export class DriverService {

@@ -1,5 +1,5 @@
 import { Req_postResubmissionDocuments } from "../../dto/auth/auth-request.dto";
-import { Res_checkLogin, Res_getResubmissionDocuments, Res_postResubmissionDocuments } from "../../dto/auth/auth-response.dto";
+import { Res_checkLogin, Res_common, Res_getResubmissionDocuments } from "../../dto/auth/auth-response.dto";
 import { StatusCode } from "../../interface/enum";
 import { ILoginService } from "../../services/interfaces/i-login-service";
 import { ILoginController } from "../interfaces/i-login-controller";
@@ -73,7 +73,7 @@ export class LoginController implements ILoginController {
    * @param data - Resubmission data
    * @returns Promise resolving to the post result or error message
    */
-  async postResubmissionDocuments(data: Req_postResubmissionDocuments): Promise<Res_postResubmissionDocuments> {
+  async postResubmissionDocuments(data: Req_postResubmissionDocuments): Promise<Res_common> {
     try {      
       const response = await this._loginService.postResubmissionDocuments(data);
       return response;

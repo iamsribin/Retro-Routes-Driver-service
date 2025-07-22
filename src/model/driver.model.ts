@@ -32,8 +32,8 @@ const DriverSchema: Schema = new Schema({
 
   vehicleDetails: {
     registrationId: { type: String },
-    number: { type: String },
-    color: { type: String },
+    vehicleNumber: { type: String },
+    vehicleColor: { type: String },
     model: { type: String },
     rcFrontImageUrl: { type: String },
     rcBackImageUrl: { type: String },

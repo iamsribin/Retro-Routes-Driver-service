@@ -1,4 +1,4 @@
-import  {DriverRepository}  from '../../repositories/implementation/driver.repository';
+import  {DriverRepository}  from '../../repositories/implementation/driver-repository';
 import { getDriverDetails } from '../../dto/interface';
 import { IBookingService, ServiceResponse } from '../interfaces/IBookingService';
 import { DriverDetailsResponse } from '../../controllers/interfaces/IBookingController';

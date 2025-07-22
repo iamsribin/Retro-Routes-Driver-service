@@ -3,7 +3,7 @@ import {DriverModel} from '../../model/driver.model';
 import { ResubmissionModel } from '../../model/resubmission.model';
 import { getDriverDetails } from '../../dto/interface';
 import { DriverInterface } from '../../interface/driver.interface';
-import { IAdminRepository } from '../interfaces/i-admin-repo';
+import { IAdminRepository } from '../interfaces/i-admin-repository';
 import { Req_adminUpdateDriverStatus } from '../../dto/admin/admin-request.dto';
 import { ResubmissionInterface } from '../../interface/resubmission.interface';
 

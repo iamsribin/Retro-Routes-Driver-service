@@ -1,27 +1,4 @@
 
-// Sending to driver service: {
-//   driverId: '68511ea2347fcb0fb30055aa',
-//   model: 'Sedan',
-//   insuranceStartDate: '2025-06-30',
-//   insuranceExpiryDate: '2025-10-05',
-//   pollutionStartDate: '2025-06-30',
-//   pollutionExpiryDate: '2025-08-17',
-//   aadharID: '1234 5678 9012',
-//   licenseID: 'MH12 20230012345',
-//   licenseValidity: '2025-08-24',
-//   carFrontImage: 'https://retro-routes-store.s3.eu-north-1.amazonaws.com/1753103096998',
-//   insuranceImage: 'https://retro-routes-store.s3.eu-north-1.amazonaws.com/1753103097004',
-//   carBackImage: 'https://retro-routes-store.s3.eu-north-1.amazonaws.com/1753103097001',
-//   rcBackImage: 'https://retro-routes-store.s3.eu-north-1.amazonaws.com/1753103096986',
-//   pollutionImage: 'https://retro-routes-store.s3.eu-north-1.amazonaws.com/1753103097012',
-//   rcFrontImage: 'https://retro-routes-store.s3.eu-north-1.amazonaws.com/1753103096983',
-//   driverImage: 'https://retro-routes-store.s3.eu-north-1.amazonaws.com/1753103097031',
-//   aadharBackImage: 'https://retro-routes-store.s3.eu-north-1.amazonaws.com/1753103096966',
-//   licenseFrontImage: 'https://retro-routes-store.s3.eu-north-1.amazonaws.com/1753103096974',
-//   aadharFrontImage: 'https://retro-routes-store.s3.eu-north-1.amazonaws.com/1753103096791',
-//   licenseBackImage: 'https://retro-routes-store.s3.eu-north-1.amazonaws.com/1753103096977'
-// }
-
 export interface Req_postResubmissionDocuments {
   driverId: string,
   model?: string,
@@ -47,3 +24,57 @@ export interface Req_postResubmissionDocuments {
   latitude?:string,
   longitude?:string
 } 
+
+export interface Req_identificationUpdate {
+  driverId: string;
+  aadharID: string;
+  licenseID: string;
+  aadharFrontImage: string;
+  aadharBackImage: string;
+  licenseFrontImage:string;
+  licenseBackImage:string;
+  licenseValidity:Date;
+}
+
+export interface Req_register{
+  name:string,
+  email:string,
+  mobile:number,
+  password:string,
+  referral_code:string,
+}
+
+export interface Req_updateDriverImage{
+  driverId:string,
+  driverImageUrl:string,
+}
+
+export interface Req_vehicleUpdate {
+  driverId: string;
+  registrationId: string;
+  model: string;
+  vehicleColor: string;
+  vehicleNumber: string;
+  rcStartDate: string;
+  rcExpiryDate: string;
+  rcFrondImageUrl: string;
+  rcBackImageUrl: string;
+  carFrondImageUrl: string;
+  carBackImageUrl: string;
+}
+
+export interface Req_insuranceUpdate{
+  driverId: string;
+  insuranceStartDate: Date;
+  insuranceExpiryDate: Date;
+  pollutionStartDate: Date;
+  pollutionExpiryDate: Date;
+  pollutionImageUrl: string;
+  insuranceImageUrl: string;
+}
+
+export interface Req_locationUpdate{
+  driverId: string;
+  latitude: number;
+  longitude: number;
+}

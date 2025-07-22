@@ -5,13 +5,13 @@ import { ILoginService } from "../interfaces/i-login-service";
 import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
 import {
   Res_checkLogin,
+  Res_common,
   Res_getResubmissionDocuments,
-  Res_postResubmissionDocuments,
 } from "../../dto/auth/auth-response.dto";
 import { StatusCode } from "../../interface/enum";
 import { ResubmissionInterface } from "../../interface/resubmission.interface";
 import { Req_postResubmissionDocuments } from "../../dto/auth/auth-request.dto";
-import { IDriverRepository } from '../../repositories/interfaces/IDriverRepository';
+import { IDriverRepository } from '../../repositories/interfaces/i-driver-repository';
 
 export class LoginService implements ILoginService {
   private _driverRepo: IDriverRepository;
@@ -168,9 +168,8 @@ export class LoginService implements ILoginService {
 
 async postResubmissionDocuments(
   data: Req_postResubmissionDocuments
-): Promise<Res_postResubmissionDocuments> {
+): Promise<Res_common> {
   try {
-    console.log(data);
     
     const { driverId, ...updateData } = data;
 

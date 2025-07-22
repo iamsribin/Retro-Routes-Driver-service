@@ -1,46 +1,24 @@
 import mongodb from "mongodb";
 
-export interface mongoId{
-  id:mongodb.ObjectId,
+export interface mongoId {
+  id: mongodb.ObjectId;
 }
-
 
 // ===================================================
 
 export interface Message {
-    message: string ;
-  }
-
-  export interface driverData{
-    name:string,
-    email:string,
-    mobile:number,
-    driver_id:string
+  message: string;
 }
 
-export interface DriverData{
-  name:string,
-  email:string,
-  mobile:number,
-  password:string,
-  referral_code:string,
+export interface driverData {
+  name: string;
+  email: string;
+  mobile: number;
+  driver_id: string;
 }
 
-export interface getDriverDetails{
-  id:mongodb.ObjectId,
-}
-
-
-
-export interface identification {
-  driverId: string;
-  aadharID: string;
-  licenseID: string;
-  aadharFrontImage: string;
-  aadharBackImage: string;
-  licenseFrontImage:string;
-  licenseBackImage:string;
-  licenseValidity:Date;
+export interface getDriverDetails {
+  id: mongodb.ObjectId;
 }
 
 export interface Identification {
@@ -58,47 +36,20 @@ export interface Registration {
   password: string;
   referral_code: string;
 }
-export interface driverImage{
-  driverId:string,
-  driverImageUrl:string,
-}
-export interface DriverImage{
-  driverId:mongodb.ObjectId,
+
+export interface DriverImage {
+  driverId: mongodb.ObjectId;
   imageUrl: string;
 }
-export interface vehicleData{
-  registrationId:string,
-  model:string,
-  driverId:mongodb.ObjectId,
-  rcFrontImageUrl:string,
-  rcBackImageUrl:string,
-  carFrontImageUrl:string,
-  carBackImageUrl:string,
-  rcStartDate:string,
-  rcExpiryDate:Date,
-}
 
-export interface insurancePollution{
-  driverId:mongodb.ObjectId,
-  insuranceImageUrl:string,
-  insuranceStartDate:Date,
-  insuranceExpiryDate:Date,
-  pollutionImageUrl:string,
-  pollutionStartDate:Date,
-  pollutionExpiryDate:Date,
-}
 
-export interface locationData{
-  driverId:string,
-  latitude:number,
-  longitude:number
-}
 
-export interface updateDriverStatusRequset{
-  status:"Verified" | "Rejected" | "Block" | "UnBlock",
-  reason: string,
-  id:string,
-  fields?:string[]
+
+export interface updateDriverStatusRequset {
+  status: "Verified" | "Rejected" | "Block" | "UnBlock";
+  reason: string;
+  id: string;
+  fields?: string[];
 }
 
 export interface DriverProfileUpdate {
