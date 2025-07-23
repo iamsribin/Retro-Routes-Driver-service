@@ -41,7 +41,7 @@ export interface Req_register{
   email:string,
   mobile:number,
   password:string,
-  referral_code:string,
+  referralCode:string,
 }
 
 export interface Req_updateDriverImage{
@@ -77,4 +77,5 @@ export interface Req_locationUpdate{
   driverId: string;
   latitude: number;
   longitude: number;
+  address:string;
 }

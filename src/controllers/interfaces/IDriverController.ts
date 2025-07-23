@@ -1,10 +1,9 @@
-import { ControllerResponse, DriverProfileUpdate, IServiceResponse } from "../../dto/interface";
-import { checkDriverSuccessResponse } from "./i-login-controller";
-import mongodb from "mongodb";
+import { ControllerResponse, DriverProfileUpdate } from "../../dto/interface";
+import { DriverProfileDTO, IResponse } from "../../dto/driver/driverResponse.dto";
+import { Req_updateDriverProfile } from "../../dto/driver/driverRequest.dto";
 
- 
  export interface IDriverController {
-   fetchDriverDetails(id: mongodb.ObjectId): Promise<IServiceResponse | string>;
-   updateDriverDetails(data: DriverProfileUpdate): Promise<ControllerResponse | string >;
+   fetchDriverProfile(id: string): Promise<IResponse<DriverProfileDTO>>;
+   updateDriverProfile(data:Req_updateDriverProfile ): Promise<ControllerResponse | string >;
    getDriverById(data:any): Promise<void>;
  }

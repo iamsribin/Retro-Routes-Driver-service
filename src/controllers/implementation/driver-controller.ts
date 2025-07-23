@@ -1,49 +1,72 @@
-import { ControllerResponse, DriverProfileUpdate, IServiceResponse } from "../../dto/interface";
-import {DriverService} from "../../services/implementation/driver_service";
-import mongodb, { ObjectId } from "mongodb";
+import {
+  ControllerResponse,
+  DriverProfileUpdate,
+} from "../../dto/interface";
+import { ObjectId } from "mongodb";
 import { IDriverController } from "../interfaces/IDriverController";
+import { IDriverService } from "../../services/interfaces/IDriverService";
+import {
+  DriverProfileDTO,
+  IResponse,
+} from "../../dto/driver/driverResponse.dto";
+import { StatusCode } from "../../interface/enum";
+import { Req_updateDriverProfile } from "../../dto/driver/driverRequest.dto";
 
 export class DriverController implements IDriverController {
-  private driverService: DriverService;
+  private _driverService: IDriverService;
 
-  constructor(DriverService: DriverService) {
-    this.driverService = DriverService;
+  constructor(DriverService: IDriverService) {
+    this._driverService = DriverService;
   }
 
-  async fetchDriverDetails(id:mongodb.ObjectId): Promise<IServiceResponse | string> {
+  async fetchDriverProfile(id: string): Promise<IResponse<DriverProfileDTO>> {
     try {
-      const response = await this.driverService.fetchDriverDetails(id);
-      return {
-        message: "success",
-        data: response,
-      };;
-
+      return await this._driverService.fetchDriverProfile(id);
     } catch (error) {
-      throw new Error((error as Error).message);
+      console.log(error);
+      return {
+        status: StatusCode.InternalServerError,
+        message: (error as Error).message,
+        data: null,
+      };
     }
   }
 
-    async updateDriverDetails(data: DriverProfileUpdate): Promise<ControllerResponse | string> {
-    try {
-      const { driverId, field, data: updateData } = data;
-      
-      if (!driverId) {
-        return { message: "Driver ID is required" };
-      }
-      const driverData = {
-        driverId: new ObjectId(driverId),
-        field,
-        data: updateData,
-      };
-      const response = await this.driverService.updateDriverDetails(driverData);
+  // async updateDriverProfile(
+  //   data: Req_updateDriverProfile
+  // ): Promise<ControllerResponse | string> {
+  //   try {
+  //     const { driverId, field, data: updateData } = data;
+
+  //     if (!driverId) {
+  //       return { message: "Driver ID is required" };
+  //     }
+  //     const driverData = {
+  //       driverId: new ObjectId(driverId),
+  //       field,
+  //       data: updateData,
+  //     };
+  //     const response = await this._driverService.updateDriverDetails(
+  //       driverData
+  //     );
+  //     return response;
+  //   } catch (error) {
+  //     return { message: (error as Error).message };
+  //   }
+  // }
+
+  async updateDriverProfile(data: Req_updateDriverProfile): Promise<ControllerResponse | string> {
+        try {
+      const response = await this._driverService.updateDriverProfile(
+        data
+      );
       return response;
     } catch (error) {
       return { message: (error as Error).message };
     }
   }
 
-  async getDriverById(data:any){
-    console.log("ethi eda",data);
-    
+  async getDriverById(data: any) {
+    console.log("ethi eda", data);
   }
 }

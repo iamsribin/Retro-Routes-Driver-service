@@ -33,9 +33,8 @@ export class MessageHandler {
     replyTo: string
   ) {
     let response = data;
-    console.log("The operation is", operation, data);
 
-    switch (operation) {
+    switch (operation) { 
       //=======  login operations ===========
       case "login-check":
         response = await this._loginController.checkLogin(data);
@@ -96,11 +95,11 @@ export class MessageHandler {
 
       //============ driver operations =================
       case "get-driver-profile":
-        response = await this._driverController.fetchDriverDetails(data);
+        response = await this._driverController.fetchDriverProfile(data);
         break;
 
       case "update-driver-profile":
-        response = await this._driverController.updateDriverDetails(data);
+        response = await this._driverController.updateDriverProfile(data);
         break;
 
       case "get-admin-drivers-by-status":

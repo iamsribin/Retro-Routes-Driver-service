@@ -121,6 +121,7 @@ export class DriverRepository
       $set: {
         "location.latitude": data.latitude,
         "location.longitude": data.longitude,
+        "location.address":data.address,
         accountStatus: "Pending",
       },
     });

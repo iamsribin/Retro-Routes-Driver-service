@@ -1,12 +1,9 @@
-import { CreateDriverRequestDTO, UpdateDriverIdentificationRequestDTO, UpdateDriverVehicleRequestDTO, UpdateDriverLocationRequestDTO, UpdateDriverImageRequestDTO, UpdateDriverInsurancePollutionRequestDTO } from '../../dto/driver/driverRequest.dto';
-import { DriverResponseDTO, DriverProfileResponseDTO } from '../../dto/driver/driverResponse.dto';
+import { Req_updateDriverProfile } from '../../dto/driver/driverRequest.dto';
+import {  IResponse, DriverProfileDTO } from '../../dto/driver/driverResponse.dto';
+import { ControllerResponse, DriverProfileUpdate } from '../../dto/interface';
 
-export interface IDriverService {
-  createDriver(data: CreateDriverRequestDTO): Promise<DriverResponseDTO>;
-  updateIdentification(data: UpdateDriverIdentificationRequestDTO): Promise<DriverResponseDTO | null>;
-  updateVehicle(data: UpdateDriverVehicleRequestDTO): Promise<DriverResponseDTO | null>;
-  updateLocation(data: UpdateDriverLocationRequestDTO): Promise<DriverResponseDTO | null>;
-  updateDriverImage(data: UpdateDriverImageRequestDTO): Promise<DriverResponseDTO | null>;
-  updateInsurancePollution(data: UpdateDriverInsurancePollutionRequestDTO): Promise<DriverResponseDTO | null>;
-  getDriverProfile(id: string): Promise<DriverProfileResponseDTO | null>;
-} 
+ export interface IDriverService {
+fetchDriverProfile(id: string): Promise<IResponse<DriverProfileDTO>>;
+ updateDriverProfile(data:Req_updateDriverProfile ): Promise<IResponse<null>>;
+  // updateDriverDetails(data: DriverProfileUpdate): Promise<ControllerResponse | string >;
+ }

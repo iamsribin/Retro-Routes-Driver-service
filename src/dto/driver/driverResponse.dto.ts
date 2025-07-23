@@ -1,30 +1,22 @@
-export interface DriverResponseDTO {
-  id: string;
+import { StatusCode } from "../../interface/enum";
+
+export interface DriverProfileDTO {
   name: string;
   email: string;
-  mobile: number;
+  mobile: string;
   driverImage?: string;
-  referral_code?: string;
-  joiningDate?: Date;
-  account_status?: string;
-  isAvailable?: boolean;
-  totalRatings?: number;
-  // Add more fields as needed for client response
+  address?: string;
+  totalRatings: number;
+  joiningDate: string;
+  completedRides: number;
+  cancelledRides: number;
+  walletBalance?: number;
+  adminCommission: number;
 }
 
-export interface DriverProfileResponseDTO {
-  id: string;
-  name: string;
-  email: string;
-  mobile: number;
-  driverImage?: string;
-  vehicle_details?: {
-    registerationID?: string;
-    model?: string;
-    color?: string;
-    number?: string;
-  };
-  account_status?: string;
-  isAvailable?: boolean;
-  // Add more fields as needed for profile response
-} 
+export interface IResponse<T> {
+  status: StatusCode;
+  message: string;
+  navigate?: string | number;
+  data?: T | null;
+}

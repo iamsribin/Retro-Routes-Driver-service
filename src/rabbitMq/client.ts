@@ -27,7 +27,7 @@ const resubmissionBaseRepository = new BaseRepository(ResubmissionModel);
 const loginService = new LoginService(driverBaseRepository,resubmissionBaseRepository,driverRepository);
 const registrationService = new RegistrationService(driverRepository,driverBaseRepository);
 const adminService = new AdminService(adminRepository,driverBaseRepository,resubmissionBaseRepository);
-const driverService = new DriverService(driverRepository);
+const driverService = new DriverService(driverRepository,driverBaseRepository);
 const bookingService = new BookingService(driverRepository);
 
 const loginController = new LoginController(loginService);

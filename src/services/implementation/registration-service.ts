@@ -34,9 +34,9 @@ export class RegistrationService implements IRegistrationService {
   // ✅ Register new driver
   async register(driverData: Req_register): Promise<Res_common> {
     try {
-      const { name, email, mobile, password, referral_code } = driverData;
+      const { name, email, mobile, password, referralCode } = driverData;
 
-      const referralCode = refferalCode();
+      const newReferralCode = refferalCode();
       const hashedPassword = await bcrypt.securePassword(password);
 
       const newDriver: Partial<DriverInterface> = {
@@ -44,7 +44,7 @@ export class RegistrationService implements IRegistrationService {
         email,
         mobile,
         password: hashedPassword,
-        referralCode: referralCode,
+        referralCode: newReferralCode,
       };
 
       const createdDriver = await this._baseRepo.create(newDriver);

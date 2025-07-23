@@ -8,9 +8,9 @@ export interface RideDetails extends Document {
     dropoffCoordinates: DropoffCoordinates;
     pickupLocation: string;
     dropoffLocation: string;
-    driverCoordinates?: {
-        latitude?: number;
-        longitude?: number;
+    driverCoordinates: {
+        latitude: number;
+        longitude: number;
     };
     distance: string;
     duration: string;
@@ -20,8 +20,8 @@ export interface RideDetails extends Document {
     status: string;
     pin: number;
     paymentMode: string;
-    feedback?: string;
-    rating?: number;
+    feedback: string;
+    rating: number;
 }
 
 interface PickupCoordinates {
@@ -35,13 +35,25 @@ interface DropoffCoordinates {
 }
 
 // =============================================
+
+export enum AccountStatus {
+  Good = "Good",
+  Warning = "Warning",
+  Rejected = "Rejected",
+  Blocked = "Blocked",
+  Pending = "Pending",
+  Incomplete = "Incomplete",
+}
+
+
 export interface DriverInterface extends Document {
-  _id:ObjectId;
+  _id: ObjectId;
+
   name: string;
   email: string;
   mobile: number;
-  adminCommission?: number;
   password: string;
+  adminCommission?: number;
   driverImage: string;
   referralCode: string;
   joiningDate: Date;
@@ -62,7 +74,7 @@ export interface DriverInterface extends Document {
   location: {
     longitude: string;
     latitude: string;
-    address:string;
+    address: string;
   };
 
   vehicleDetails: {
@@ -84,24 +96,29 @@ export interface DriverInterface extends Document {
     pollutionExpiryDate: Date;
   };
 
-  accountStatus: "Good" | "Warning" | "Rejected" | "Blocked" | "Pending" | "Incomplete";
+  accountStatus: AccountStatus;
 
   wallet?: {
     balance: number;
-    transactions?: {
+    transactions: {
       date: Date;
       details: string;
-      rideId: string;
       amount: number;
-      status: "credit" | "debit";
+      status: "credit" | "debit" | "failed"; 
+      rideId: string;
     }[];
   };
 
+  completedRides?: number;
+  cancelledRides?: number;
+
   rideDetails?: {
-    completedRides?: number;
-    cancelledRides?: number;
-    totalEarnings?: {amount:number, date: Date}[];
-  };
+    completedRides: number;
+    cancelledRides: number;
+    Earnings: number;
+    hour: number;
+    date: Date;
+  }[];
 
   isAvailable: boolean;
 
@@ -114,6 +131,7 @@ export interface DriverInterface extends Document {
     date: Date;
   }[];
 
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
+
