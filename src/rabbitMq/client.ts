@@ -14,7 +14,7 @@ import {MessageHandler} from "./message-handler";
 import {BookingService} from "../services/implementation/booking_service";
 import {BookingController} from "../controllers/implementation/booking-controller";
 import {DriverController} from "../controllers/implementation/driver-controller";
-import {DriverService} from "../services/implementation/driver_service";
+import {DriverService} from "../services/implementation/driver-service";
 import { BaseRepository } from "../repositories/implementation/base-repository";
 import { DriverModel } from "../model/driver.model";
 import { ResubmissionModel } from "../model/resubmission.model";

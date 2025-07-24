@@ -1,5 +1,5 @@
 import { rabbitClient } from "./client";
-import { IDriverController } from "../controllers/interfaces/IDriverController";
+import { IDriverController } from "../controllers/interfaces/i-driver-controller";
 import { ILoginController } from "../controllers/interfaces/i-login-controller";
 import { IRegisterController } from "../controllers/interfaces/i-register-controller";
 import { IAdminController } from "../controllers/interfaces/i-admin-controller";
@@ -34,7 +34,7 @@ export class MessageHandler {
   ) {
     let response = data;
 
-    switch (operation) { 
+    switch (operation) {
       //=======  login operations ===========
       case "login-check":
         response = await this._loginController.checkLogin(data);
@@ -93,6 +93,10 @@ export class MessageHandler {
         response = await this._bookingController.getDriverDetails(data);
         break;
 
+      case "update-driver-cancel-count":
+        // response = await this._bookingController.getDriverDetails(data);
+        break;
+
       //============ driver operations =================
       case "get-driver-profile":
         response = await this._driverController.fetchDriverProfile(data);
@@ -101,6 +105,15 @@ export class MessageHandler {
       case "update-driver-profile":
         response = await this._driverController.updateDriverProfile(data);
         break;
+
+      case "get-driver-documents":
+        response = await this._driverController.fetchDriverDocuments(data);
+        break;
+      case "update-driver-documents":
+        response = await this._driverController.updateDriverDocuments(data);
+        break;
+
+      // ================admin operations ===================
 
       case "get-admin-drivers-by-status":
         response = await this._adminController.getDriversListByAccountStatus(

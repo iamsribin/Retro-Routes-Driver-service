@@ -2,14 +2,13 @@ import { refferalCode } from "../../utilities/referralCode";
 import bcrypt from "../../utilities/bcrypt";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
 import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
-
 import { DriverInterface } from "../../interface/driver.interface";
 import { IRegistrationService } from "../interfaces/i-registration-service";
+import { StatusCode } from "../../interface/enum";
 import {
   Res_checkRegisterDriver,
   Res_common,
 } from "../../dto/auth/auth-response.dto";
-import { StatusCode } from "../../interface/enum";
 import {
   Req_identificationUpdate,
   Req_insuranceUpdate,

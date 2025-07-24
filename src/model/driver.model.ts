@@ -33,18 +33,21 @@ const DriverSchema: Schema = new Schema(
 
     vehicleDetails: {
       registrationId: { type: String },
+      rcFrontImageUrl: { type: String },
+      rcBackImageUrl: { type: String },
+      rcStartDate: { type: Date },
+      rcExpiryDate: { type: Date },
+      
       vehicleNumber: { type: String },
       vehicleColor: { type: String },
       model: { type: String },
-      rcFrontImageUrl: { type: String },
-      rcBackImageUrl: { type: String },
       carFrontImageUrl: { type: String },
       carBackImageUrl: { type: String },
-      rcStartDate: { type: Date },
-      rcExpiryDate: { type: Date },
+
       insuranceImageUrl: { type: String },
       insuranceStartDate: { type: Date },
       insuranceExpiryDate: { type: Date },
+      
       pollutionImageUrl: { type: String },
       pollutionStartDate: { type: Date },
       pollutionExpiryDate: { type: Date },
@@ -71,11 +74,11 @@ const DriverSchema: Schema = new Schema(
     completedRides: { type: Number, default: 0 },
     cancelledRides: { type: Number, default: 0 },
 
-    rideDetails:[
+    rideDetails: [
       {
-        completedRides:{type: Number, default: 0},
+        completedRides: { type: Number, default: 0 },
         cancelledRides: { type: Number, default: 0 },
-        Earnings:{type: Number},
+        Earnings: { type: Number },
         hour: { type: Number },
         date: { type: Date },
       },
@@ -96,7 +99,6 @@ const DriverSchema: Schema = new Schema(
   },
   { timestamps: true }
 );
-
 
 DriverSchema.index({ location: "2dsphere" });
 DriverSchema.index({ "wallet.transactions.date": -1 });

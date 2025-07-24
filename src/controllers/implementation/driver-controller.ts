@@ -1,16 +1,15 @@
+import { IDriverController } from "../interfaces/i-driver-controller";
+import { IDriverService } from "../../services/interfaces/i-driver-service";
+import { StatusCode } from "../../interface/enum";
 import {
-  ControllerResponse,
-  DriverProfileUpdate,
-} from "../../dto/interface";
-import { ObjectId } from "mongodb";
-import { IDriverController } from "../interfaces/IDriverController";
-import { IDriverService } from "../../services/interfaces/IDriverService";
-import {
+  DriverDocumentDTO,
   DriverProfileDTO,
   IResponse,
-} from "../../dto/driver/driverResponse.dto";
-import { StatusCode } from "../../interface/enum";
-import { Req_updateDriverProfile } from "../../dto/driver/driverRequest.dto";
+} from "../../dto/driver/driver-response.dto";
+import {
+  Req_updateDriverDocuments,
+  Req_updateDriverProfile,
+} from "../../dto/driver/driver-request.dto";
 
 export class DriverController implements IDriverController {
   private _driverService: IDriverService;
@@ -32,41 +31,48 @@ export class DriverController implements IDriverController {
     }
   }
 
-  // async updateDriverProfile(
-  //   data: Req_updateDriverProfile
-  // ): Promise<ControllerResponse | string> {
-  //   try {
-  //     const { driverId, field, data: updateData } = data;
-
-  //     if (!driverId) {
-  //       return { message: "Driver ID is required" };
-  //     }
-  //     const driverData = {
-  //       driverId: new ObjectId(driverId),
-  //       field,
-  //       data: updateData,
-  //     };
-  //     const response = await this._driverService.updateDriverDetails(
-  //       driverData
-  //     );
-  //     return response;
-  //   } catch (error) {
-  //     return { message: (error as Error).message };
-  //   }
-  // }
-
-  async updateDriverProfile(data: Req_updateDriverProfile): Promise<ControllerResponse | string> {
-        try {
-      const response = await this._driverService.updateDriverProfile(
-        data
-      );
+  async updateDriverProfile(
+    data: Req_updateDriverProfile
+  ): Promise<IResponse<null>> {
+    try {
+      const response = await this._driverService.updateDriverProfile(data);
       return response;
     } catch (error) {
-      return { message: (error as Error).message };
+      return {
+        status: StatusCode.InternalServerError,
+        message: (error as Error).message,
+        data: null,
+      };
     }
   }
 
-  async getDriverById(data: any) {
-    console.log("ethi eda", data);
+  async fetchDriverDocuments(
+    id: string
+  ): Promise<IResponse<DriverDocumentDTO>> {
+    try {
+      return await this._driverService.fetchDriverDocuments(id);
+    } catch (error) {
+      console.log(error);
+      return {
+        status: StatusCode.InternalServerError,
+        message: (error as Error).message,
+        data: null,
+      };
+    }
+  }
+
+  async updateDriverDocuments(
+    data: Req_updateDriverDocuments
+  ): Promise<IResponse<null>> {
+    try {
+      const response = await this._driverService.updateDriverDocuments(data);
+      return response;
+    } catch (error) {
+      return {
+        status: StatusCode.InternalServerError,
+        message: (error as Error).message,
+        data: null,
+      };
+    }
   }
 }

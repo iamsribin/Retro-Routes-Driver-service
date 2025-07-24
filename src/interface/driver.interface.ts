@@ -71,12 +71,7 @@ export interface DriverInterface extends Document {
     validity: Date;
   };
 
-  location: {
-    longitude: string;
-    latitude: string;
-    address: string;
-  };
-
+  
   vehicleDetails: {
     registrationId: string;
     vehicleNumber: string;
@@ -95,7 +90,13 @@ export interface DriverInterface extends Document {
     pollutionStartDate: Date;
     pollutionExpiryDate: Date;
   };
-
+  
+  location: {
+    longitude: string;
+    latitude: string;
+    address: string;
+  };
+  
   accountStatus: AccountStatus;
 
   wallet?: {

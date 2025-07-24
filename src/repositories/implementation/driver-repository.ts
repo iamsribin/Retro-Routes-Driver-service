@@ -141,4 +141,8 @@ export class DriverRepository
       },
     });
   }
+
+async getDocuments(id: string): Promise<DriverInterface | null> {
+  return this.findById(id, 'aadhar license vehicleDetails');
+}
 }

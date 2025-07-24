@@ -7,9 +7,6 @@ export interface IDriverRepository {
   getByMobile(mobile: number): Promise<DriverInterface | null>;
   getActiveById(id: string): Promise<DriverInterface | null>;
   updateProfileById(id: string, updateData: Partial<DriverInterface>): Promise<DriverInterface | null>;
-  updateOneDriver(filter: FilterQuery<DriverInterface>, updateData: UpdateQuery<DriverInterface>): Promise<DriverInterface | null>;
-  deleteDriverById(id: string): Promise<boolean>;
-  getDrivers(filter?: FilterQuery<DriverInterface>): Promise<DriverInterface[]>;
   getByIdWithProjection(id: string, projection: string): Promise<DriverInterface | null>;
   exists(filter: FilterQuery<DriverInterface>): Promise<boolean>;
   updateIdentification(data: Req_identificationUpdate):Promise<DriverInterface | null>;
@@ -17,4 +14,5 @@ export interface IDriverRepository {
   locationUpdate(data: Req_locationUpdate): Promise<DriverInterface | null>;
   updateDriverImage(data:{driverId:string, imageUrl:string}): Promise<DriverInterface | null>
   vehicleInsurancePollutionUpdate(data: Req_insuranceUpdate): Promise<DriverInterface | null>;
+  getDocuments(id:string): Promise<DriverInterface | null>;
 }
