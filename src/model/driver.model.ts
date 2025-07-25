@@ -71,8 +71,8 @@ const DriverSchema: Schema = new Schema(
       ],
     },
 
-    completedRides: { type: Number, default: 0 },
-    cancelledRides: { type: Number, default: 0 },
+    totalCompletedRides: { type: Number, default: 0 },
+    totalCancelledRides: { type: Number, default: 0 },
 
     rideDetails: [
       {

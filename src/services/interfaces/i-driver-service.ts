@@ -1,9 +1,9 @@
 import { Req_updateDriverDocuments, Req_updateDriverProfile } from "../../dto/driver/driver-request.dto";
 import {
-  IResponse,
   DriverProfileDTO,
   DriverDocumentDTO,
 } from "../../dto/driver/driver-response.dto";
+import { IResponse } from "../../dto/interface";
 
 export interface IDriverService {
   fetchDriverProfile(id: string): Promise<IResponse<DriverProfileDTO>>;

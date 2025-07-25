@@ -21,11 +21,6 @@ export class RegisterController implements IRegisterController {
     this._registrationService = registrationService;
   }
 
-  /**
-   * Registers a new driver
-   * @param data - Driver registration data
-   * @returns Promise resolving to the registration result or error message
-   */
   async register(data: Req_register): Promise<Res_common> {
     try {
       const response = await this._registrationService.register(data);
@@ -38,11 +33,6 @@ export class RegisterController implements IRegisterController {
     }
   }
 
-  /**
-   * Checks if a driver exists by mobile number
-   * @param data - Object containing the mobile number
-   * @returns Promise resolving to the check result or error message
-   */
   async checkRegisterDriver(mobile: number): Promise<Res_checkRegisterDriver> {
     try {
       const response = await this._registrationService.checkRegisterDriver(
@@ -50,20 +40,13 @@ export class RegisterController implements IRegisterController {
       );
       return response;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Unknown error";
-      console.error("Controller Error:", message);
       return {
         status: StatusCode.InternalServerError,
-        message,
+        message: (error as Error).message,
       };
     }
   }
 
-  /**
-   * Updates driver identification details
-   * @param data - Identification data including Aadhar and license details
-   * @returns Promise resolving to the update result or error message
-   */
   async identificationUpdate(
     data: Req_identificationUpdate
   ): Promise<Res_common> {
@@ -80,11 +63,6 @@ export class RegisterController implements IRegisterController {
     }
   }
 
-  /**
-   * Updates driver image
-   * @param data - Driver ID and image URL
-   * @returns Promise resolving to the update result or error message
-   */
   async updateDriverImage(data: Req_updateDriverImage): Promise<Res_common> {
     try {
       const response = await this._registrationService.driverImageUpdate(data);
@@ -97,11 +75,6 @@ export class RegisterController implements IRegisterController {
     }
   }
 
-  /**
-   * Updates driver vehicle details
-   * @param data - Vehicle data including registration and images
-   * @returns Promise resolving to the update result or error message
-   */
   async vehicleUpdate(data: Req_vehicleUpdate): Promise<Res_common> {
     try {
       const response = await this._registrationService.vehicleUpdate(data);
@@ -114,11 +87,6 @@ export class RegisterController implements IRegisterController {
     }
   }
 
-  /**
-   * Updates vehicle insurance and pollution details
-   * @param data - Insurance and pollution data
-   * @returns Promise resolving to the update result or error message
-   */
   async vehicleInsurancePollutionUpdate(
     data: Req_insuranceUpdate
   ): Promise<Res_common> {
@@ -134,11 +102,6 @@ export class RegisterController implements IRegisterController {
     }
   }
 
-  /**
-   * Updates driver location
-   * @param data - Location data including latitude and longitude
-   * @returns Promise resolving to the update result or error message
-   */
   async location(data: Req_locationUpdate): Promise<Res_common> {
     try {
       const response = await this._registrationService.locationUpdate(data);

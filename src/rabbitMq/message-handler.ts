@@ -3,13 +3,13 @@ import { IDriverController } from "../controllers/interfaces/i-driver-controller
 import { ILoginController } from "../controllers/interfaces/i-login-controller";
 import { IRegisterController } from "../controllers/interfaces/i-register-controller";
 import { IAdminController } from "../controllers/interfaces/i-admin-controller";
-import { IBookingController } from "../controllers/interfaces/IBookingController";
+import { IRideController } from "../controllers/interfaces/i-ride-controller";
 
 export class MessageHandler {
   private _loginController: ILoginController;
   private _registerController: IRegisterController;
   private _adminController: IAdminController;
-  private _bookingController: IBookingController;
+  private _rideController: IRideController;
   private _driverController: IDriverController;
 
   constructor(
@@ -17,12 +17,12 @@ export class MessageHandler {
     loginController: ILoginController,
     registerController: IRegisterController,
     adminController: IAdminController,
-    bookingController: IBookingController
+    rideController: IRideController
   ) {
     this._loginController = loginController;
     this._registerController = registerController;
     this._adminController = adminController;
-    this._bookingController = bookingController;
+    this._rideController = rideController;
     this._driverController = driverController;
   }
 
@@ -88,13 +88,17 @@ export class MessageHandler {
       case "driver-location":
         response = await this._registerController.location(data);
         break;
-      // =============== booking operations =====================
+      // =============== ride operations =====================
       case "get-online-driver":
-        response = await this._bookingController.getDriverDetails(data);
+        response = await this._rideController.getOnlineDriverDetails(data);
         break;
 
       case "update-driver-cancel-count":
-        // response = await this._bookingController.getDriverDetails(data);
+        response = await this._rideController.updateDriverCancelCount(data);
+        break;
+
+      case "get-online-driver":
+        response = await this._rideController.getOnlineDriverDetails(data);
         break;
 
       //============ driver operations =================
@@ -143,16 +147,11 @@ export class MessageHandler {
         );
         break;
 
-      // case "validate_driver_id_for_payment":
-      //    response = await this._driverController.fetchDriverDetails(data.driverId);
-      //   break;
-
       default:
         response = "Request-key notfound";
         break;
     }
 
-    // Produce the response back to the client
     await rabbitClient.produce(response, correlationId, replyTo);
   }
 }

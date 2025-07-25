@@ -11,29 +11,31 @@ import {AdminService} from "../services/implementation/admin-service";
 import {DriverRepository} from "../repositories/implementation/driver-repository";
 import {AdminRepository} from "../repositories/implementation/admin-repository";
 import {MessageHandler} from "./message-handler";
-import {BookingService} from "../services/implementation/booking_service";
-import {BookingController} from "../controllers/implementation/booking-controller";
+import {RideService} from "../services/implementation/ride-service";
+import {RideController} from "../controllers/implementation/ride-controller";
 import {DriverController} from "../controllers/implementation/driver-controller";
 import {DriverService} from "../services/implementation/driver-service";
 import { BaseRepository } from "../repositories/implementation/base-repository";
 import { DriverModel } from "../model/driver.model";
 import { ResubmissionModel } from "../model/resubmission.model";
+import { RideRepository } from "../repositories/implementation/ride-repository";
 
 const driverRepository = new DriverRepository();
 const adminRepository = new AdminRepository();
 const driverBaseRepository = new BaseRepository(DriverModel);
 const resubmissionBaseRepository = new BaseRepository(ResubmissionModel);
+const rideRepository = new RideRepository();
 
 const loginService = new LoginService(driverBaseRepository,resubmissionBaseRepository,driverRepository);
 const registrationService = new RegistrationService(driverRepository,driverBaseRepository);
 const adminService = new AdminService(adminRepository,driverBaseRepository,resubmissionBaseRepository);
 const driverService = new DriverService(driverRepository,driverBaseRepository);
-const bookingService = new BookingService(driverRepository);
+const bookingService = new RideService(driverRepository,rideRepository);
 
 const loginController = new LoginController(loginService);
 const registerController = new RegisterController(registrationService);
 const adminController = new AdminController(adminService);
-const bookingController = new BookingController(bookingService);
+const bookingController = new RideController(bookingService);
 const driverController = new DriverController(driverService);
 
 const messageHandler = new MessageHandler(

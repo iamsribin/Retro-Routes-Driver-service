@@ -1,10 +1,10 @@
 import { IDriverController } from "../interfaces/i-driver-controller";
 import { IDriverService } from "../../services/interfaces/i-driver-service";
 import { StatusCode } from "../../interface/enum";
+import { IResponse } from "../../dto/interface";
 import {
   DriverDocumentDTO,
   DriverProfileDTO,
-  IResponse,
 } from "../../dto/driver/driver-response.dto";
 import {
   Req_updateDriverDocuments,

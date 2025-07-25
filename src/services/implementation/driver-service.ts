@@ -1,3 +1,9 @@
+import { IResponse } from "../../dto/interface";
+import { DriverInterface } from "../../interface/driver.interface";
+import { StatusCode } from "../../interface/enum";
+import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
+import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
+import { IDriverService } from "../interfaces/i-driver-service";
 import {
   Req_updateDriverDocuments,
   Req_updateDriverProfile,
@@ -5,13 +11,7 @@ import {
 import {
   DriverDocumentDTO,
   DriverProfileDTO,
-  IResponse,
 } from "../../dto/driver/driver-response.dto";
-import { DriverInterface } from "../../interface/driver.interface";
-import { StatusCode } from "../../interface/enum";
-import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
-import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
-import { IDriverService } from "../interfaces/i-driver-service";
 
 export class DriverService implements IDriverService {
   private _driverRepo: IDriverRepository;
@@ -44,8 +44,8 @@ export class DriverService implements IDriverService {
         address: response.location?.address,
         totalRatings: response.totalRatings || 0,
         joiningDate: response.joiningDate.toISOString().split("T")[0],
-        completedRides: response.completedRides || 0,
-        cancelledRides: response.cancelledRides || 0,
+        completedRides: response.totalCompletedRides || 0,
+        cancelledRides: response.totalCancelledRides || 0,
         walletBalance: response.wallet?.balance,
         adminCommission: response.adminCommission || 0,
       };

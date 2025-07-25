@@ -1,4 +1,4 @@
-import { refferalCode } from "../../utilities/referralCode";
+import { refferalCode } from "../../utilities/referral-code";
 import bcrypt from "../../utilities/bcrypt";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
 import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";

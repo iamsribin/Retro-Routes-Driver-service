@@ -1,45 +1,5 @@
-import { StatusCode } from "../../interface/enum";
+import { Aadhar, Insurance, License, Pollution, VehicleDetails, VehicleRC } from "../interface";
 
-interface Aadhar {
-  id: string;
-  frontImageUrl: string;
-  backImageUrl: string;
-}
-
-interface License {
-  id: string;
-  frontImageUrl: string;
-  backImageUrl: string;
-  validity: Date;
-}
-
-interface VehicleRC {
-  registrationId: string;
-  rcFrontImageUrl: string;
-  rcBackImageUrl: string;
-  rcStartDate: Date;
-  rcExpiryDate: Date;
-}
-
-interface VehicleDetails {
-  vehicleNumber: string;
-  vehicleColor: string;
-  model: string;
-  carFrontImageUrl: string;
-  carBackImageUrl: string;
-}
-
-interface Insurance {
-  insuranceImageUrl: string;
-  insuranceStartDate: Date;
-  insuranceExpiryDate: Date;
-}
-
-interface Pollution {
-  pollutionImageUrl: string;
-  pollutionStartDate: Date;
-  pollutionExpiryDate: Date;
-}
 
 export interface DriverDocumentDTO {
   _id: string;
@@ -63,11 +23,4 @@ export interface DriverProfileDTO {
   cancelledRides: number;
   walletBalance?: number;
   adminCommission: number;
-}
-
-export interface IResponse<T> {
-  status: StatusCode;
-  message: string;
-  navigate?: string | number;
-  data?: T | null;
 }

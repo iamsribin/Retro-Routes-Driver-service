@@ -1,41 +1,5 @@
 import { ObjectId, Document} from "mongoose";
 
-export interface RideDetails extends Document {
-    ride_id: string;
-    driver_id: string;
-    user_id: string;
-    pickupCoordinates: PickupCoordinates;
-    dropoffCoordinates: DropoffCoordinates;
-    pickupLocation: string;
-    dropoffLocation: string;
-    driverCoordinates: {
-        latitude: number;
-        longitude: number;
-    };
-    distance: string;
-    duration: string;
-    vehicleModel: string;
-    price: number;
-    date: string;
-    status: string;
-    pin: number;
-    paymentMode: string;
-    feedback: string;
-    rating: number;
-}
-
-interface PickupCoordinates {
-    latitude: number;
-    longitude: number;
-}
-
-interface DropoffCoordinates {
-    latitude: number;
-    longitude: number;
-}
-
-// =============================================
-
 export enum AccountStatus {
   Good = "Good",
   Warning = "Warning",
@@ -110,8 +74,8 @@ export interface DriverInterface extends Document {
     }[];
   };
 
-  completedRides?: number;
-  cancelledRides?: number;
+  totalCompletedRides?: number;
+  totalCancelledRides?: number;
 
   rideDetails?: {
     completedRides: number;

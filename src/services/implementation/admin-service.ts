@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { sendMail } from "../../utilities/nodeMailer";
+import { sendMail } from "../../utilities/node-mailer";
 import { ResubmissionInterface } from "../../interface/resubmission.interface";
 import { DriverInterface } from "../../interface/driver.interface";
 import { IAdminService } from "../interfaces/i-admin-service";
@@ -7,6 +7,7 @@ import { StatusCode } from "../../interface/enum";
 import { IAdminRepository } from "../../repositories/interfaces/i-admin-repository";
 import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
 import { Req_adminUpdateDriverStatus } from "../../dto/admin/admin-request.dto";
+import { generateStatusEmail } from "../../utilities/generate-status-email";
 import {
   Res_adminGetDriverDetailsById,
   Res_adminUpdateDriverStatus,
@@ -28,21 +29,16 @@ export class AdminService implements IAdminService {
     this._resubmissionRepo = resubmissionRepo;
   }
 
-  /**
-   * Retrieves drivers by their account status
-   * @param account_status - The account status to filter drivers
-   * @returns Promise resolving to the list of drivers or empty object
-   */
   async getDriversListByAccountStatus(
     accountStatus: string
   ): Promise<Res_getDriversListByAccountStatus> {
     try {
-
       const drivers = await this._adminRepo.getDriversListByAccountStatus(
         accountStatus
       );
-
-      if (!drivers.length) return { status: StatusCode.OK, data: [] };
+      if (!drivers.length) {
+        return { status: StatusCode.OK, data: [] };
+      }
 
       const result = drivers.map((driver) => ({
         _id: driver._id.toString(),
@@ -71,11 +67,6 @@ export class AdminService implements IAdminService {
     }
   }
 
-  /**
-   * Fetches details for a specific driver
-   * @param id - driver ID
-   * @returns Promise resolving to the driver details
-   */
   async adminGetDriverDetailsById(
     id: string
   ): Promise<Res_adminGetDriverDetailsById> {
@@ -107,100 +98,74 @@ export class AdminService implements IAdminService {
     }
   }
 
-  /**
-   * Updates a driver's account status and sends notification email
-   * @param request - Object containing status update details
-   * @returns Promise resolving to the update result or error message
-   */
-async adminUpdateDriverAccountStatus(
-  request: Req_adminUpdateDriverStatus
-): Promise<Res_adminUpdateDriverStatus> {
-  try {
+  async adminUpdateDriverAccountStatus(
+    request: Req_adminUpdateDriverStatus
+  ): Promise<Res_adminUpdateDriverStatus> {
+    try {
+      if (request.status === "Rejected" && request.fields) {
+        const resubmissionData = {
+          driverId: new mongoose.Types.ObjectId(request.id),
+          fields: request.fields as ResubmissionInterface["fields"],
+        };
 
-    if (request.status === "Rejected" && request.fields) {
-      const resubmissionData = {
-        driverId: new mongoose.Types.ObjectId(request.id),
-        fields: request.fields as ResubmissionInterface["fields"],
-      };
+        const existing = await this._resubmissionRepo.findOne({
+          driverId: request.id,
+        });
 
-      const existing = await this._resubmissionRepo.findOne({ driverId: request.id });
-
-      if (existing) {
-        await this._resubmissionRepo.updateOne(
-          { driverId: request.id },
-          { $set: { fields: resubmissionData.fields } }
-        );
-      } else {
-        await this._resubmissionRepo.create(resubmissionData as ResubmissionInterface); 
+        if (existing) {
+          await this._resubmissionRepo.updateOne(
+            { driverId: request.id },
+            { $set: { fields: resubmissionData.fields } }
+          );
+        } else {
+          await this._resubmissionRepo.create(
+            resubmissionData as ResubmissionInterface
+          );
+        }
       }
-    }
 
-    const response = await this._driverRepo.update(request.id, {
-      accountStatus: request.status,
-    });
+      const response = await this._driverRepo.update(request.id, {
+        accountStatus: request.status,
+      });
 
-    if (response?.email) {
-      let subject: string;
-      let text: string;
-
-      if (request.status === "Good") {
-        subject = "Account Verified Successfully";
-        text = `Hello ${response.name}, 
-Thank you for registering with Retro Routes! We're excited to have you on board. Your account has been successfully verified.
-
-Thank you for choosing RetroRoutes. We look forward to serving you and making your journeys safe and convenient.
-
-Best regards,
-Retro Routes India`;
-      } else if (request.status === "Rejected") {
-        subject = "Account Registration Rejected";
-        text = `Hello ${response.name}, 
-We regret to inform you that your registration with Retro Routes has been rejected.
-
-Reason: ${request.reason}
-
-You may resubmit your application by updating the missing information.
-
-Sincerely,
-Retro Routes India`;
-      } else {
-        subject = "Account Status Updated";
-        text = `Hello ${response.name}, 
-Your account status has been updated to: ${request.status}
-Reason: ${request.reason}
-
-Sincerely,
-Retro Routes India`;
+      if (!response?.email) {
+        return {
+          status: StatusCode.InternalServerError,
+          message: "Driver email not found",
+          data: false,
+        };
       }
+
+      const subjectAndText = generateStatusEmail(
+        request.status,
+        response.name,
+        request.reason
+      );
 
       try {
-        await sendMail(response.email, subject, text);
+        await sendMail(
+          response.email,
+          subjectAndText.subject,
+          subjectAndText.text
+        );
         return {
           status: StatusCode.OK,
           message: "Success",
           data: true,
         };
-      } catch (error) {
+      } catch {
         return {
           status: StatusCode.InternalServerError,
           message: "Failed to send email",
           data: false,
         };
       }
-    } else {
+    } catch (error) {
       return {
         status: StatusCode.InternalServerError,
-        message: "Driver email not found",
+        message: (error as Error).message,
         data: false,
       };
     }
-  } catch (error) {
-    return {
-      status: StatusCode.InternalServerError,
-      message: (error as Error).message,
-      data: false,
-    };
   }
-}
-
 }
