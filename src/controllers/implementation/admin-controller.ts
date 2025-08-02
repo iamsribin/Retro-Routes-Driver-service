@@ -55,7 +55,7 @@ export class AdminController implements IAdminController {
       );
       return response;
     } catch (error) {
-        return {
+      return {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
         data: false,
