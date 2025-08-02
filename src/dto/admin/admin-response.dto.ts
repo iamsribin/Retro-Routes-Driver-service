@@ -1,5 +1,5 @@
 import { DriverInterface } from "../../interface/driver.interface";
-import { StatusCode } from "../../interface/enum";
+import { StatusCode } from "../../types/common/enum";
 
 export interface Res_getDriversListByAccountStatus {
   status: StatusCode;

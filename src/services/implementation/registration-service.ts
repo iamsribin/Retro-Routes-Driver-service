@@ -4,10 +4,9 @@ import { IDriverRepository } from "../../repositories/interfaces/i-driver-reposi
 import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
 import { DriverInterface } from "../../interface/driver.interface";
 import { IRegistrationService } from "../interfaces/i-registration-service";
-import { StatusCode } from "../../interface/enum";
+import { StatusCode } from "../../types/common/enum";
 import {
   Res_checkRegisterDriver,
-  Res_common,
 } from "../../dto/auth/auth-response.dto";
 import {
   Req_identificationUpdate,
@@ -17,6 +16,7 @@ import {
   Req_updateDriverImage,
   Req_vehicleUpdate,
 } from "../../dto/auth/auth-request.dto";
+import { commonRes } from "../../types";
 
 export class RegistrationService implements IRegistrationService {
   private _driverRepo: IDriverRepository;
@@ -31,7 +31,7 @@ export class RegistrationService implements IRegistrationService {
   }
 
   // ✅ Register new driver
-  async register(driverData: Req_register): Promise<Res_common> {
+  async register(driverData: Req_register): Promise<commonRes> {
     try {
       const { name, email, mobile, password, referralCode } = driverData;
 
@@ -169,7 +169,7 @@ export class RegistrationService implements IRegistrationService {
   // ✅ Update Aadhar or License
   async identificationUpdate(
     data: Req_identificationUpdate
-  ): Promise<Res_common> {
+  ): Promise<commonRes> {
     try {
       const updated = await this._driverRepo.updateIdentification(data);
       return updated
@@ -184,7 +184,7 @@ export class RegistrationService implements IRegistrationService {
   }
 
   // ✅ Update Driver Image
-  async driverImageUpdate(data: Req_updateDriverImage): Promise<Res_common> {
+  async driverImageUpdate(data: Req_updateDriverImage): Promise<commonRes> {
     try {
       const updated = await this._driverRepo.updateDriverImage({
         driverId: data.driverId,
@@ -203,7 +203,7 @@ export class RegistrationService implements IRegistrationService {
   }
 
   // ✅ Update Vehicle info
-  async vehicleUpdate(data: Req_vehicleUpdate): Promise<Res_common> {
+  async vehicleUpdate(data: Req_vehicleUpdate): Promise<commonRes> {
     try {
       const updated = await this._driverRepo.vehicleUpdate(data);
 
@@ -219,7 +219,7 @@ export class RegistrationService implements IRegistrationService {
   }
 
   // ✅ Update Location
-  async locationUpdate(data: Req_locationUpdate): Promise<Res_common> {
+  async locationUpdate(data: Req_locationUpdate): Promise<commonRes> {
     try {
       const updated = await this._driverRepo.locationUpdate(data);
 
@@ -238,7 +238,7 @@ export class RegistrationService implements IRegistrationService {
   // ✅ Update Insurance & Pollution
   async vehicleInsurancePollutionUpdate(
     data: Req_insuranceUpdate
-  ): Promise<Res_common> {
+  ): Promise<commonRes> {
     try {
       
       const updated = await this._driverRepo.vehicleInsurancePollutionUpdate(

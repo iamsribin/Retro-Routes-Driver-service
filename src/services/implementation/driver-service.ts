@@ -1,6 +1,6 @@
 import { IResponse } from "../../dto/interface";
 import { DriverInterface } from "../../interface/driver.interface";
-import { StatusCode } from "../../interface/enum";
+import { StatusCode } from "../../types/common/enum";
 import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
 import { IDriverService } from "../interfaces/i-driver-service";

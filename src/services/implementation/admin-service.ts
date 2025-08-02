@@ -3,7 +3,7 @@ import { sendMail } from "../../utilities/node-mailer";
 import { ResubmissionInterface } from "../../interface/resubmission.interface";
 import { DriverInterface } from "../../interface/driver.interface";
 import { IAdminService } from "../interfaces/i-admin-service";
-import { StatusCode } from "../../interface/enum";
+import { StatusCode } from "../../types/common/enum";
 import { IAdminRepository } from "../../repositories/interfaces/i-admin-repository";
 import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
 import { Req_adminUpdateDriverStatus } from "../../dto/admin/admin-request.dto";

@@ -1,7 +1,7 @@
 import { IRideService } from "../interfaces/i-ride-service";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
 import { OnlineDriverDTO } from "../../dto/ride/ride-response.dto";
-import { StatusCode } from "../../interface/enum";
+import { StatusCode } from "../../types/common/enum";
 import { IResponse } from "../../dto/interface";
 import { IRideRepository } from "../../repositories/interfaces/i-ride-repository";
 

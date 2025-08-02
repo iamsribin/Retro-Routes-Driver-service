@@ -2,7 +2,7 @@ import { IRideController } from "../interfaces/i-ride-controller";
 import { IRideService } from "../../services/interfaces/i-ride-service";
 import { IResponse } from "../../dto/interface";
 import { OnlineDriverDTO } from "../../dto/ride/ride-response.dto";
-import { StatusCode } from "../../interface/enum";
+import { StatusCode } from "../../types/common/enum";
 
 export class RideController implements IRideController {
   private _rideService: IRideService;

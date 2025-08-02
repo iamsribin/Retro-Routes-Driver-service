@@ -5,13 +5,14 @@ import { ILoginService } from "../interfaces/i-login-service";
 import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
 import {
   Res_checkLogin,
-  Res_common,
   Res_getResubmissionDocuments,
 } from "../../dto/auth/auth-response.dto";
-import { StatusCode } from "../../interface/enum";
+import { StatusCode } from "../../types/common/enum";
 import { ResubmissionInterface } from "../../interface/resubmission.interface";
 import { Req_postResubmissionDocuments } from "../../dto/auth/auth-request.dto";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
+import { CheckLoginDriverRes} from "../../types/auth-types/auth-grpc-res-types";
+import { commonRes } from "../../types/common/commonRes";
 
 export class LoginService implements ILoginService {
   private _driverRepo: IDriverRepository;
@@ -28,7 +29,7 @@ export class LoginService implements ILoginService {
     this._driverRepo = driverRepo;
   }
 
-  async loginCheckDriver(mobile: number): Promise<Res_checkLogin> {
+  async loginCheckDriver(mobile: number): Promise<CheckLoginDriverRes> {
     try {
       console.log("mobile", mobile);
 
@@ -83,7 +84,7 @@ export class LoginService implements ILoginService {
     }
   }
 
-  async checkGoogleLoginDriver(email: string): Promise<Res_checkLogin> {
+  async checkGoogleLoginDriver(email: string): Promise<CheckLoginDriverRes> {
     try {
       const response = await this._driverBaseRepo.findOne({ email });
 
@@ -170,7 +171,7 @@ export class LoginService implements ILoginService {
 
   async postResubmissionDocuments(
     data: Req_postResubmissionDocuments
-  ): Promise<Res_common> {
+  ): Promise<commonRes> {
     try {
       const { driverId, ...updateData } = data;
 

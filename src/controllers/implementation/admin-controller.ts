@@ -1,7 +1,7 @@
 import { IAdminController } from "../interfaces/i-admin-controller";
 import { IAdminService } from "../../services/interfaces/i-admin-service";
 import { Req_adminUpdateDriverStatus } from "../../dto/admin/admin-request.dto";
-import { StatusCode } from "../../interface/enum";
+import { StatusCode } from "../../types/common/enum";
 import {
   Res_adminGetDriverDetailsById,
   Res_adminUpdateDriverStatus,

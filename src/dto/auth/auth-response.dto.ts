@@ -1,4 +1,4 @@
-import { StatusCode } from "../../interface/enum";
+import { StatusCode } from "../../types/common/enum";
 import { ResubmissionInterface } from "../../interface/resubmission.interface";
 
 export interface Res_checkLogin{
@@ -18,12 +18,12 @@ export interface Res_getResubmissionDocuments{
   data?:ResubmissionInterface
 }
 
-export interface Res_common{
-  status:StatusCode,
-  message:string,
-  id?:string,
-  navigate?:string,
-}
+// export interface Res_common{
+//   status:StatusCode,
+//   message:string,
+//   id?:string,
+//   navigate?:string,
+// }
 
 export interface Res_checkRegisterDriver{
   status: StatusCode;

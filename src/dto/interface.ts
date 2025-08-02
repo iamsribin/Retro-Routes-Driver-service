@@ -1,4 +1,4 @@
-import { StatusCode } from "../interface/enum";
+import { StatusCode } from "../types/common/enum";
 
 // common response
 

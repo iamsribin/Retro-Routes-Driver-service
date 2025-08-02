@@ -1,6 +1,6 @@
 import { IDriverController } from "../interfaces/i-driver-controller";
 import { IDriverService } from "../../services/interfaces/i-driver-service";
-import { StatusCode } from "../../interface/enum";
+import { StatusCode } from "../../types/common/enum";
 import { IResponse } from "../../dto/interface";
 import {
   DriverDocumentDTO,
