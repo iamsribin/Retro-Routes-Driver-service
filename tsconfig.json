@@ -4,7 +4,7 @@
     "moduleResolution": "Node",
     "target": "ESNext",
     "esModuleInterop": true,
-    "strict": true
+    "strict": true,
   },
   "exclude": ["node_modules"]
 }

@@ -1,10 +1,38 @@
-import { DriverDocumentDTO, DriverProfileDTO } from "../../dto/driver/driver-response.dto";
-import { Req_updateDriverDocuments, Req_updateDriverProfile } from "../../dto/driver/driver-request.dto";
-import { IResponse } from "../../dto/interface";
+import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
+import { Id, IResponse } from "../../types";
+import { DriverDocumentDTO, DriverProfileDTO } from "../../dto/driver.dto";
+import {
+  handleOnlineChangeReq,
+  increaseCancelCountReq,
+  UpdateDriverDocumentsReq,
+  UpdateDriverProfileReq,
+} from "../../types/driver-type/request-type";
 
- export interface IDriverController {
-   fetchDriverProfile(id: string): Promise<IResponse<DriverProfileDTO>>;
-   fetchDriverDocuments(id:string): Promise<IResponse<DriverDocumentDTO>>;
-   updateDriverProfile(data:Req_updateDriverProfile ): Promise<IResponse<null>>;
-   updateDriverDocuments(data:Req_updateDriverDocuments):Promise<IResponse<null>>
-  }
+export interface IDriverController {
+  fetchDriverProfile(
+    call: ServerUnaryCall<Id, IResponse<DriverProfileDTO>>,
+    callback: sendUnaryData<IResponse<DriverProfileDTO>>
+  ): Promise<void>;
+
+  fetchDriverDocuments(
+    call: ServerUnaryCall<Id, IResponse<DriverDocumentDTO>>,
+    callback: sendUnaryData<IResponse<DriverDocumentDTO>>
+  ): Promise<void>;
+
+  updateDriverProfile(
+    call: ServerUnaryCall<UpdateDriverProfileReq, IResponse<null>>,
+    callback: sendUnaryData<IResponse<null>>
+  ): Promise<void>;
+
+  updateDriverDocuments(
+    call: ServerUnaryCall<UpdateDriverDocumentsReq, IResponse<null>>,
+    callback: sendUnaryData<IResponse<null>>
+  ): Promise<void>;
+
+  handleOnlineChange(
+    call: ServerUnaryCall<handleOnlineChangeReq, IResponse<null>>,
+    callback: sendUnaryData<IResponse<null>>
+  ): Promise<void>;
+
+  increaseCancelCount(payload:increaseCancelCountReq):Promise<void>
+}

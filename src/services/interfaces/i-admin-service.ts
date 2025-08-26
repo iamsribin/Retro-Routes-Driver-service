@@ -1,8 +1,10 @@
-import { Req_adminUpdateDriverStatus } from '../../dto/admin/admin-request.dto';
-import { Res_adminGetDriverDetailsById, Res_adminUpdateDriverStatus, Res_getDriversListByAccountStatus } from '../../dto/admin/admin-response.dto';
+import { AdminDriverDetailsDTO } from '../../dto/admin.dto';
+// import { Req_adminUpdateDriverStatus } from '../../dto/admin/admin-request.dto';
+// import { Res_adminGetDriverDetailsById, Res_adminUpdateDriverStatus, Res_getDriversListByAccountStatus } from '../../dto/admin/admin-response.dto';
+import { AdminUpdateDriverStatusReq, IResponse } from '../../types';
 
 export interface IAdminService {
-  getDriversListByAccountStatus(account_status: string): Promise<Res_getDriversListByAccountStatus>;
-  adminGetDriverDetailsById(id:string): Promise<Res_adminGetDriverDetailsById>;
-  adminUpdateDriverAccountStatus(request: Req_adminUpdateDriverStatus): Promise<Res_adminUpdateDriverStatus>;
+  getDriversListByAccountStatus(status: "Good" | "Block",page: number,limit: number,search: string ): Promise<IResponse<any>>;
+  adminGetDriverDetailsById(id:string): Promise<IResponse<AdminDriverDetailsDTO["data"]>>;
+  adminUpdateDriverAccountStatus(request: AdminUpdateDriverStatusReq): Promise<IResponse<boolean>>;
 }

@@ -1,69 +1,90 @@
-import { Req_postResubmissionDocuments } from "../../dto/auth/auth-request.dto";
-import {
-  Res_checkLogin,
-  Res_common,
-  Res_getResubmissionDocuments,
-} from "../../dto/auth/auth-response.dto";
-import { StatusCode } from "../../interface/enum";
 import { ILoginService } from "../../services/interfaces/i-login-service";
 import { ILoginController } from "../interfaces/i-login-controller";
+import { ServerUnaryCall, sendUnaryData } from "@grpc/grpc-js";
+import {
+  Email,
+  Mobile,
+  Id,
+  postResubmissionDocumentsReq,
+  CheckLoginDriverRes,
+  GetResubmissionDocumentsRes,
+  commonRes,
+  StatusCode
+} from "../../types";
 
 export class LoginController implements ILoginController {
-  private _loginService: ILoginService;
+  constructor(private _loginService: ILoginService) {}
 
-  constructor(loginService: ILoginService) {
-    this._loginService = loginService;
-  }
-
-  async checkLogin(mobile: number): Promise<Res_checkLogin> {
+  checkLogin = async (
+    call: ServerUnaryCall<Mobile, CheckLoginDriverRes>,
+    callback: sendUnaryData<CheckLoginDriverRes>
+  ) => {
+    const mobile = call.request.mobile;
     try {
       const response = await this._loginService.loginCheckDriver(mobile);
-      return response;
+      console.log("response",response);
+      
+      callback(null, response);
     } catch (error: unknown) {
-      return {
+      console.log(error);
+      
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-      };
+      });
     }
-  }
+  };
 
-  async checkGoogleLoginDriver(email: string): Promise<Res_checkLogin> {
+  async checkGoogleLoginDriver(
+    call: ServerUnaryCall<Email, CheckLoginDriverRes>,
+    callback: sendUnaryData<CheckLoginDriverRes>
+  ): Promise<void> {
     try {
+      const email = call.request.email;
       const response = await this._loginService.checkGoogleLoginDriver(email);
-      return response;
+      callback(null, response);
     } catch (error: unknown) {
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-      };
+      });
     }
   }
 
   async getResubmissionDocuments(
-    id: string
-  ): Promise<Res_getResubmissionDocuments> {
+    call: ServerUnaryCall<Id, GetResubmissionDocumentsRes>,
+    callback: sendUnaryData<GetResubmissionDocumentsRes>
+  ): Promise<void> {
     try {
+      const id = call.request.id;
       const response = await this._loginService.getResubmissionDocuments(id);
-      return response;
+      console.log(response);
+      
+      callback(null, response);
     } catch (error: unknown) {
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-      };
+      });
     }
   }
 
   async postResubmissionDocuments(
-    data: Req_postResubmissionDocuments
-  ): Promise<Res_common> {
+    call: ServerUnaryCall<postResubmissionDocumentsReq, commonRes>,
+    callback: sendUnaryData<commonRes>
+  ): Promise<void> {
     try {
+      const data = { ...call.request };
+      console.log("data===",data);
+      
       const response = await this._loginService.postResubmissionDocuments(data);
-      return response;
+      
+      callback(null, response);
     } catch (error: unknown) {
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-      };
+      });
     }
   }
 }

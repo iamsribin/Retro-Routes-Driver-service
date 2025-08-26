@@ -1,12 +1,12 @@
-import { Req_identificationUpdate, Req_insuranceUpdate, Req_locationUpdate, Req_register, Req_updateDriverImage, Req_vehicleUpdate } from '../../dto/auth/auth-request.dto';
-import { Res_checkRegisterDriver, Res_common } from '../../dto/auth/auth-response.dto';
+import { sendUnaryData, ServerUnaryCall } from '@grpc/grpc-js';
+import { CheckRegisterDriverRes, commonRes, IdentificationUpdateReq, InsuranceUpdateReq, LocationUpdateReq, Mobile, RegisterReq, UpdateDriverImageReq, VehicleUpdateReq } from '../../types';
 
 export interface IRegisterController {
-  checkRegisterDriver(mobile: number): Promise<Res_checkRegisterDriver>;
-  register(data: Req_register): Promise<Res_common>;
-  identificationUpdate(data: Req_identificationUpdate): Promise<Res_common>;
-  updateDriverImage(data: Req_updateDriverImage): Promise<Res_common>;
-  vehicleUpdate(data: Req_vehicleUpdate): Promise<Res_common>;
-  vehicleInsurancePollutionUpdate(data: Req_insuranceUpdate): Promise<Res_common>;
-  location(data: Req_locationUpdate): Promise<Res_common>;
+  checkRegisterDriver(call: ServerUnaryCall<Mobile, CheckRegisterDriverRes>,callback: sendUnaryData<CheckRegisterDriverRes>):Promise<void>;
+  register(call: ServerUnaryCall<RegisterReq, commonRes>,callback: sendUnaryData<commonRes>):Promise<void>;
+  identificationUpdate(call: ServerUnaryCall<IdentificationUpdateReq, commonRes>,callback: sendUnaryData<commonRes>):Promise<void>;
+  updateDriverImage(call: ServerUnaryCall<UpdateDriverImageReq, commonRes>,callback: sendUnaryData<commonRes>):Promise<void>;
+  vehicleUpdate(call: ServerUnaryCall<VehicleUpdateReq, commonRes>,callback: sendUnaryData<commonRes>):Promise<void>;
+  vehicleInsurancePollutionUpdate(call: ServerUnaryCall<InsuranceUpdateReq, commonRes>,callback: sendUnaryData<commonRes>):Promise<void>;
+  location(call: ServerUnaryCall<LocationUpdateReq, commonRes>,callback: sendUnaryData<commonRes>):Promise<void>;
 }

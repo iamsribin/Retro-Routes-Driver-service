@@ -1,116 +1,140 @@
 import { IRegisterController } from "../interfaces/i-register-controller";
 import { IRegistrationService } from "../../services/interfaces/i-registration-service";
-import { StatusCode } from "../../interface/enum";
 import {
-  Res_checkRegisterDriver,
-  Res_common,
-} from "../../dto/auth/auth-response.dto";
-import {
-  Req_identificationUpdate,
-  Req_insuranceUpdate,
-  Req_locationUpdate,
-  Req_register,
-  Req_updateDriverImage,
-  Req_vehicleUpdate,
-} from "../../dto/auth/auth-request.dto";
+  CheckRegisterDriverRes,
+  commonRes,
+  IdentificationUpdateReq,
+  InsuranceUpdateReq,
+  LocationUpdateReq,
+  Mobile,
+  RegisterReq,
+  UpdateDriverImageReq,
+  VehicleUpdateReq,
+  StatusCode
+} from "../../types";
+import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
 
 export class RegisterController implements IRegisterController {
-  private _registrationService: IRegistrationService;
+  constructor(private _registrationService: IRegistrationService) {}
 
-  constructor(registrationService: IRegistrationService) {
-    this._registrationService = registrationService;
-  }
-
-  async register(data: Req_register): Promise<Res_common> {
+  async register(
+    call: ServerUnaryCall<RegisterReq, commonRes>,
+    callback: sendUnaryData<commonRes>
+  ): Promise<void> {
     try {
+      const data = { ...call.request };
       const response = await this._registrationService.register(data);
-      return response;
+      callback(null, response);
     } catch (error) {
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-      };
+      });
     }
   }
 
-  async checkRegisterDriver(mobile: number): Promise<Res_checkRegisterDriver> {
+  async checkRegisterDriver(
+    call: ServerUnaryCall<Mobile, CheckRegisterDriverRes>,
+    callback: sendUnaryData<CheckRegisterDriverRes>
+  ): Promise<void> {
     try {
+      const mobile = call.request.mobile;
       const response = await this._registrationService.checkRegisterDriver(
-        mobile
+        mobile 
       );
-      return response;
+      console.log("ersdf",response);
+      
+      callback(null, response);
     } catch (error: unknown) {
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-      };
+      });
     }
   }
 
   async identificationUpdate(
-    data: Req_identificationUpdate
-  ): Promise<Res_common> {
+    call: ServerUnaryCall<IdentificationUpdateReq, commonRes>,
+    callback: sendUnaryData<commonRes>
+  ): Promise<void> {
     try {
+      const data = { ...call.request };
+      console.log("call.request",call.request);
+      
       const response = await this._registrationService.identificationUpdate(
         data
       );
-      return response;
+      callback(null, response);
     } catch (error) {
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-      };
+      });
     }
   }
 
-  async updateDriverImage(data: Req_updateDriverImage): Promise<Res_common> {
+  async updateDriverImage(
+    call: ServerUnaryCall<UpdateDriverImageReq, commonRes>,
+    callback: sendUnaryData<commonRes>
+  ): Promise<void> {
     try {
+      const data = { ...call.request };
       const response = await this._registrationService.driverImageUpdate(data);
-      return response;
+      callback(null, response);
     } catch (error) {
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-      };
+      });
     }
   }
 
-  async vehicleUpdate(data: Req_vehicleUpdate): Promise<Res_common> {
+  async vehicleUpdate(
+    call: ServerUnaryCall<VehicleUpdateReq, commonRes>,
+    callback: sendUnaryData<commonRes>
+  ): Promise<void> {
     try {
+      const data = { ...call.request };
       const response = await this._registrationService.vehicleUpdate(data);
-      return response;
+      callback(null, response);
     } catch (error) {
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-      };
+      });
     }
   }
 
   async vehicleInsurancePollutionUpdate(
-    data: Req_insuranceUpdate
-  ): Promise<Res_common> {
+    call: ServerUnaryCall<InsuranceUpdateReq, commonRes>,
+    callback: sendUnaryData<commonRes>
+  ): Promise<void> {
     try {
+      const data = { ...call.request };
       const response =
         await this._registrationService.vehicleInsurancePollutionUpdate(data);
-      return response;
+      callback(null, response);
     } catch (error) {
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-      };
+      });
     }
   }
 
-  async location(data: Req_locationUpdate): Promise<Res_common> {
+  async location(
+    call: ServerUnaryCall<LocationUpdateReq, commonRes>,
+    callback: sendUnaryData<commonRes>
+  ): Promise<void> {
     try {
+      const data = { ...call.request };
       const response = await this._registrationService.locationUpdate(data);
-      return response;
+      callback(null, response);
     } catch (error) {
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-      };
+      });
     }
   }
 }

@@ -1,19 +1,16 @@
 import { IRideService } from "../interfaces/i-ride-service";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
-import { OnlineDriverDTO } from "../../dto/ride/ride-response.dto";
-import { StatusCode } from "../../interface/enum";
-import { IResponse } from "../../dto/interface";
+import { StatusCode } from "../../types/common/enum";
 import { IRideRepository } from "../../repositories/interfaces/i-ride-repository";
+import { OnlineDriverDTO } from "../../dto/ride.dto";
+import { IResponse } from "../../types";
 
 export class RideService implements IRideService {
-  private _driverRepo: IDriverRepository;
-  private _rideRepo: IRideRepository;
-
-  constructor(driverRepo: IDriverRepository,rideRepo:IRideRepository) {
-    this._driverRepo = driverRepo;
-    this._rideRepo = rideRepo;
-  }
-
+  constructor(
+    private _driverRepo: IDriverRepository,
+    private _rideRepo: IRideRepository
+  ) {}
+ 
   async getOnlineDriverDetails(
     id: string
   ): Promise<IResponse<OnlineDriverDTO>> {
@@ -54,10 +51,10 @@ export class RideService implements IRideService {
 
   async updateDriverCancelCount(id: string): Promise<IResponse<null>> {
     try {
-      console.log("updateDriverCancelCount id----",id);
-      
+      console.log("updateDriverCancelCount id----", id);
+
       const response = await this._rideRepo.increaseCancelledRides(id);
-      
+
       if (!response)
         return {
           status: StatusCode.NotFound,
@@ -65,17 +62,17 @@ export class RideService implements IRideService {
         };
 
       return {
-        status: StatusCode.Created,        
-        message: "Success",
+        status: StatusCode.Created,
+        message: "Success", 
         data: null,
-      }; 
-      
+      };
     } catch (error) {
       console.log("error:", error);
-      return {
+      return { 
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
       };
     }
-  }
+  } 
 }
+  

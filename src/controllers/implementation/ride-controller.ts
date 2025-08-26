@@ -1,39 +1,42 @@
 import { IRideController } from "../interfaces/i-ride-controller";
 import { IRideService } from "../../services/interfaces/i-ride-service";
-import { IResponse } from "../../dto/interface";
-import { OnlineDriverDTO } from "../../dto/ride/ride-response.dto";
-import { StatusCode } from "../../interface/enum";
+import { StatusCode } from "../../types/common/enum";
+import { Id, IResponse } from "../../types";
+import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
+import { OnlineDriverDTO } from "../../dto/ride.dto";
 
 export class RideController implements IRideController {
-  private _rideService: IRideService;
-
-  constructor(rideService: IRideService) {
-    this._rideService = rideService;
-  }
+  constructor(private _rideService: IRideService) {}
 
   async getOnlineDriverDetails(
-    id: string
-  ): Promise<IResponse<OnlineDriverDTO>> {
+    call: ServerUnaryCall<Id, IResponse<OnlineDriverDTO>>,
+    callback: sendUnaryData<IResponse<OnlineDriverDTO>>
+  ): Promise<void> {
     try {
+      const { id } = call.request;
       const response = await this._rideService.getOnlineDriverDetails(id);
-      return response;
+      callback(null, response);
     } catch (error) {
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-      };
+      });
     }
   }
 
-  async updateDriverCancelCount(id: string): Promise<IResponse<null>> {
+  async updateDriverCancelCount(
+    call: ServerUnaryCall<Id, IResponse<null>>,
+    callback: sendUnaryData<IResponse<null>>
+  ): Promise<void> {
     try {
+      const { id } = call.request;
       const response = await this._rideService.updateDriverCancelCount(id);
-      return response;
+      callback(null, response);
     } catch (error) {
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-      };
+      });
     }
   }
 }

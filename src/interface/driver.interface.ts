@@ -1,4 +1,4 @@
-import { ObjectId, Document} from "mongoose";
+import { ObjectId, Document } from "mongoose";
 
 export enum AccountStatus {
   Good = "Good",
@@ -8,7 +8,6 @@ export enum AccountStatus {
   Pending = "Pending",
   Incomplete = "Incomplete",
 }
-
 
 export interface DriverInterface extends Document {
   _id: ObjectId;
@@ -35,7 +34,6 @@ export interface DriverInterface extends Document {
     validity: Date;
   };
 
-  
   vehicleDetails: {
     registrationId: string;
     vehicleNumber: string;
@@ -54,14 +52,15 @@ export interface DriverInterface extends Document {
     pollutionStartDate: Date;
     pollutionExpiryDate: Date;
   };
-  
+
   location: {
     longitude: string;
     latitude: string;
     address: string;
   };
-  
+
   accountStatus: AccountStatus;
+  onlineStatus: boolean;
 
   wallet?: {
     balance: number;
@@ -69,7 +68,7 @@ export interface DriverInterface extends Document {
       date: Date;
       details: string;
       amount: number;
-      status: "credit" | "debit" | "failed"; 
+      status: "credit" | "debit" | "failed";
       rideId: string;
     }[];
   };
@@ -99,4 +98,3 @@ export interface DriverInterface extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
-

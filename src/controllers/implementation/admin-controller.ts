@@ -1,65 +1,86 @@
 import { IAdminController } from "../interfaces/i-admin-controller";
 import { IAdminService } from "../../services/interfaces/i-admin-service";
-import { Req_adminUpdateDriverStatus } from "../../dto/admin/admin-request.dto";
-import { StatusCode } from "../../interface/enum";
+import { StatusCode } from "../../types/common/enum";
+import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
 import {
-  Res_adminGetDriverDetailsById,
-  Res_adminUpdateDriverStatus,
-  Res_getDriversListByAccountStatus,
-} from "../../dto/admin/admin-response.dto";
-
+  AdminUpdateDriverStatusReq,
+  Id,    
+  IResponse,
+} from "../../types";
+import {
+  AdminDriverDetailsDTO,
+  PaginatedUserListDTO,
+} from "../../dto/admin.dto";
+import { PaginationQuery } from "../../types/admin-type/request-types";
 
 export class AdminController implements IAdminController {
-  private _adminService: IAdminService;
-
-  constructor(adminService: IAdminService) {
-    this._adminService = adminService;
-  }
+  constructor(private _adminService: IAdminService) {}
 
   async getDriversListByAccountStatus(
-    accountStatus: string
-  ): Promise<Res_getDriversListByAccountStatus> {
+    call: ServerUnaryCall<PaginationQuery, IResponse<PaginatedUserListDTO>>,
+    callback: sendUnaryData<IResponse<PaginatedUserListDTO>>
+  ): Promise<void> {
     try {
-      return await this._adminService.getDriversListByAccountStatus(
-        accountStatus
+      const { page = "1", limit = "6", search = "", status } = call.request;
+      console.log({ page, limit , search, status });
+      
+      const pageNum = Math.max(1, parseInt(page, 10) || 1);
+      const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 6));
+
+      const response = await this._adminService.getDriversListByAccountStatus(
+        status,
+        pageNum,
+        limitNum,
+        search.trim()      
       );
+
+      callback(null, response);
     } catch (error) {
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-        data: [],
-      };
+      });
     }
   }
 
   async adminGetDriverDetailsById(
-    id: string
-  ): Promise<Res_adminGetDriverDetailsById> {
+    call: ServerUnaryCall<Id, IResponse<AdminDriverDetailsDTO["data"]>>,
+    callback: sendUnaryData<IResponse<AdminDriverDetailsDTO["data"]>>
+  ): Promise<void> {
     try {
-      return await this._adminService.adminGetDriverDetailsById(id);
+      console.log("call.request",call.request);
+       
+      const { id } = call.request;
+      const response = await this._adminService.adminGetDriverDetailsById(id);
+      console.log("response",response);
+      
+      callback(null, response);
     } catch (error: unknown) {
-      return {
+      console.log("error",error);
+      
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-        data: null,
-      };
+      });
     }
   }
 
   async adminUpdateDriverAccountStatus(
-    data: Req_adminUpdateDriverStatus
-  ): Promise<Res_adminUpdateDriverStatus> {
+    call: ServerUnaryCall<AdminUpdateDriverStatusReq, IResponse<boolean>>,
+    callback: sendUnaryData<IResponse<boolean>>
+  ): Promise<void> {
     try {
+      const data = { ...call.request };
       const response = await this._adminService.adminUpdateDriverAccountStatus(
         data
       );
-      return response;
+      callback(null, response);
     } catch (error) {
-        return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-        data: false,
-      };
+      });
     }
   }
 }
+      

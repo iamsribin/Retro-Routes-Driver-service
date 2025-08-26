@@ -1,38 +1,27 @@
 import mongoose from "mongoose";
 import auth from "../../middleware/auth";
-import { DriverInterface } from "../../interface/driver.interface";
 import { ILoginService } from "../interfaces/i-login-service";
 import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
-import {
-  Res_checkLogin,
-  Res_common,
-  Res_getResubmissionDocuments,
-} from "../../dto/auth/auth-response.dto";
-import { StatusCode } from "../../interface/enum";
+import { StatusCode } from "../../types/common/enum";
 import { ResubmissionInterface } from "../../interface/resubmission.interface";
-import { Req_postResubmissionDocuments } from "../../dto/auth/auth-request.dto";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
+import {
+  CheckLoginDriverRes,
+  GetResubmissionDocumentsRes,
+} from "../../types/auth-types/response-types";
+import { commonRes } from "../../types/common/commonRes";
+import { postResubmissionDocumentsReq } from "../../types";
 
 export class LoginService implements ILoginService {
-  private _driverRepo: IDriverRepository;
-  private _driverBaseRepo: IBaseRepository<DriverInterface>;
-  private _resubmissionRepo: IBaseRepository<ResubmissionInterface>;
-
   constructor(
-    baseRepo: IBaseRepository<DriverInterface>,
-    resubmissionRepo: IBaseRepository<ResubmissionInterface>,
-    driverRepo: IDriverRepository
-  ) {
-    this._driverBaseRepo = baseRepo;
-    this._resubmissionRepo = resubmissionRepo;
-    this._driverRepo = driverRepo;
-  }
+    private _driverRepo: IDriverRepository,
+    private _resubmissionRepo: IBaseRepository<ResubmissionInterface>
+  ) {}
 
-  async loginCheckDriver(mobile: number): Promise<Res_checkLogin> {
+  async loginCheckDriver(mobile: number): Promise<CheckLoginDriverRes> {
     try {
-      console.log("mobile", mobile);
 
-      const response = await this._driverBaseRepo.findOne({ mobile });
+      const response = await this._driverRepo.findOne({ mobile });
       if (!response) {
         return {
           status: StatusCode.NotFound,
@@ -83,9 +72,9 @@ export class LoginService implements ILoginService {
     }
   }
 
-  async checkGoogleLoginDriver(email: string): Promise<Res_checkLogin> {
+  async checkGoogleLoginDriver(email: string): Promise<CheckLoginDriverRes> {
     try {
-      const response = await this._driverBaseRepo.findOne({ email });
+      const response = await this._driverRepo.findOne({ email });
 
       if (!response) {
         return {
@@ -139,8 +128,10 @@ export class LoginService implements ILoginService {
 
   async getResubmissionDocuments(
     id: string
-  ): Promise<Res_getResubmissionDocuments> {
+  ): Promise<GetResubmissionDocumentsRes> {
     try {
+      console.log("getResubmissionDocuments",id);
+      
       const response = await this._resubmissionRepo.findOne({ driverId: id });
 
       if (!response)
@@ -169,19 +160,25 @@ export class LoginService implements ILoginService {
   }
 
   async postResubmissionDocuments(
-    data: Req_postResubmissionDocuments
-  ): Promise<Res_common> {
+    data: postResubmissionDocumentsReq
+  ): Promise<commonRes> {
     try {
       const { driverId, ...updateData } = data;
 
       if (!mongoose.Types.ObjectId.isValid(driverId)) {
         throw new Error("Invalid driver ID");
       }
-
-      const resubmission = await this._resubmissionRepo.findOne({ driverId });
+      console.log("====",driverId);
+      
+      const resubmission = await this._resubmissionRepo.findOne({driverId: driverId});
+      console.log("resubmission", resubmission);
 
       if (!resubmission) {
-        throw new Error("No resubmission data found for driver");
+        return {
+          status: StatusCode.Forbidden,
+          message: "No resubmission data found for driver",
+          navigate: "/driver/login",
+        };
       }
 
       const fields = resubmission.fields;
@@ -296,7 +293,10 @@ export class LoginService implements ILoginService {
         }
       }
 
-      const updated = this._driverRepo.updateProfileById(driverId, update);
+      const updated = await this._driverRepo.updateProfileById(
+        driverId,
+        update
+      );
 
       if (!updated) {
         throw new Error("Failed to update driver document");
@@ -309,8 +309,8 @@ export class LoginService implements ILoginService {
         message: "Resubmission document updated successfully",
       };
     } catch (error) {
+      console.error("Service Error:", error);
       const message = error instanceof Error ? error.message : "Unknown error";
-      console.error("Service Error:", message);
       return {
         status: StatusCode.InternalServerError,
         message,
