@@ -9,7 +9,6 @@ import { DriverController } from "./controllers/implementation/driver-controller
 import { LoginController } from "./controllers/implementation/login-controller";
 import { RegisterController } from "./controllers/implementation/register-controller";
 import { RideController } from "./controllers/implementation/ride-controller";
-import { DriverModel } from "./model/driver.model";
 import { ResubmissionModel } from "./model/resubmission.model";
 import { AdminRepository } from "./repositories/implementation/admin-repository";
 import { BaseRepository } from "./repositories/implementation/base-repository";
@@ -23,28 +22,40 @@ import { RideService } from "./services/implementation/ride-service";
 
 // === Initialize Database ===
 import connectDB from "./config/mongo";
-connectDB()
+import { DriverConsumer } from "./events/consumer";
+import { constrainedMemory } from "process";
+connectDB();
 // new App()
 
 const driverRepository = new DriverRepository();
 const adminRepository = new AdminRepository();
-const driverBaseRepository = new BaseRepository(DriverModel);
 const resubmissionBaseRepository = new BaseRepository(ResubmissionModel);
 const rideRepository = new RideRepository();
 
-const loginService = new LoginService(driverBaseRepository, resubmissionBaseRepository, driverRepository);
-const registrationService = new RegistrationService(driverRepository, driverBaseRepository);
-const adminService = new AdminService(adminRepository, driverBaseRepository, resubmissionBaseRepository);
-const driverService = new DriverService(driverRepository, driverBaseRepository);
+const loginService = new LoginService(
+  driverRepository,
+  resubmissionBaseRepository
+);
+const registrationService = new RegistrationService(driverRepository);
+const adminService = new AdminService(
+  adminRepository,
+  driverRepository,
+  resubmissionBaseRepository
+);
+const driverService = new DriverService(driverRepository);
 const bookingService = new RideService(driverRepository, rideRepository);
 
 const loginController = new LoginController(loginService);
 const registerController = new RegisterController(registrationService);
 const adminController = new AdminController(adminService);
-const bookingController = new RideController(bookingService);
+const rideController = new RideController(bookingService);
 const driverController = new DriverController(driverService);
 
-
+const consumer = new DriverConsumer(driverController);
+consumer.start().catch(err => {
+  console.error('Failed to start driver service consumer', err);
+  process.exit(1);
+});
 // === Load gRPC Proto ===
 const PROTO_PATH = path.resolve(__dirname, "./proto/driver.proto");
 
@@ -68,12 +79,50 @@ if (!driverProto?.Driver?.service) {
 const server = new grpc.Server();
 
 server.addService(driverProto.Driver.service, {
-CheckLoginDriver: loginController.checkLogin,
-CheckGoogleLoginDriver : loginController.checkGoogleLoginDriver,
-GetResubmissionDocuments : loginController.getResubmissionDocuments,
-postResubmissionDocuments : loginController.postResubmissionDocuments,
+  //------------- driver Register rpc ---------
+  Register: registerController.register.bind(registerController),
+  checkRegisterDriver:
+    registerController.checkRegisterDriver.bind(registerController),
+  identificationUpdate:
+    registerController.identificationUpdate.bind(registerController),
+  updateDriverImage:
+    registerController.updateDriverImage.bind(registerController),
+  vehicleUpdate: registerController.vehicleUpdate.bind(registerController),
+  vehicleInsurancePollutionUpdate:
+    registerController.vehicleInsurancePollutionUpdate.bind(registerController),
+  locationUpdate: registerController.location.bind(registerController),
+  // -----------driver login rpc -------------
+  CheckLoginDriver: loginController.checkLogin.bind(loginController),
+  CheckGoogleLoginDriver:
+    loginController.checkGoogleLoginDriver.bind(loginController),
+  GetResubmissionDocuments:
+    loginController.getResubmissionDocuments.bind(loginController),
+  postResubmissionDocuments:
+    loginController.postResubmissionDocuments.bind(loginController),
+  // ---------- admin's driver rpc ----------
+  GetDriversListByAccountStatus:
+    adminController.getDriversListByAccountStatus.bind(adminController),
+  AdminUpdateDriverAccountStatus:
+    adminController.adminUpdateDriverAccountStatus.bind(adminController),
+  AdminGetDriverDetailsById:
+    adminController.adminGetDriverDetailsById.bind(adminController),
+  //-------------driver rpc -----------
+  fetchDriverProfile:
+    driverController.fetchDriverProfile.bind(driverController),
+  updateDriverProfile:
+    driverController.updateDriverProfile.bind(driverController),
+  fetchDriverDocuments:
+    driverController.fetchDriverDocuments.bind(driverController),
+  updateDriverDocuments:
+    driverController.updateDriverDocuments.bind(driverController),
+  handleOnlineChange:
+    driverController.handleOnlineChange.bind(driverController),
+  // ----------- ride driver rpc -------------
+  getOnlineDriverDetails:
+    rideController.getOnlineDriverDetails.bind(rideController),
+  updateDriverCancelCount:
+    rideController.updateDriverCancelCount.bind(rideController),
 });
-
 
 // === Start gRPC Server ===
 const startGrpcServer = () => {
@@ -86,13 +135,17 @@ const startGrpcServer = () => {
   const address = `${domain}:${port}`;
   console.log(`🌐 Binding gRPC server to: ${address}`);
 
-  server.bindAsync(address, grpc.ServerCredentials.createInsecure(), (err, bindPort) => {
-    if (err) {
-      console.error("❌ Error starting gRPC server:", err);
-      return;
+  server.bindAsync(
+    address,
+    grpc.ServerCredentials.createInsecure(),
+    (err, bindPort) => {
+      if (err) {
+        console.error("❌ Error starting gRPC server:", err);
+        return;
+      }
+      console.log(`✅ gRPC user service started on port: ${bindPort}`);
     }
-    console.log(`✅ gRPC user service started on port: ${bindPort}`);
-  });
+  );
 };
 
 startGrpcServer();

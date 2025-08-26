@@ -1,4 +1,3 @@
-import { StatusCode } from "../../types/common/enum";
 import { ILoginService } from "../../services/interfaces/i-login-service";
 import { ILoginController } from "../interfaces/i-login-controller";
 import { ServerUnaryCall, sendUnaryData } from "@grpc/grpc-js";
@@ -7,12 +6,11 @@ import {
   Mobile,
   Id,
   postResubmissionDocumentsReq,
-} from "../../types/index";
-import {
   CheckLoginDriverRes,
-  getResubmissionDocumentsRes,
-} from "../../types/auth-types/auth-grpc-res-types";
-import { commonRes } from "../../types/common/commonRes";
+  GetResubmissionDocumentsRes,
+  commonRes,
+  StatusCode
+} from "../../types";
 
 export class LoginController implements ILoginController {
   constructor(private _loginService: ILoginService) {}
@@ -21,12 +19,16 @@ export class LoginController implements ILoginController {
     call: ServerUnaryCall<Mobile, CheckLoginDriverRes>,
     callback: sendUnaryData<CheckLoginDriverRes>
   ) => {
-    const mobile = call.request.mobile;    
+    const mobile = call.request.mobile;
     try {
-      const response = await this._loginService.loginCheckDriver(mobile);      
+      const response = await this._loginService.loginCheckDriver(mobile);
+      console.log("response",response);
+      
       callback(null, response);
     } catch (error: unknown) {
-      callback(null, { 
+      console.log(error);
+      
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
       });
@@ -50,12 +52,14 @@ export class LoginController implements ILoginController {
   }
 
   async getResubmissionDocuments(
-    call: ServerUnaryCall<Id, getResubmissionDocumentsRes>,
-    callback: sendUnaryData<getResubmissionDocumentsRes>
+    call: ServerUnaryCall<Id, GetResubmissionDocumentsRes>,
+    callback: sendUnaryData<GetResubmissionDocumentsRes>
   ): Promise<void> {
     try {
       const id = call.request.id;
       const response = await this._loginService.getResubmissionDocuments(id);
+      console.log(response);
+      
       callback(null, response);
     } catch (error: unknown) {
       callback(null, {
@@ -70,8 +74,11 @@ export class LoginController implements ILoginController {
     callback: sendUnaryData<commonRes>
   ): Promise<void> {
     try {
-      const data  = {...call.request}
+      const data = { ...call.request };
+      console.log("data===",data);
+      
       const response = await this._loginService.postResubmissionDocuments(data);
+      
       callback(null, response);
     } catch (error: unknown) {
       callback(null, {

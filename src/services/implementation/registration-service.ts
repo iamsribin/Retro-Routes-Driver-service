@@ -1,37 +1,25 @@
 import { refferalCode } from "../../utilities/referral-code";
 import bcrypt from "../../utilities/bcrypt";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
-import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
 import { DriverInterface } from "../../interface/driver.interface";
 import { IRegistrationService } from "../interfaces/i-registration-service";
 import { StatusCode } from "../../types/common/enum";
 import {
-  Res_checkRegisterDriver,
-} from "../../dto/auth/auth-response.dto";
-import {
-  Req_identificationUpdate,
-  Req_insuranceUpdate,
-  Req_locationUpdate,
-  Req_register,
-  Req_updateDriverImage,
-  Req_vehicleUpdate,
-} from "../../dto/auth/auth-request.dto";
-import { commonRes } from "../../types";
+  CheckRegisterDriverRes,
+  commonRes,
+  IdentificationUpdateReq,
+  InsuranceUpdateReq,
+  LocationUpdateReq,
+  RegisterReq,
+  UpdateDriverImageReq,
+  VehicleUpdateReq,
+} from "../../types";
 
 export class RegistrationService implements IRegistrationService {
-  private _driverRepo: IDriverRepository;
-  private _baseRepo: IBaseRepository<DriverInterface>;
-
-  constructor(
-    driverRepo: IDriverRepository,
-    baseRepo: IBaseRepository<DriverInterface>
-  ) {
-    this._driverRepo = driverRepo;
-    this._baseRepo = baseRepo;
-  }
+  constructor(private _driverRepo: IDriverRepository) {}
 
   // ✅ Register new driver
-  async register(driverData: Req_register): Promise<commonRes> {
+  async register(driverData: RegisterReq): Promise<commonRes> {
     try {
       const { name, email, mobile, password, referralCode } = driverData;
 
@@ -46,7 +34,7 @@ export class RegistrationService implements IRegistrationService {
         referralCode: newReferralCode,
       };
 
-      const createdDriver = await this._baseRepo.create(newDriver);
+      const createdDriver = await this._driverRepo.create(newDriver);
 
       if (!createdDriver) {
         return {
@@ -69,9 +57,12 @@ export class RegistrationService implements IRegistrationService {
   }
 
   // ✅ Check driver registration and status
-  async checkRegisterDriver(mobile: number): Promise<Res_checkRegisterDriver> {
+  async checkRegisterDriver(mobile: number): Promise<CheckRegisterDriverRes> {
     try {
+      console.log("mobile", mobile);
+
       const driver = await this._driverRepo.getByMobile(mobile);
+      console.log("driver", driver);
 
       if (!driver) {
         return {
@@ -81,12 +72,22 @@ export class RegistrationService implements IRegistrationService {
         };
       }
 
-      const { aadhar, driverImage, vehicleDetails, location } = driver;
+      const { aadhar, driverImage, vehicleDetails, location, license } = driver;
 
       if (!aadhar?.id) {
         return {
-          status: StatusCode.Conflict,
+          status: StatusCode.Accepted,
           message: "Aadhar document pending",
+          nextStep: "documents",
+          driverId: driver._id.toString(),
+          isFullyRegistered: false,
+        };
+      }
+
+      if (!license.backImageUrl ||!license.id) {
+        return {
+          status: StatusCode.Accepted,
+          message: "license document pending",
           nextStep: "documents",
           driverId: driver._id.toString(),
           isFullyRegistered: false,
@@ -95,7 +96,7 @@ export class RegistrationService implements IRegistrationService {
 
       if (!driverImage) {
         return {
-          status: StatusCode.Conflict,
+          status: StatusCode.Accepted,
           message: "Driver image pending",
           nextStep: "driverImage",
           driverId: driver._id.toString(),
@@ -105,7 +106,7 @@ export class RegistrationService implements IRegistrationService {
 
       if (!vehicleDetails) {
         return {
-          status: StatusCode.Conflict,
+          status: StatusCode.Accepted,
           message: "Vehicle details pending",
           nextStep: "vehicle",
           driverId: driver._id.toString(),
@@ -123,7 +124,7 @@ export class RegistrationService implements IRegistrationService {
 
       if (!carFrontImageUrl || !carBackImageUrl) {
         return {
-          status: StatusCode.Conflict,
+          status: StatusCode.Accepted,
           message: "Car images pending",
           nextStep: "vehicle",
           driverId: driver._id.toString(),
@@ -133,7 +134,7 @@ export class RegistrationService implements IRegistrationService {
 
       if (!insuranceImageUrl || !insuranceExpiryDate || !pollutionImageUrl) {
         return {
-          status: StatusCode.Conflict,
+          status: StatusCode.Accepted,
           message: "Insurance/Pollution documents pending",
           nextStep: "insurance",
           driverId: driver._id.toString(),
@@ -143,7 +144,7 @@ export class RegistrationService implements IRegistrationService {
 
       if (!location?.latitude || !location?.longitude) {
         return {
-          status: StatusCode.Conflict,
+          status: StatusCode.Accepted,
           message: "Location data pending",
           nextStep: "location",
           driverId: driver._id.toString(),
@@ -168,14 +169,15 @@ export class RegistrationService implements IRegistrationService {
 
   // ✅ Update Aadhar or License
   async identificationUpdate(
-    data: Req_identificationUpdate
+    data: IdentificationUpdateReq
   ): Promise<commonRes> {
     try {
+      
       const updated = await this._driverRepo.updateIdentification(data);
       return updated
         ? { status: StatusCode.OK, message: "Success" }
         : { status: StatusCode.Forbidden, message: "Update failed" };
-    } catch (error) {
+    } catch (error) { 
       return {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
@@ -184,7 +186,7 @@ export class RegistrationService implements IRegistrationService {
   }
 
   // ✅ Update Driver Image
-  async driverImageUpdate(data: Req_updateDriverImage): Promise<commonRes> {
+  async driverImageUpdate(data: UpdateDriverImageReq): Promise<commonRes> {
     try {
       const updated = await this._driverRepo.updateDriverImage({
         driverId: data.driverId,
@@ -203,7 +205,7 @@ export class RegistrationService implements IRegistrationService {
   }
 
   // ✅ Update Vehicle info
-  async vehicleUpdate(data: Req_vehicleUpdate): Promise<commonRes> {
+  async vehicleUpdate(data: VehicleUpdateReq): Promise<commonRes> {
     try {
       const updated = await this._driverRepo.vehicleUpdate(data);
 
@@ -219,14 +221,13 @@ export class RegistrationService implements IRegistrationService {
   }
 
   // ✅ Update Location
-  async locationUpdate(data: Req_locationUpdate): Promise<commonRes> {
+  async locationUpdate(data: LocationUpdateReq): Promise<commonRes> {
     try {
       const updated = await this._driverRepo.locationUpdate(data);
 
       return updated
         ? { status: StatusCode.OK, message: "Success" }
         : { status: StatusCode.BadRequest, message: "Location update failed" };
-
     } catch (error) {
       return {
         status: StatusCode.InternalServerError,
@@ -237,10 +238,9 @@ export class RegistrationService implements IRegistrationService {
 
   // ✅ Update Insurance & Pollution
   async vehicleInsurancePollutionUpdate(
-    data: Req_insuranceUpdate
+    data: InsuranceUpdateReq
   ): Promise<commonRes> {
     try {
-      
       const updated = await this._driverRepo.vehicleInsurancePollutionUpdate(
         data
       );
@@ -248,7 +248,6 @@ export class RegistrationService implements IRegistrationService {
       return updated
         ? { status: StatusCode.OK, message: "Success" }
         : { status: StatusCode.BadRequest, message: "Update failed" };
-
     } catch (error) {
       return {
         status: StatusCode.InternalServerError,

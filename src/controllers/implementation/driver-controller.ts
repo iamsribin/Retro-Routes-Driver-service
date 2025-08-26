@@ -1,78 +1,121 @@
 import { IDriverController } from "../interfaces/i-driver-controller";
 import { IDriverService } from "../../services/interfaces/i-driver-service";
-import { StatusCode } from "../../types/common/enum";
-import { IResponse } from "../../dto/interface";
+import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
+import { DriverDocumentDTO, DriverProfileDTO } from "../../dto/driver.dto";
 import {
-  DriverDocumentDTO,
-  DriverProfileDTO,
-} from "../../dto/driver/driver-response.dto";
-import {
-  Req_updateDriverDocuments,
-  Req_updateDriverProfile,
-} from "../../dto/driver/driver-request.dto";
+  UpdateDriverDocumentsReq,
+  UpdateDriverProfileReq,
+  Id,
+  StatusCode,
+  IResponse,
+  handleOnlineChangeReq,
+  increaseCancelCountReq,
+} from "../../types";
 
 export class DriverController implements IDriverController {
-  private _driverService: IDriverService;
+  constructor(private _driverService: IDriverService) {}
 
-  constructor(DriverService: IDriverService) {
-    this._driverService = DriverService;
-  }
-
-  async fetchDriverProfile(id: string): Promise<IResponse<DriverProfileDTO>> {
+  async fetchDriverProfile(
+    call: ServerUnaryCall<Id, IResponse<DriverProfileDTO>>,
+    callback: sendUnaryData<IResponse<DriverProfileDTO>>
+  ): Promise<void> {
     try {
-      return await this._driverService.fetchDriverProfile(id);
+      const { id } = call.request;
+      const response = await this._driverService.fetchDriverProfile(id);
+      callback(null, response);
     } catch (error) {
       console.log(error);
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-        data: null,
-      };
+      });
     }
   }
 
   async updateDriverProfile(
-    data: Req_updateDriverProfile
-  ): Promise<IResponse<null>> {
+    call: ServerUnaryCall<UpdateDriverProfileReq, IResponse<null>>,
+    callback: sendUnaryData<IResponse<null>>
+  ): Promise<void> {
     try {
+      const data = { ...call.request };
       const response = await this._driverService.updateDriverProfile(data);
-      return response;
+      callback(null, response);
     } catch (error) {
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-        data: null,
-      };
+      });
     }
   }
 
   async fetchDriverDocuments(
-    id: string
-  ): Promise<IResponse<DriverDocumentDTO>> {
+    call: ServerUnaryCall<Id, IResponse<DriverDocumentDTO>>,
+    callback: sendUnaryData<IResponse<DriverDocumentDTO>>
+  ): Promise<void> {
     try {
-      return await this._driverService.fetchDriverDocuments(id);
+      const { id } = call.request;
+      const response = await this._driverService.fetchDriverDocuments(id);
+      callback(null, response);
     } catch (error) {
       console.log(error);
-      return {
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-        data: null,
-      };
+      });
     }
   }
 
-  async updateDriverDocuments(
-    data: Req_updateDriverDocuments
-  ): Promise<IResponse<null>> {
+async updateDriverDocuments(
+  call: ServerUnaryCall<UpdateDriverDocumentsReq, IResponse<null>>,
+  callback: sendUnaryData<IResponse<null>>
+): Promise<void> {
+  try {
+    console.log({ ...call.request });
+    
+    const data = { ...call.request };
+    
+    if (typeof data.updates === 'string') {
+      try {
+        data.updates = JSON.parse(data.updates);
+        console.log("Parsed updates:", data.updates);
+      } catch (parseError) {
+        console.error("Error parsing updates JSON:", parseError);
+      }
+    }
+    
+    const response = await this._driverService.updateDriverDocuments(data);
+    callback(null, response);
+  } catch (error) {
+    callback(null, {
+      status: StatusCode.InternalServerError,
+      message: (error as Error).message,
+    });
+  }
+}
+
+  async handleOnlineChange(
+    call: ServerUnaryCall<handleOnlineChangeReq, IResponse<null>>,
+    callback: sendUnaryData<IResponse<null>>
+  ): Promise<void> {
     try {
-      const response = await this._driverService.updateDriverDocuments(data);
-      return response;
+      const data = { ...call.request };
+      const response = await this._driverService.handleOnlineChange(data);
+      callback(null, response);
     } catch (error) {
-      return {
+      console.log(error);
+      callback(null, {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
-        data: null,
-      };
+      });
     }
+  }
+
+  async increaseCancelCount(payload:increaseCancelCountReq):Promise<void>{
+try {
+  this._driverService.increaseCancelCount(payload)
+} catch (error) {
+  console.log("error",error);
+  
+}
   }
 }

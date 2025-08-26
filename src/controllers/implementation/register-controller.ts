@@ -1,6 +1,5 @@
 import { IRegisterController } from "../interfaces/i-register-controller";
 import { IRegistrationService } from "../../services/interfaces/i-registration-service";
-import { StatusCode } from "../../types/common/enum";
 import {
   CheckRegisterDriverRes,
   commonRes,
@@ -11,6 +10,7 @@ import {
   RegisterReq,
   UpdateDriverImageReq,
   VehicleUpdateReq,
+  StatusCode
 } from "../../types";
 import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
 
@@ -40,8 +40,10 @@ export class RegisterController implements IRegisterController {
     try {
       const mobile = call.request.mobile;
       const response = await this._registrationService.checkRegisterDriver(
-        mobile
+        mobile 
       );
+      console.log("ersdf",response);
+      
       callback(null, response);
     } catch (error: unknown) {
       callback(null, {
@@ -57,6 +59,8 @@ export class RegisterController implements IRegisterController {
   ): Promise<void> {
     try {
       const data = { ...call.request };
+      console.log("call.request",call.request);
+      
       const response = await this._registrationService.identificationUpdate(
         data
       );

@@ -58,6 +58,8 @@ const DriverSchema: Schema = new Schema(
       enum: Object.values(AccountStatus),
     },
 
+    onlineStatus:{type : Boolean},
+
     wallet: {
       balance: { type: Number, default: 0 },
       transactions: [

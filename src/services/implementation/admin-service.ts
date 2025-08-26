@@ -1,47 +1,65 @@
 import mongoose from "mongoose";
 import { sendMail } from "../../utilities/node-mailer";
 import { ResubmissionInterface } from "../../interface/resubmission.interface";
-import { DriverInterface } from "../../interface/driver.interface";
 import { IAdminService } from "../interfaces/i-admin-service";
 import { StatusCode } from "../../types/common/enum";
 import { IAdminRepository } from "../../repositories/interfaces/i-admin-repository";
 import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
-import { Req_adminUpdateDriverStatus } from "../../dto/admin/admin-request.dto";
 import { generateStatusEmail } from "../../utilities/generate-status-email";
+import { AdminUpdateDriverStatusReq, IResponse } from "../../types";
 import {
-  Res_adminGetDriverDetailsById,
-  Res_adminUpdateDriverStatus,
-  Res_getDriversListByAccountStatus,
-} from "../../dto/admin/admin-response.dto";
+  AdminDriverDetailsDTO,
+  DriverListDTO,
+  PaginatedUserListDTO,
+} from "../../dto/admin.dto";
+import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
 
 export class AdminService implements IAdminService {
-  private _adminRepo: IAdminRepository;
-  private _driverRepo: IBaseRepository<DriverInterface>;
-  private _resubmissionRepo: IBaseRepository<ResubmissionInterface>;
-
   constructor(
-    adminRepo: IAdminRepository,
-    driverRepo: IBaseRepository<DriverInterface>,
-    resubmissionRepo: IBaseRepository<ResubmissionInterface>
-  ) {
-    this._adminRepo = adminRepo;
-    this._driverRepo = driverRepo;
-    this._resubmissionRepo = resubmissionRepo;
-  }
+    private _adminRepo: IAdminRepository,
+    private _driverRepo: IDriverRepository,
+    private _resubmissionRepo: IBaseRepository<ResubmissionInterface>
+  ) {}
 
   async getDriversListByAccountStatus(
-    accountStatus: string
-  ): Promise<Res_getDriversListByAccountStatus> {
+    status: "Good" | "Block",
+    page: number = 1,
+    limit: number = 6,
+    search: string = ""
+  ): Promise<IResponse<PaginatedUserListDTO>> {
     try {
-      const drivers = await this._adminRepo.getDriversListByAccountStatus(
-        accountStatus
-      );
+      const validatedPage = Math.max(1, page);
+      const validatedLimit = Math.min(50, Math.max(1, limit));
+      const trimmedSearch = search.trim();
+
+      const { drivers, totalItems } =
+        await this._adminRepo.findUsersByStatusWithPagination(
+          status,
+          validatedPage,
+          validatedLimit,
+          trimmedSearch
+        );
+
       if (!drivers.length) {
-        return { status: StatusCode.OK, data: [] };
+        return {
+          status: StatusCode.OK,
+          message: "No drivers found",
+          data: {
+            drivers: [],
+            pagination: {
+              currentPage: validatedPage,
+              totalPages: 0,
+              totalItems: 0,
+              itemsPerPage: validatedLimit,
+              hasNextPage: false,
+              hasPreviousPage: false,
+            },
+          },
+        };
       }
 
-      const result = drivers.map((driver) => ({
-        _id: driver._id.toString(),
+      const result: DriverListDTO[] = drivers.map((driver) => ({
+        id: driver._id.toString(),
         name: driver.name,
         email: driver.email,
         mobile: driver.mobile,
@@ -51,25 +69,35 @@ export class AdminService implements IAdminService {
         driverImage: driver.driverImage,
       }));
 
+      const totalPages = Math.ceil(totalItems / validatedLimit);
+
       return {
         status: StatusCode.OK,
-        data: result,
-        message: "Successfully fetch driver list",
+        message: "Driver list fetched successfully",
+        data: {
+          drivers: result,
+          pagination: {
+            currentPage: validatedPage,
+            totalPages,
+            totalItems,
+            itemsPerPage: validatedLimit,
+            hasNextPage: validatedPage < totalPages,
+            hasPreviousPage: validatedPage > 1,
+          },
+        },
       };
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Unknown error";
-      console.error("Service Error:", message);
+    } catch (error: any) {
+      console.error("Service Error:", error.message);
       return {
         status: StatusCode.InternalServerError,
-        data: [],
-        message,
+        message: error.message || "Something went wrong",
       };
     }
   }
 
   async adminGetDriverDetailsById(
     id: string
-  ): Promise<Res_adminGetDriverDetailsById> {
+  ): Promise<IResponse<AdminDriverDetailsDTO["data"]>> {
     try {
       const response = await this._driverRepo.findById(
         id,
@@ -90,6 +118,7 @@ export class AdminService implements IAdminService {
       };
 
       return {
+        message: "success",
         status: StatusCode.OK,
         data: result,
       };
@@ -99,8 +128,8 @@ export class AdminService implements IAdminService {
   }
 
   async adminUpdateDriverAccountStatus(
-    request: Req_adminUpdateDriverStatus
-  ): Promise<Res_adminUpdateDriverStatus> {
+    request: AdminUpdateDriverStatusReq
+  ): Promise<IResponse<boolean>> {
     try {
       if (request.status === "Rejected" && request.fields) {
         const resubmissionData = {

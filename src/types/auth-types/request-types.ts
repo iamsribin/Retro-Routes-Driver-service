@@ -2,6 +2,17 @@ export interface Mobile {
   mobile: number;
 }
 
+export interface AccountStatus {
+  accountStatus: string;
+}
+
+export interface AdminUpdateDriverStatusReq {
+  id:string;
+  status: "Good" | "Warning" | "Rejected" | "Blocked";
+  reason: string;
+  fields?: string[];
+}
+
 export interface Email {
   email: string;
 }
@@ -74,7 +85,7 @@ export interface postResubmissionDocumentsReq {
   longitude?: string;
 }
 
-export interface InsuranceUpdateReq{
+export interface InsuranceUpdateReq {
   driverId: string;
   insuranceStartDate: Date;
   insuranceExpiryDate: Date;
@@ -84,9 +95,9 @@ export interface InsuranceUpdateReq{
   insuranceImageUrl: string;
 }
 
-export interface LocationUpdateReq{
+export interface LocationUpdateReq {
   driverId: string;
   latitude: number;
   longitude: number;
-  address:string;
+  address: string;
 }

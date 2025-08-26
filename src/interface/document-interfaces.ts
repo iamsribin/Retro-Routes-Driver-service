@@ -1,16 +1,3 @@
-import { StatusCode } from "../types/common/enum";
-
-// common response
-
-export interface IResponse<T> {
-  status: StatusCode;
-  message: string;
-  navigate?: string | number;
-  data?: T | null;
-}
-
-
-// documents interface 
 
 export interface Aadhar {
   id: string;

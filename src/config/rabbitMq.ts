@@ -1,10 +1,20 @@
-import 'dotenv/config'
+import amqp from "amqplib";
 
-export const rabbitMq= {
-    rabbitMQ: {
-      url: String(process.env.RABBITMQ_URL),
-    },
-    queues: {
-        driverQueue: "driver_queue",
-      }
-  };
+const RABBIT_URL = process.env.RABBIT_URL || "amqp://localhost";
+
+export async function createRabbit() {
+  const conn = await amqp.connect(RABBIT_URL);
+  const ch = await conn.createChannel();
+
+  await ch.assertExchange("retro.routes", "topic", { durable: true });
+
+  // Driver-specific queues
+  await ch.assertQueue("driver.rejection", { durable: true });
+  await ch.assertQueue("driver.timeout", { durable: true }); // if you want timeout later
+
+  // Bind queues to routing keys
+  await ch.bindQueue("driver.rejection", "retro.routes", "driver.rejection");
+  await ch.bindQueue("driver.timeout", "retro.routes", "driver.timeout");
+
+  return { conn, ch };
+}

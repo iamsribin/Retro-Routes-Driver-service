@@ -1,33 +1,27 @@
-import { IResponse } from "../../dto/interface";
-import { DriverInterface } from "../../interface/driver.interface";
-import { StatusCode } from "../../types/common/enum";
-import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
 import { IDriverService } from "../interfaces/i-driver-service";
+import { DriverDocumentDTO, DriverProfileDTO } from "../../dto/driver.dto";
 import {
-  Req_updateDriverDocuments,
-  Req_updateDriverProfile,
-} from "../../dto/driver/driver-request.dto";
+  UpdateDriverDocumentsReq,
+  UpdateDriverProfileReq,
+  StatusCode,
+  IResponse,
+  handleOnlineChangeReq,
+  increaseCancelCountReq,
+} from "../../types";
 import {
-  DriverDocumentDTO,
-  DriverProfileDTO,
-} from "../../dto/driver/driver-response.dto";
+  addDriverGeo,
+  setHeartbeat,
+  removeOnlineDriver,
+  setDriverDetails,
+} from "../../config/redis.config";
 
 export class DriverService implements IDriverService {
-  private _driverRepo: IDriverRepository;
-  private _baseRepo: IBaseRepository<DriverInterface>;
-
-  constructor(
-    driverRepo: IDriverRepository,
-    baseRepo: IBaseRepository<DriverInterface>
-  ) {
-    this._driverRepo = driverRepo;
-    this._baseRepo = baseRepo;
-  }
+  constructor(private _driverRepo: IDriverRepository) {}
 
   async fetchDriverProfile(id: string): Promise<IResponse<DriverProfileDTO>> {
     try {
-      const response = await this._baseRepo.findById(id);
+      const response = await this._driverRepo.findById(id);
 
       if (!response)
         return {
@@ -66,7 +60,7 @@ export class DriverService implements IDriverService {
   }
 
   async updateDriverProfile(
-    data: Req_updateDriverProfile
+    data: UpdateDriverProfileReq
   ): Promise<IResponse<null>> {
     try {
       const filter = { _id: data.driverId };
@@ -77,7 +71,7 @@ export class DriverService implements IDriverService {
 
       updateData.accountStatus = "Pending";
 
-      const response = await this._baseRepo.updateOne(filter, updateData);
+      const response = await this._driverRepo.updateOne(filter, updateData);
 
       if (!response) {
         return {
@@ -155,10 +149,11 @@ export class DriverService implements IDriverService {
 
   //✅ update driver documents
   async updateDriverDocuments(
-    data: Req_updateDriverDocuments
+    data: UpdateDriverDocumentsReq
   ): Promise<IResponse<null>> {
     try {
       const { driverId, section, updates } = data;
+console.log({ driverId, section, updates });
 
       const updateQuery: Record<string, unknown> = {};
 
@@ -168,7 +163,7 @@ export class DriverService implements IDriverService {
 
       updateQuery.accountStatus = "Pending";
 
-      const response = await this._baseRepo.updateOne(
+      const response = await this._driverRepo.updateOne(
         { _id: driverId },
         { $set: updateQuery }
       );
@@ -182,10 +177,74 @@ export class DriverService implements IDriverService {
 
       return { status: StatusCode.OK, message: "Success" };
     } catch (error) {
+      console.log(error);
+      
       return {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
       };
+    }
+  }
+
+  async handleOnlineChange(
+    data: handleOnlineChangeReq
+  ): Promise<IResponse<null>> {
+    try {
+      const driver = await this._driverRepo.findById(data.driverId);
+      if (!driver) {
+        return { status: StatusCode.Unauthorized, message: "Invalid driver" };
+      }
+
+      // If going offline → calculate hours
+      if (!data.online && data.onlineTimestamp) {
+        const onlineDurationMs =
+          Date.now() - new Date(data.onlineTimestamp).getTime();
+        const hours =
+          Math.round((onlineDurationMs / (1000 * 60 * 60)) * 100) / 100;
+        await this._driverRepo.updateOnlineHours(data.driverId, hours);
+        removeOnlineDriver(data.driverId);
+      }
+
+      // If going online → add/update Redis
+      if (data.online) {
+        const driverDetails = {
+          driverId: data.driverId,
+          driverNumber: driver.mobile.toString(),
+          name: driver.name,
+          cancelledRides: driver.totalCancelledRides || 0,
+          rating: driver.totalRatings || 0,
+          vehicleModel: driver.vehicleDetails.model,
+          driverPhoto: driver.driverImage,
+          vehicleNumber: driver.vehicleDetails.vehicleNumber,
+        };
+
+        await addDriverGeo(data.driverId, data.location.lng, data.location.lat);
+        await setHeartbeat(data.driverId);
+        await setDriverDetails(driverDetails);
+      }
+      await this._driverRepo.updateOne(
+        { _id: data.driverId },
+        { $set: { onlineStatus: data.online } }
+      );
+
+      return { status: StatusCode.OK, message: "Driver status updated" };
+    } catch (error) {
+      return {
+        status: StatusCode.InternalServerError,
+        message: (error as Error).message,
+      };
+    }
+  }
+
+  async increaseCancelCount(payload: increaseCancelCountReq): Promise<void> {
+    try {
+      console.log("payload",payload);
+      
+      await this._driverRepo.increaseCancelCount(payload.driverId);
+      console.log(`✅ Cancel count increased for driver ${payload.driverId}`);
+    } catch (error) {
+      console.log("❌ error in increaseCancelCount", error);
+      throw error;
     }
   }
 }

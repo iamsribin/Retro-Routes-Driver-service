@@ -11,17 +11,23 @@ export interface CheckLoginDriverRes {
   driverId?: string;
 }
 
-export interface CheckRegisterDriverRes{
+export interface CheckRegisterDriverRes {
   status: StatusCode;
   message: string;
   isFullyRegistered?: boolean;
   driverId?: string;
-  nextStep?: 'documents' | 'driverImage' | 'location' | 'insurance' | 'vehicle' | null;
+  nextStep?:
+    | "documents"
+    | "driverImage"
+    | "location"
+    | "insurance"
+    | "vehicle"
+    | null;
 }
 
-export interface getResubmissionDocumentsRes{
-  status:StatusCode,
-  message:string,
-  navigate?:string,
-  data?:ResubmissionInterface
+export interface GetResubmissionDocumentsRes {
+  status: StatusCode;
+  message: string;
+  navigate?: string;
+  data?: ResubmissionInterface;
 }
