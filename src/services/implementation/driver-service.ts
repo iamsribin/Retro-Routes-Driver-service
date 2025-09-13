@@ -153,7 +153,6 @@ export class DriverService implements IDriverService {
   ): Promise<IResponse<null>> {
     try {
       const { driverId, section, updates } = data;
-console.log({ driverId, section, updates });
 
       const updateQuery: Record<string, unknown> = {};
 
@@ -190,6 +189,8 @@ console.log({ driverId, section, updates });
     data: handleOnlineChangeReq
   ): Promise<IResponse<null>> {
     try {
+      console.log("handleOnlineChange data:",data);
+      
       const driver = await this._driverRepo.findById(data.driverId);
       if (!driver) {
         return { status: StatusCode.Unauthorized, message: "Invalid driver" };
@@ -229,6 +230,8 @@ console.log({ driverId, section, updates });
 
       return { status: StatusCode.OK, message: "Driver status updated" };
     } catch (error) {
+      console.log(error);
+      
       return {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
