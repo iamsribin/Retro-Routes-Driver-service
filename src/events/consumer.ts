@@ -1,19 +1,19 @@
 import { createRabbit } from "../config/rabbitMq";
 import { DriverController } from "../controllers/implementation/driver-controller";
+import { Channel, ConsumeMessage } from "amqplib";
 
 export class DriverConsumer {
-  private ch: any;
+  private ch!: Channel;
 
   constructor(private driverEventHandler: DriverController) {}
 
   async start() {
-    const { conn, ch } = await createRabbit();
+    const { ch } = await createRabbit();
     this.ch = ch;
 
     console.log("🚀 Driver service started with RabbitMQ consumers");
 
-    // Rejection (cancel count increase)
-    await ch.consume("driver.rejection", async (msg: any) => {
+    await ch.consume("driver.rejection", async (msg: ConsumeMessage | null) => {
       if (!msg) return;
       try {
         const payload = JSON.parse(msg.content.toString());
@@ -27,7 +27,6 @@ export class DriverConsumer {
         ch.nack(msg, false, false); // dead-letter
       }
     });
-
   }
 
   async stop() {
@@ -41,3 +40,4 @@ export class DriverConsumer {
     }
   }
 }
+

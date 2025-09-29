@@ -1,5 +1,5 @@
 import { sendUnaryData, ServerUnaryCall } from '@grpc/grpc-js';
-import { AccountStatus, AdminUpdateDriverStatusReq, Id, IResponse, Mobile } from '../../types';
+import { AdminUpdateDriverStatusReq, Id, IResponse } from '../../types';
 import { AdminDriverDetailsDTO, PaginatedUserListDTO } from '../../dto/admin.dto';
 import { PaginationQuery } from '../../types/admin-type/request-types';
 

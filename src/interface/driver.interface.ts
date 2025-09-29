@@ -9,6 +9,16 @@ export enum AccountStatus {
   Incomplete = "Incomplete",
 }
 
+export interface DriverRideStats {
+  _id: string;
+  totalCompletedRides: number;
+  totalCancelledRides: number;
+  totalEarnings: number;
+  totalWorkingHours: number;
+  rideDetails: DriverInterface["rideDetails"];
+}
+
+
 export interface DriverInterface extends Document {
   _id: ObjectId;
 

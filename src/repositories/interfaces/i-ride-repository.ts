@@ -1,4 +1,4 @@
-import { DriverInterface } from '../../interface/driver.interface';
+import { DriverInterface, DriverRideStats } from '../../interface/driver.interface';
 
 export interface IRideRepository {
   increaseCancelledRides(driverId: string): Promise<DriverInterface | null>;
@@ -7,6 +7,6 @@ export interface IRideRepository {
   decreaseCompletedRides(driverId: string, earnings?: number): Promise<DriverInterface | null>;
   addWorkingHours(driverId: string, onlineTime: Date, offlineTime: Date): Promise<DriverInterface | null>;
   addFeedback(driverId: string, feedback: string, rideId: string, rating: number): Promise<DriverInterface | null>;
-  getDriverRideStats(driverId: string, startDate?: Date, endDate?: Date): Promise<any>;
-  getTodayStats(driverId: string): Promise<any>;
+  getDriverRideStats(driverId: string, startDate?: Date, endDate?: Date): Promise<DriverRideStats | null>;
+  getTodayStats(driverId: string): Promise<DriverRideStats | null>;
 }

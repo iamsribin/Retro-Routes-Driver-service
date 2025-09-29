@@ -15,6 +15,7 @@ import {
   removeOnlineDriver,
   setDriverDetails,
 } from "../../config/redis.config";
+import { AccountStatus, DriverInterface } from "../../interface/driver.interface";
 
 export class DriverService implements IDriverService {
   constructor(private _driverRepo: IDriverRepository) {}
@@ -59,36 +60,38 @@ export class DriverService implements IDriverService {
     }
   }
 
-  async updateDriverProfile(
-    data: UpdateDriverProfileReq
-  ): Promise<IResponse<null>> {
-    try {
-      const filter = { _id: data.driverId };
-      const updateData: any = {};
+async updateDriverProfile(
+  data: UpdateDriverProfileReq
+): Promise<IResponse<null>> {
+  try {
+    const filter = { _id: data.driverId };
 
-      if (data?.name) updateData.name = data?.name;
-      if (data?.imageUrl) updateData.driverImage = data?.imageUrl;
+    const updateData: Partial<
+      Pick<DriverInterface, "name" | "driverImage" | "accountStatus">
+    > = {};
 
-      updateData.accountStatus = "Pending";
+    if (data?.name) updateData.name = data.name;
+    if (data?.imageUrl) updateData.driverImage = data.imageUrl;
 
-      const response = await this._driverRepo.updateOne(filter, updateData);
+    updateData.accountStatus = AccountStatus.Pending; 
 
-      if (!response) {
-        return {
-          status: StatusCode.NotFound,
-          message: "Driver not found",
-          navigate: -1,
-        };
-      }
-      return { status: StatusCode.OK, message: "Success" };
-    } catch (error) {
+    const response = await this._driverRepo.updateOne(filter, updateData);
+
+    if (!response) {
       return {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
+        status: StatusCode.NotFound,
+        message: "Driver not found",
+        navigate: -1,
       };
     }
+    return { status: StatusCode.OK, message: "Success" };
+  } catch (error: unknown) {
+    return {
+      status: StatusCode.InternalServerError,
+      message: error instanceof Error ? error.message : "Unknown error",
+    };
   }
-
+}
   async fetchDriverDocuments(
     id: string
   ): Promise<IResponse<DriverDocumentDTO>> {
@@ -138,7 +141,9 @@ export class DriverService implements IDriverService {
         message: "Driver documents fetched successfully",
         data: driverDocumentDto,
       };
-    } catch (error) {
+    } catch (error : unknown) {
+      console.log(error);
+      
       return {
         status: StatusCode.InternalServerError,
         message: "Internal Server Error",

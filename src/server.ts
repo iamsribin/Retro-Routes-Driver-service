@@ -23,7 +23,6 @@ import { RideService } from "./services/implementation/ride-service";
 // === Initialize Database ===
 import connectDB from "./config/mongo";
 import { DriverConsumer } from "./events/consumer";
-import { constrainedMemory } from "process";
 connectDB();
 // new App()
 
@@ -67,7 +66,13 @@ const packageDef = protoLoader.loadSync(PROTO_PATH, {
   oneofs: true,
 });
 
-const grpcObject = grpc.loadPackageDefinition(packageDef) as any;
+interface DriverProtoPackage  {
+  driver_package: {
+    Driver: grpc.ServiceClientConstructor & { service: grpc.ServiceDefinition<unknown> };
+  };
+}
+
+const grpcObject = grpc.loadPackageDefinition(packageDef) as unknown as DriverProtoPackage;
 const driverProto = grpcObject.driver_package;
 
 // === Validate Proto Service ===

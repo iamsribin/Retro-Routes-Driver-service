@@ -1,6 +1,7 @@
 import { DriverModel } from "../../model/driver.model";
-import { DriverInterface } from "../../interface/driver.interface";
+import { DriverInterface, DriverRideStats } from "../../interface/driver.interface";
 import { IRideRepository } from "../interfaces/i-ride-repository";
+import { FilterQuery } from "mongoose";
 
 export class RideRepository implements IRideRepository {
   
@@ -143,7 +144,7 @@ private getStartOfDay(date: Date): Date {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
-      const driver = await DriverModel.findByIdAndUpdate(
+      await DriverModel.findByIdAndUpdate(
         driverId,
         {
           $inc: { completedRides: 1 }
@@ -344,9 +345,9 @@ private getStartOfDay(date: Date): Date {
   /**
    * Get driver's ride statistics for a specific date range
    */
-  async getDriverRideStats(driverId: string, startDate?: Date, endDate?: Date): Promise<any> {
+  async getDriverRideStats(driverId: string, startDate?: Date, endDate?: Date): Promise<DriverRideStats | null> {
     try {
-      const matchConditions: any = { _id: driverId };
+     const matchConditions: FilterQuery<DriverInterface> = { _id: driverId };
       
       if (startDate && endDate) {
         matchConditions["rideDetails.date"] = {
@@ -390,7 +391,7 @@ private getStartOfDay(date: Date): Date {
   /**
    * Get today's ride statistics for a driver
    */
-  async getTodayStats(driverId: string): Promise<any> {
+  async getTodayStats(driverId: string): Promise<DriverRideStats | null> {
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0);

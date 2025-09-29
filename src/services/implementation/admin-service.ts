@@ -13,6 +13,7 @@ import {
   PaginatedUserListDTO,
 } from "../../dto/admin.dto";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
+import { getErrorMessage } from "../../utilities/errorHandler";
 
 export class AdminService implements IAdminService {
   constructor(
@@ -86,11 +87,10 @@ export class AdminService implements IAdminService {
           },
         },
       };
-    } catch (error: any) {
-      console.error("Service Error:", error.message);
+    } catch (error: unknown) {
       return {
         status: StatusCode.InternalServerError,
-        message: error.message || "Something went wrong",
+        message: getErrorMessage(error),
       };
     }
   }

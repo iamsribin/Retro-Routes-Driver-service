@@ -22,6 +22,7 @@ export class RegistrationService implements IRegistrationService {
   async register(driverData: RegisterReq): Promise<commonRes> {
     try {
       const { name, email, mobile, password, referralCode } = driverData;
+console.log("referralCode",referralCode);
 
       const newReferralCode = refferalCode();
       const hashedPassword = await bcrypt.securePassword(password);

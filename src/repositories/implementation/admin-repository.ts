@@ -1,6 +1,7 @@
 import { DriverModel } from "../../model/driver.model";
 import { DriverInterface } from "../../interface/driver.interface";
 import { IAdminRepository } from "../interfaces/i-admin-repository";
+import { FilterQuery } from "mongoose";
 
 export class AdminRepository implements IAdminRepository {
 
@@ -12,7 +13,9 @@ export class AdminRepository implements IAdminRepository {
         "name email mobile accountStatus joiningDate driverImage vehicleDetails.model"
       );
       return drivers.length ? drivers : [];
-    } catch (error) {
+    } catch (error:unknown) {
+      console.log(error);
+      
       throw new Error("Internal server Error");
     }
   }
@@ -27,7 +30,7 @@ export class AdminRepository implements IAdminRepository {
   totalItems: number;
 }> {
   try {
-    const query: any = { accountStatus: status };
+    const query: FilterQuery<DriverInterface>  = { accountStatus: status };
 
     if (search) {
       const regex = new RegExp(search, "i");
