@@ -11,6 +11,8 @@ const DriverSchema: Schema = new Schema(
     driverImage: { type: String },
     referralCode: { type: String },
     joiningDate: { type: Date, default: Date.now },
+    accountId:{type: String},
+    accountLinkUrl:{type: String},
 
     aadhar: {
       id: { type: String },

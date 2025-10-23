@@ -2,11 +2,13 @@ import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
 import { Id, IResponse } from "../../types";
 import { DriverDocumentDTO, DriverProfileDTO } from "../../dto/driver.dto";
 import {
+  AddEarningsRequest,
   handleOnlineChangeReq,
   increaseCancelCountReq,
   UpdateDriverDocumentsReq,
   UpdateDriverProfileReq,
 } from "../../types/driver-type/request-type";
+import { PaymentResponse } from "../../types/driver-type/response-type";
 
 export interface IDriverController {
   fetchDriverProfile(
@@ -33,6 +35,11 @@ export interface IDriverController {
     call: ServerUnaryCall<handleOnlineChangeReq, IResponse<null>>,
     callback: sendUnaryData<IResponse<null>>
   ): Promise<void>;
+
+  AddEarnings(
+      call: ServerUnaryCall<AddEarningsRequest, PaymentResponse>,
+      callback: sendUnaryData<PaymentResponse>
+    ): Promise<void>
 
   increaseCancelCount(payload:increaseCancelCountReq):Promise<void>
 }

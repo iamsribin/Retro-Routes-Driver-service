@@ -28,7 +28,27 @@ service Driver {
     // ----------- ride driver rpc -------------
     rpc getOnlineDriverDetails (IdReq) returns (IResponse_OnlineDriverDTO){}
     rpc updateDriverCancelCount (IdReq) returns (IResponse_UpdateNull){}
+    rpc AddEarnings (AddEarningsRequest) returns (DriverResponse);
+    rpc RollbackEarnings (RollbackEarningsRequest) returns (DriverResponse);
 }
+
+message AddEarningsRequest {
+  string driverId = 1;
+  double adminShare = 2;
+  double driverShare = 3;
+  string transactionId = 4;
+}
+
+message RollbackEarningsRequest {
+  string driverId = 1;
+  double amount = 2;
+}
+
+message DriverResponse {
+  string status = 1;
+  string message = 2;
+}
+
 
 message handleOnlineChangeReq {
   bool online = 1; 

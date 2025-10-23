@@ -8,6 +8,7 @@ import {
   IResponse,
   handleOnlineChangeReq,
   increaseCancelCountReq,
+  AddEarningsRequest,
 } from "../../types";
 import {
   addDriverGeo,
@@ -15,7 +16,11 @@ import {
   removeOnlineDriver,
   setDriverDetails,
 } from "../../config/redis.config";
-import { AccountStatus, DriverInterface } from "../../interface/driver.interface";
+import {
+  AccountStatus,
+  DriverInterface,
+} from "../../interface/driver.interface";
+import { PaymentResponse } from "../../types/driver-type/response-type";
 
 export class DriverService implements IDriverService {
   constructor(private _driverRepo: IDriverRepository) {}
@@ -60,38 +65,38 @@ export class DriverService implements IDriverService {
     }
   }
 
-async updateDriverProfile(
-  data: UpdateDriverProfileReq
-): Promise<IResponse<null>> {
-  try {
-    const filter = { _id: data.driverId };
+  async updateDriverProfile(
+    data: UpdateDriverProfileReq
+  ): Promise<IResponse<null>> {
+    try {
+      const filter = { _id: data.driverId };
 
-    const updateData: Partial<
-      Pick<DriverInterface, "name" | "driverImage" | "accountStatus">
-    > = {};
+      const updateData: Partial<
+        Pick<DriverInterface, "name" | "driverImage" | "accountStatus">
+      > = {};
 
-    if (data?.name) updateData.name = data.name;
-    if (data?.imageUrl) updateData.driverImage = data.imageUrl;
+      if (data?.name) updateData.name = data.name;
+      if (data?.imageUrl) updateData.driverImage = data.imageUrl;
 
-    updateData.accountStatus = AccountStatus.Pending; 
+      updateData.accountStatus = AccountStatus.Pending;
 
-    const response = await this._driverRepo.updateOne(filter, updateData);
+      const response = await this._driverRepo.updateOne(filter, updateData);
 
-    if (!response) {
+      if (!response) {
+        return {
+          status: StatusCode.NotFound,
+          message: "Driver not found",
+          navigate: -1,
+        };
+      }
+      return { status: StatusCode.OK, message: "Success" };
+    } catch (error: unknown) {
       return {
-        status: StatusCode.NotFound,
-        message: "Driver not found",
-        navigate: -1,
+        status: StatusCode.InternalServerError,
+        message: error instanceof Error ? error.message : "Unknown error",
       };
     }
-    return { status: StatusCode.OK, message: "Success" };
-  } catch (error: unknown) {
-    return {
-      status: StatusCode.InternalServerError,
-      message: error instanceof Error ? error.message : "Unknown error",
-    };
   }
-}
   async fetchDriverDocuments(
     id: string
   ): Promise<IResponse<DriverDocumentDTO>> {
@@ -141,9 +146,9 @@ async updateDriverProfile(
         message: "Driver documents fetched successfully",
         data: driverDocumentDto,
       };
-    } catch (error : unknown) {
+    } catch (error: unknown) {
       console.log(error);
-      
+
       return {
         status: StatusCode.InternalServerError,
         message: "Internal Server Error",
@@ -152,7 +157,6 @@ async updateDriverProfile(
     }
   }
 
-  //✅ update driver documents
   async updateDriverDocuments(
     data: UpdateDriverDocumentsReq
   ): Promise<IResponse<null>> {
@@ -182,7 +186,7 @@ async updateDriverProfile(
       return { status: StatusCode.OK, message: "Success" };
     } catch (error) {
       console.log(error);
-      
+
       return {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
@@ -194,8 +198,8 @@ async updateDriverProfile(
     data: handleOnlineChangeReq
   ): Promise<IResponse<null>> {
     try {
-      console.log("handleOnlineChange data:",data);
-      
+      console.log("handleOnlineChange data:", data);
+
       const driver = await this._driverRepo.findById(data.driverId);
       if (!driver) {
         return { status: StatusCode.Unauthorized, message: "Invalid driver" };
@@ -222,7 +226,10 @@ async updateDriverProfile(
           vehicleModel: driver.vehicleDetails.model,
           driverPhoto: driver.driverImage,
           vehicleNumber: driver.vehicleDetails.vehicleNumber,
+          stripeId: driver.accountId,
+          stripeLinkUrl:driver.accountLinkUrl
         };
+console.log("online driver details==",driverDetails);
 
         await addDriverGeo(data.driverId, data.location.lng, data.location.lat);
         await setHeartbeat(data.driverId);
@@ -236,7 +243,7 @@ async updateDriverProfile(
       return { status: StatusCode.OK, message: "Driver status updated" };
     } catch (error) {
       console.log(error);
-      
+
       return {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
@@ -244,10 +251,38 @@ async updateDriverProfile(
     }
   }
 
+  async addEarnings(earnings: AddEarningsRequest): Promise<PaymentResponse> {
+    try {
+
+      console.log("ooooo hello---",earnings);
+      
+      const res = await this._driverRepo.addEarnings(earnings);
+       console.log("res",res);
+
+      if (!res)
+        return {
+          status: "failed",
+          message: "driver not found",
+        };
+
+      return {
+        status: "success",
+        message: "Earnings added successfully",
+      };
+
+    } catch (error) {
+      console.error("Error in addEarnings:", error);
+      return {
+        status: "failed",
+        message: (error as Error).message,
+      };
+    }
+  }
+
   async increaseCancelCount(payload: increaseCancelCountReq): Promise<void> {
     try {
-      console.log("payload",payload);
-      
+      console.log("payload", payload);
+
       await this._driverRepo.increaseCancelCount(payload.driverId);
       console.log(`✅ Cancel count increased for driver ${payload.driverId}`);
     } catch (error) {

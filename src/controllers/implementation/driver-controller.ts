@@ -10,7 +10,9 @@ import {
   IResponse,
   handleOnlineChangeReq,
   increaseCancelCountReq,
+  AddEarningsRequest,
 } from "../../types";
+import { PaymentResponse } from "../../types/driver-type/response-type";
 
 export class DriverController implements IDriverController {
   constructor(private _driverService: IDriverService) {}
@@ -109,6 +111,27 @@ async updateDriverDocuments(
       });
     }
   }
+
+async AddEarnings(
+    call: ServerUnaryCall<AddEarningsRequest, PaymentResponse>,
+    callback: sendUnaryData<PaymentResponse>
+  ): Promise<void> {
+    try {
+     const response = await this._driverService.addEarnings(call.request);
+     callback(null, response);
+
+    } catch (error) {
+      console.log(error);
+      
+     callback(null, {
+        status: "failed",
+        message: (error as Error).message,
+      });
+    }
+  }
+
+
+
 
   async increaseCancelCount(payload:increaseCancelCountReq):Promise<void>{
 try {

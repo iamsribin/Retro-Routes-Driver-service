@@ -1,7 +1,7 @@
 import { FilterQuery } from 'mongoose';
 import { DriverInterface } from '../../interface/driver.interface';
 import { IBaseRepository } from './i-base-repository';
-import { IdentificationUpdateReq, InsuranceUpdateReq, LocationUpdateReq, VehicleUpdateReq } from '../../types';
+import { AddEarningsRequest, IdentificationUpdateReq, InsuranceUpdateReq, LocationUpdateReq, VehicleUpdateReq } from '../../types';
 
 export interface IDriverRepository extends IBaseRepository<DriverInterface>{
   getByEmail(email: string): Promise<DriverInterface | null>;
@@ -18,4 +18,5 @@ export interface IDriverRepository extends IBaseRepository<DriverInterface>{
   getDocuments(id:string): Promise<DriverInterface | null>;
   updateOnlineHours(driverId: string, hoursToAdd: number): Promise<void>
   increaseCancelCount(driverId: string): Promise<void>
+  addEarnings(data: AddEarningsRequest):Promise<DriverInterface | null>
 }

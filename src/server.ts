@@ -127,6 +127,7 @@ server.addService(driverProto.Driver.service, {
     rideController.getOnlineDriverDetails.bind(rideController),
   updateDriverCancelCount:
     rideController.updateDriverCancelCount.bind(rideController),
+    AddEarnings:driverController.AddEarnings.bind(driverController),
 });
 
 // === Start gRPC Server ===

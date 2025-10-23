@@ -14,6 +14,7 @@ import {
 } from "../../dto/admin.dto";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
 import { getErrorMessage } from "../../utilities/errorHandler";
+import { createDriverConnectAccount } from "../../utilities/createSripeAccount";
 
 export class AdminService implements IAdminService {
   constructor(
@@ -152,10 +153,22 @@ export class AdminService implements IAdminService {
           );
         }
       }
+      const driver = await this._driverRepo.findById(request.id);
 
-      const response = await this._driverRepo.update(request.id, {
+      const updateData = {
         accountStatus: request.status,
-      });
+        ...(request.status === "Good" &&
+        driver?.email &&
+        driver?._id &&
+        !driver.accountId
+          ? await createDriverConnectAccount(driver.email, driver._id.toString())
+          : {}),
+      };
+
+      console.log("updateData==",updateData);
+      
+
+      const response = await this._driverRepo.update(request.id, updateData);
 
       if (!response?.email) {
         return {

@@ -74,6 +74,13 @@ export interface handleOnlineChangeReq{
   location:Coordinates
 }
 
+export interface AddEarningsRequest{
+  driverId: string,
+  adminShare: string,
+  driverShare: string,
+  transactionId: string
+}
+
 export interface increaseCancelCountReq{
         driverId:string,
         bookingId:string,

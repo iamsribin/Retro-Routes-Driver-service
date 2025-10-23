@@ -18,7 +18,6 @@ export interface DriverRideStats {
   rideDetails: DriverInterface["rideDetails"];
 }
 
-
 export interface DriverInterface extends Document {
   _id: ObjectId;
 
@@ -30,7 +29,9 @@ export interface DriverInterface extends Document {
   driverImage: string;
   referralCode: string;
   joiningDate: Date;
-
+  accountId: string;
+  accountLinkUrl: string;
+  
   aadhar: {
     id: string;
     frontImageUrl: string;
