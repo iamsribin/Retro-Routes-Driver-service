@@ -41,5 +41,13 @@ export interface IDriverController {
       callback: sendUnaryData<PaymentResponse>
     ): Promise<void>
 
+   getDriverStripe(
+    call: ServerUnaryCall<
+      { driverId: string },
+      { status: string; stripeId: string }
+    >,
+    callback: sendUnaryData<{ status: string; stripeId: string }>
+  ): Promise<void> 
+
   increaseCancelCount(payload:increaseCancelCountReq):Promise<void>
 }

@@ -227,9 +227,8 @@ export class DriverService implements IDriverService {
           driverPhoto: driver.driverImage,
           vehicleNumber: driver.vehicleDetails.vehicleNumber,
           stripeId: driver.accountId,
-          stripeLinkUrl:driver.accountLinkUrl
+          stripeLinkUrl: driver.accountLinkUrl,
         };
-console.log("online driver details==",driverDetails);
 
         await addDriverGeo(data.driverId, data.location.lng, data.location.lat);
         await setHeartbeat(data.driverId);
@@ -253,11 +252,10 @@ console.log("online driver details==",driverDetails);
 
   async addEarnings(earnings: AddEarningsRequest): Promise<PaymentResponse> {
     try {
+      console.log("ooooo hello---", earnings);
 
-      console.log("ooooo hello---",earnings);
-      
       const res = await this._driverRepo.addEarnings(earnings);
-       console.log("res",res);
+      console.log("res", res);
 
       if (!res)
         return {
@@ -269,7 +267,6 @@ console.log("online driver details==",driverDetails);
         status: "success",
         message: "Earnings added successfully",
       };
-
     } catch (error) {
       console.error("Error in addEarnings:", error);
       return {
@@ -277,6 +274,16 @@ console.log("online driver details==",driverDetails);
         message: (error as Error).message,
       };
     }
+  }
+
+  async getDriverStripe(
+    driverId: string
+  ): Promise<{ status: string; stripeId: string }> {
+    
+    const driverData = await this._driverRepo.findById(driverId);
+    if (!driverData) throw new Error("no driver found");
+
+    return { status: "success", stripeId: driverData.accountId };
   }
 
   async increaseCancelCount(payload: increaseCancelCountReq): Promise<void> {

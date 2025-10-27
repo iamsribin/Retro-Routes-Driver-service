@@ -1,4 +1,3 @@
-// import App from "./app";
 import path from "path";
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
@@ -122,6 +121,7 @@ server.addService(driverProto.Driver.service, {
     driverController.updateDriverDocuments.bind(driverController),
   handleOnlineChange:
     driverController.handleOnlineChange.bind(driverController),
+  getDriverStripe: driverController.getDriverStripe.bind(driverController),
   // ----------- ride driver rpc -------------
   getOnlineDriverDetails:
     rideController.getOnlineDriverDetails.bind(rideController),

@@ -67,33 +67,33 @@ export class DriverController implements IDriverController {
     }
   }
 
-async updateDriverDocuments(
-  call: ServerUnaryCall<UpdateDriverDocumentsReq, IResponse<null>>,
-  callback: sendUnaryData<IResponse<null>>
-): Promise<void> {
-  try {
-    console.log({ ...call.request });
-    
-    const data = { ...call.request };
-    
-    if (typeof data.updates === 'string') {
-      try {
-        data.updates = JSON.parse(data.updates);
-        console.log("Parsed updates:", data.updates);
-      } catch (parseError) {
-        console.error("Error parsing updates JSON:", parseError);
+  async updateDriverDocuments(
+    call: ServerUnaryCall<UpdateDriverDocumentsReq, IResponse<null>>,
+    callback: sendUnaryData<IResponse<null>>
+  ): Promise<void> {
+    try {
+      console.log({ ...call.request });
+
+      const data = { ...call.request };
+
+      if (typeof data.updates === "string") {
+        try {
+          data.updates = JSON.parse(data.updates);
+          console.log("Parsed updates:", data.updates);
+        } catch (parseError) {
+          console.error("Error parsing updates JSON:", parseError);
+        }
       }
+
+      const response = await this._driverService.updateDriverDocuments(data);
+      callback(null, response);
+    } catch (error) {
+      callback(null, {
+        status: StatusCode.InternalServerError,
+        message: (error as Error).message,
+      });
     }
-    
-    const response = await this._driverService.updateDriverDocuments(data);
-    callback(null, response);
-  } catch (error) {
-    callback(null, {
-      status: StatusCode.InternalServerError,
-      message: (error as Error).message,
-    });
   }
-}
 
   async handleOnlineChange(
     call: ServerUnaryCall<handleOnlineChangeReq, IResponse<null>>,
@@ -112,33 +112,50 @@ async updateDriverDocuments(
     }
   }
 
-async AddEarnings(
+  async AddEarnings(
     call: ServerUnaryCall<AddEarningsRequest, PaymentResponse>,
     callback: sendUnaryData<PaymentResponse>
   ): Promise<void> {
     try {
-     const response = await this._driverService.addEarnings(call.request);
-     callback(null, response);
-
+      const response = await this._driverService.addEarnings(call.request);
+      callback(null, response);
     } catch (error) {
       console.log(error);
-      
-     callback(null, {
+
+      callback(null, {
         status: "failed",
         message: (error as Error).message,
       });
     }
   }
 
+  async getDriverStripe(
+    call: ServerUnaryCall<
+      { driverId: string },
+      { status: string; stripeId: string }
+    >,
+    callback: sendUnaryData<{ status: string; stripeId: string }>
+  ): Promise<void> {
 
+    try {
+      const response = await this._driverService.getDriverStripe(call.request.driverId);
+      callback(null, response);
+      
+    } catch (error) {
+      console.log(error);
 
+      callback(null, {
+        status: "failed",
+        stripeId: "",
+      });
+    }
+  }
 
-  async increaseCancelCount(payload:increaseCancelCountReq):Promise<void>{
-try {
-  this._driverService.increaseCancelCount(payload)
-} catch (error) {
-  console.log("error",error);
-  
-}
+  async increaseCancelCount(payload: increaseCancelCountReq): Promise<void> {
+    try {
+      this._driverService.increaseCancelCount(payload);
+    } catch (error) {
+      console.log("error", error);
+    }
   }
 }

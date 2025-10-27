@@ -7,14 +7,14 @@ import { IAdminRepository } from "../../repositories/interfaces/i-admin-reposito
 import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
 import { generateStatusEmail } from "../../utilities/generate-status-email";
 import { AdminUpdateDriverStatusReq, IResponse } from "../../types";
+import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
+import { getErrorMessage } from "../../utilities/errorHandler";
+import { createDriverConnectAccount } from "../../utilities/createStripeAccount";
 import {
   AdminDriverDetailsDTO,
   DriverListDTO,
   PaginatedUserListDTO,
 } from "../../dto/admin.dto";
-import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
-import { getErrorMessage } from "../../utilities/errorHandler";
-import { createDriverConnectAccount } from "../../utilities/createSripeAccount";
 
 export class AdminService implements IAdminService {
   constructor(
