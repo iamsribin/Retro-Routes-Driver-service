@@ -1,12 +1,15 @@
 import { IRideController } from "../interfaces/i-ride-controller";
 import { IRideService } from "../../services/interfaces/i-ride-service";
-import { StatusCode } from "../../types/common/enum";
-import { Id, IResponse } from "../../types";
+import { Id } from "../../types";
 import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
 import { OnlineDriverDTO } from "../../dto/ride.dto";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../types/inversify-types";
+import { IResponse, StatusCode } from "@retro-routes/shared";
 
+@injectable()
 export class RideController implements IRideController {
-  constructor(private _rideService: IRideService) {}
+  constructor(@inject(TYPES.RideService) private _rideService: IRideService) {}
 
   async getOnlineDriverDetails(
     call: ServerUnaryCall<Id, IResponse<OnlineDriverDTO>>,

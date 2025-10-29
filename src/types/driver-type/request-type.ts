@@ -1,4 +1,3 @@
-import { Coordinates } from "../common/common-types";
 
 export interface UpdateDriverProfileReq{
   driverId:string;
@@ -71,7 +70,10 @@ export interface handleOnlineChangeReq{
   online: boolean;
   driverId: string;
   onlineTimestamp:Date;
-  location:Coordinates
+  location:{
+    lat: number;
+    lng: number;
+}
 }
 
 export interface AddEarningsRequest{

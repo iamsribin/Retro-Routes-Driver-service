@@ -2,25 +2,28 @@ import mongoose, { UpdateQuery } from "mongoose";
 import auth from "../../middleware/auth";
 import { ILoginService } from "../interfaces/i-login-service";
 import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
-import { StatusCode } from "../../types/common/enum";
 import { ResubmissionInterface } from "../../interface/resubmission.interface";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
 import {
   CheckLoginDriverRes,
   GetResubmissionDocumentsRes,
 } from "../../types/auth-types/response-types";
-import { commonRes } from "../../types/common/commonRes";
 import { postResubmissionDocumentsReq } from "../../types";
 import { AccountStatus, DriverInterface } from "../../interface/driver.interface";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../types/inversify-types";
+import { commonRes, StatusCode } from "@retro-routes/shared";
 
+@injectable()
 export class LoginService implements ILoginService {
   constructor(
-    private _driverRepo: IDriverRepository,
-    private _resubmissionRepo: IBaseRepository<ResubmissionInterface>
+   @inject(TYPES.DriverRepository) private _driverRepo: IDriverRepository,
+   @inject(TYPES.ResubmissionRepository) private _resubmissionRepo: IBaseRepository<ResubmissionInterface>
   ) {}
 
   async loginCheckDriver(mobile: number): Promise<CheckLoginDriverRes> {
     try {
+console.log("909",StatusCode);
 
       const response = await this._driverRepo.findOne({ mobile });
       if (!response) {

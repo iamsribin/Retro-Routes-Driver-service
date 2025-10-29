@@ -1,20 +1,22 @@
 import { IAdminController } from "../interfaces/i-admin-controller";
 import { IAdminService } from "../../services/interfaces/i-admin-service";
-import { StatusCode } from "../../types/common/enum";
 import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
 import {
   AdminUpdateDriverStatusReq,
   Id,    
-  IResponse,
 } from "../../types";
 import {
   AdminDriverDetailsDTO,
   PaginatedUserListDTO,
 } from "../../dto/admin.dto";
 import { PaginationQuery } from "../../types/admin-type/request-types";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../types/inversify-types";
+import { IResponse, StatusCode } from "@retro-routes/shared";
 
+@injectable()
 export class AdminController implements IAdminController {
-  constructor(private _adminService: IAdminService) {}
+  constructor(@inject(TYPES.AdminRepository) private _adminService: IAdminService) {}
 
   async getDriversListByAccountStatus(
     call: ServerUnaryCall<PaginationQuery, IResponse<PaginatedUserListDTO>>,

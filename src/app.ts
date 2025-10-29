@@ -1,23 +1,20 @@
-// import { Application } from "express";
-// import connectDB from "./config/mongo";
-// import { rabbitClient } from "./rabbitMq/client";
-// import express from "express";
-// import http from "http";
-// import "dotenv/config";
+import express from "express";
+import cookieParser from "cookie-parser";
+import { authRouter } from "./routes/authRoutes";
 
-// const PORT = process.env.PORT;
-// class App {
-//   public app: Application;
-//   public server;
-//   constructor() {
-//     this.app = express();
-//     this.server = http.createServer(this.app);
-//     this.server.listen(PORT, () => {
-//       console.log(`server  http://localhost:${PORT}`);
-//     });
-//     rabbitClient.initialize();
-//     connectDB();
-//   }
-// }
 
-// export default App;
+// create app
+const app = express();
+
+// middlewares
+app.use(express.json());
+app.use(cookieParser());
+
+// routes
+app.use("/", authRouter);
+
+// error handler
+// app.use(errorHandler);
+
+// export app
+export default app;

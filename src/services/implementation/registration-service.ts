@@ -1,12 +1,9 @@
 import { refferalCode } from "../../utilities/referral-code";
-import bcrypt from "../../utilities/bcrypt";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
 import { DriverInterface } from "../../interface/driver.interface";
 import { IRegistrationService } from "../interfaces/i-registration-service";
-import { StatusCode } from "../../types/common/enum";
 import {
   CheckRegisterDriverRes,
-  commonRes,
   IdentificationUpdateReq,
   InsuranceUpdateReq,
   LocationUpdateReq,
@@ -14,9 +11,13 @@ import {
   UpdateDriverImageReq,
   VehicleUpdateReq,
 } from "../../types";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../types/inversify-types";
+import { bcryptService, commonRes, StatusCode } from "@retro-routes/shared";
 
+@injectable()
 export class RegistrationService implements IRegistrationService {
-  constructor(private _driverRepo: IDriverRepository) {}
+  constructor(@inject(TYPES.DriverRepository) private _driverRepo: IDriverRepository) {}
 
   // ✅ Register new driver
   async register(driverData: RegisterReq): Promise<commonRes> {
@@ -25,7 +26,7 @@ export class RegistrationService implements IRegistrationService {
 console.log("referralCode",referralCode);
 
       const newReferralCode = refferalCode();
-      const hashedPassword = await bcrypt.securePassword(password);
+      const hashedPassword = await bcryptService.securePassword(password);
 
       const newDriver: Partial<DriverInterface> = {
         name,

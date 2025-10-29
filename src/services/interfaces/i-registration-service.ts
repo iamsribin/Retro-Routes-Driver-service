@@ -1,4 +1,5 @@
-import { CheckRegisterDriverRes, commonRes, IdentificationUpdateReq, InsuranceUpdateReq, LocationUpdateReq, RegisterReq, UpdateDriverImageReq, VehicleUpdateReq } from '../../types';
+import { commonRes } from '@retro-routes/shared';
+import { CheckRegisterDriverRes, IdentificationUpdateReq, InsuranceUpdateReq, LocationUpdateReq, RegisterReq, UpdateDriverImageReq, VehicleUpdateReq } from '../../types';
 
 export interface IRegistrationService {
   register(driverData: RegisterReq): Promise<commonRes>;

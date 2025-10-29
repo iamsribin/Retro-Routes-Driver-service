@@ -4,26 +4,22 @@ import { DriverDocumentDTO, DriverProfileDTO } from "../../dto/driver.dto";
 import {
   UpdateDriverDocumentsReq,
   UpdateDriverProfileReq,
-  StatusCode,
-  IResponse,
   handleOnlineChangeReq,
   increaseCancelCountReq,
   AddEarningsRequest,
 } from "../../types";
 import {
-  addDriverGeo,
-  setHeartbeat,
-  removeOnlineDriver,
-  setDriverDetails,
-} from "../../config/redis.config";
-import {
   AccountStatus,
   DriverInterface,
 } from "../../interface/driver.interface";
 import { PaymentResponse } from "../../types/driver-type/response-type";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../types/inversify-types";
+import { getRedisService, IResponse, StatusCode } from "@retro-routes/shared";
 
+@injectable()
 export class DriverService implements IDriverService {
-  constructor(private _driverRepo: IDriverRepository) {}
+  constructor(@inject(TYPES.DriverRepository) private _driverRepo: IDriverRepository) {}
 
   async fetchDriverProfile(id: string): Promise<IResponse<DriverProfileDTO>> {
     try {
@@ -204,6 +200,8 @@ export class DriverService implements IDriverService {
       if (!driver) {
         return { status: StatusCode.Unauthorized, message: "Invalid driver" };
       }
+      
+        const redisService =  getRedisService();
 
       // If going offline → calculate hours
       if (!data.online && data.onlineTimestamp) {
@@ -212,7 +210,9 @@ export class DriverService implements IDriverService {
         const hours =
           Math.round((onlineDurationMs / (1000 * 60 * 60)) * 100) / 100;
         await this._driverRepo.updateOnlineHours(data.driverId, hours);
-        removeOnlineDriver(data.driverId);
+
+
+        redisService.removeOnlineDriver(data.driverId);
       }
 
       // If going online → add/update Redis
@@ -230,9 +230,9 @@ export class DriverService implements IDriverService {
           stripeLinkUrl: driver.accountLinkUrl,
         };
 
-        await addDriverGeo(data.driverId, data.location.lng, data.location.lat);
-        await setHeartbeat(data.driverId);
-        await setDriverDetails(driverDetails);
+        await redisService.addDriverGeo(data.driverId, data.location.lng, data.location.lat);
+        await redisService.setHeartbeat(data.driverId);
+        await redisService.setDriverDetails(driverDetails);
       }
       await this._driverRepo.updateOne(
         { _id: data.driverId },

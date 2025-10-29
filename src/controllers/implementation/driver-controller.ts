@@ -6,16 +6,18 @@ import {
   UpdateDriverDocumentsReq,
   UpdateDriverProfileReq,
   Id,
-  StatusCode,
-  IResponse,
   handleOnlineChangeReq,
   increaseCancelCountReq,
   AddEarningsRequest,
 } from "../../types";
 import { PaymentResponse } from "../../types/driver-type/response-type";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../types/inversify-types";
+import { IResponse, StatusCode } from "@retro-routes/shared";
 
+@injectable()
 export class DriverController implements IDriverController {
-  constructor(private _driverService: IDriverService) {}
+  constructor(@inject(TYPES.DriverService) private _driverService: IDriverService) {}
 
   async fetchDriverProfile(
     call: ServerUnaryCall<Id, IResponse<DriverProfileDTO>>,

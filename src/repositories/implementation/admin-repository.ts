@@ -2,7 +2,9 @@ import { DriverModel } from "../../model/driver.model";
 import { DriverInterface } from "../../interface/driver.interface";
 import { IAdminRepository } from "../interfaces/i-admin-repository";
 import { FilterQuery } from "mongoose";
+import { injectable } from "inversify";
 
+@injectable()
 export class AdminRepository implements IAdminRepository {
 
   async getDriversListByAccountStatus(

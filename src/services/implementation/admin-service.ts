@@ -2,25 +2,27 @@ import mongoose from "mongoose";
 import { sendMail } from "../../utilities/node-mailer";
 import { ResubmissionInterface } from "../../interface/resubmission.interface";
 import { IAdminService } from "../interfaces/i-admin-service";
-import { StatusCode } from "../../types/common/enum";
 import { IAdminRepository } from "../../repositories/interfaces/i-admin-repository";
 import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
 import { generateStatusEmail } from "../../utilities/generate-status-email";
-import { AdminUpdateDriverStatusReq, IResponse } from "../../types";
+import { AdminUpdateDriverStatusReq } from "../../types";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
-import { getErrorMessage } from "../../utilities/errorHandler";
 import { createDriverConnectAccount } from "../../utilities/createStripeAccount";
 import {
   AdminDriverDetailsDTO,
   DriverListDTO,
   PaginatedUserListDTO,
 } from "../../dto/admin.dto";
+import { TYPES } from "../../types/inversify-types";
+import { inject, injectable } from "inversify";
+import { IResponse, StatusCode } from "@retro-routes/shared";
 
+@injectable()
 export class AdminService implements IAdminService {
   constructor(
-    private _adminRepo: IAdminRepository,
-    private _driverRepo: IDriverRepository,
-    private _resubmissionRepo: IBaseRepository<ResubmissionInterface>
+    @inject(TYPES.AdminRepository) private _adminRepo: IAdminRepository,
+    @inject(TYPES.DriverRepository) private _driverRepo: IDriverRepository,
+    @inject(TYPES.ResubmissionRepository) private _resubmissionRepo: IBaseRepository<ResubmissionInterface>
   ) {}
 
   async getDriversListByAccountStatus(
@@ -89,9 +91,11 @@ export class AdminService implements IAdminService {
         },
       };
     } catch (error: unknown) {
+      console.log(error);
+      
       return {
         status: StatusCode.InternalServerError,
-        message: getErrorMessage(error),
+        message: "something went wrong",
       };
     }
   }

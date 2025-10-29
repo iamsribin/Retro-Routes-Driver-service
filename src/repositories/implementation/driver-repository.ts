@@ -10,7 +10,9 @@ import {
   LocationUpdateReq,
   VehicleUpdateReq,
 } from "../../types";
+import { injectable } from "inversify";
 
+@injectable()
 export class DriverRepository
   extends BaseRepository<DriverInterface>
   implements IDriverRepository
