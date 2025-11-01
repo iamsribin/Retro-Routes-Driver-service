@@ -46,7 +46,7 @@ type PollutionUpdates = {
   pollutionExpiryDate?: string;
 };
 
-type SectionUpdates =
+export type SectionUpdates =
   | AadharUpdates
   | LicenseUpdates
   | VehicleRCUpdates  
@@ -56,13 +56,7 @@ type SectionUpdates =
 
 export interface UpdateDriverDocumentsReq {
   driverId: string;
-  section:
-    | "aadhar"
-    | "license"
-    | "vehicleRC"
-    | "vehicleDetails"
-    | "insurance"
-    | "pollution";
+  section:string;
   updates: SectionUpdates;
 }
 

@@ -15,6 +15,7 @@
   "keywords": [],
   "dependencies": {
     "@aws-sdk/client-s3": "^3.919.0",
+    "@aws-sdk/s3-request-presigner": "^3.919.0",
     "@grpc/grpc-js": "^1.13.4",
     "@grpc/proto-loader": "^0.8.0",
     "@retro-routes/shared": "file:../Retro-Routes-Shared/retro-routes-shared-1.0.1.tgz",

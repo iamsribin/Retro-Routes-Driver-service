@@ -68,13 +68,14 @@ authRouter.post(
 authRouter.post(
   "/insuranceDetails",
   upload.fields([
-    { name: "pollutionImage", maxCount: 1 },
     { name: "insuranceImage", maxCount: 1 },
+    { name: "pollutionImage", maxCount: 1 }, 
   ]),
   catchAsync(registrationController.vehicleInsurancePollutionUpdate)
 );
 
+authRouter.get("/refresh",catchAsync(registrationController.refreshToken))
 
-
+authRouter.delete("/logout", catchAsync(registrationController.logout))
 
 export {authRouter}

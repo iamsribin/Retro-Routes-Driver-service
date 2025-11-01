@@ -3,8 +3,9 @@
 //   DriverProfileDTO,
 //   DriverDocumentDTO,
 // } from "../../dto/driver/driver-response.dto";
+import { IResponse } from "@retro-routes/shared";
 import { DriverDocumentDTO, DriverProfileDTO } from "../../dto/driver.dto";
-import { AddEarningsRequest, handleOnlineChangeReq, increaseCancelCountReq, IResponse, UpdateDriverDocumentsReq, UpdateDriverProfileReq } from "../../types";
+import { AddEarningsRequest, handleOnlineChangeReq, increaseCancelCountReq, UpdateDriverDocumentsReq, UpdateDriverProfileReq } from "../../types";
 import { PaymentResponse } from "../../types/driver-type/response-type";
 
 export interface IDriverService {

@@ -1,40 +1,18 @@
 import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
-import { Id, IResponse } from "../../types";
-import { DriverDocumentDTO, DriverProfileDTO } from "../../dto/driver.dto";
-import {
-  AddEarningsRequest,
-  handleOnlineChangeReq,
-  increaseCancelCountReq,
-  UpdateDriverDocumentsReq,
-  UpdateDriverProfileReq,
-} from "../../types/driver-type/request-type";
+import { NextFunction, Request, Response } from "express";
+import { AddEarningsRequest, increaseCancelCountReq } from "../../types";
 import { PaymentResponse } from "../../types/driver-type/response-type";
 
 export interface IDriverController {
-  fetchDriverProfile(
-    call: ServerUnaryCall<Id, IResponse<DriverProfileDTO>>,
-    callback: sendUnaryData<IResponse<DriverProfileDTO>>
-  ): Promise<void>;
+  fetchDriverProfile(req: Request, res: Response, _next: NextFunction):Promise<void>;
 
-  fetchDriverDocuments(
-    call: ServerUnaryCall<Id, IResponse<DriverDocumentDTO>>,
-    callback: sendUnaryData<IResponse<DriverDocumentDTO>>
-  ): Promise<void>;
+  fetchDriverDocuments(req: Request, res: Response, _next: NextFunction):Promise<void>;
 
-  updateDriverProfile(
-    call: ServerUnaryCall<UpdateDriverProfileReq, IResponse<null>>,
-    callback: sendUnaryData<IResponse<null>>
-  ): Promise<void>;
+  updateDriverProfile(req: Request, res: Response, _next: NextFunction):Promise<void>;
 
-  updateDriverDocuments(
-    call: ServerUnaryCall<UpdateDriverDocumentsReq, IResponse<null>>,
-    callback: sendUnaryData<IResponse<null>>
-  ): Promise<void>;
+  updateDriverDocuments(req: Request, res: Response, _next: NextFunction):Promise<void>;
 
-  handleOnlineChange(
-    call: ServerUnaryCall<handleOnlineChangeReq, IResponse<null>>,
-    callback: sendUnaryData<IResponse<null>>
-  ): Promise<void>;
+  handleOnlineChange(req: Request, res: Response, _next: NextFunction):Promise<void>;
 
   AddEarnings(
       call: ServerUnaryCall<AddEarningsRequest, PaymentResponse>,
@@ -48,6 +26,5 @@ export interface IDriverController {
     >,
     callback: sendUnaryData<{ status: string; stripeId: string }>
   ): Promise<void> 
-
   increaseCancelCount(payload:increaseCancelCountReq):Promise<void>
 }

@@ -3,7 +3,6 @@ import { sendMail } from "../../utilities/node-mailer";
 import { ResubmissionInterface } from "../../interface/resubmission.interface";
 import { IAdminService } from "../interfaces/i-admin-service";
 import { IAdminRepository } from "../../repositories/interfaces/i-admin-repository";
-import { IBaseRepository } from "../../repositories/interfaces/i-base-repository";
 import { generateStatusEmail } from "../../utilities/generate-status-email";
 import { AdminUpdateDriverStatusReq } from "../../types";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
@@ -15,30 +14,31 @@ import {
 } from "../../dto/admin.dto";
 import { TYPES } from "../../types/inversify-types";
 import { inject, injectable } from "inversify";
-import { IResponse, StatusCode } from "@retro-routes/shared";
+import { HttpError, IMongoBaseRepository, InternalError, IResponse, NotFoundError, StatusCode } from "@retro-routes/shared";
 
 @injectable()
 export class AdminService implements IAdminService {
   constructor(
     @inject(TYPES.AdminRepository) private _adminRepo: IAdminRepository,
     @inject(TYPES.DriverRepository) private _driverRepo: IDriverRepository,
-    @inject(TYPES.ResubmissionRepository) private _resubmissionRepo: IBaseRepository<ResubmissionInterface>
+    @inject(TYPES.ResubmissionRepository) private _resubmissionRepo: IMongoBaseRepository<ResubmissionInterface>
   ) {}
 
   async getDriversListByAccountStatus(
+    paginationQuery:{
     status: "Good" | "Block",
-    page: number = 1,
-    limit: number = 6,
-    search: string = ""
+    page: number ,
+    limit: number,
+    search: string }
   ): Promise<IResponse<PaginatedUserListDTO>> {
     try {
-      const validatedPage = Math.max(1, page);
-      const validatedLimit = Math.min(50, Math.max(1, limit));
-      const trimmedSearch = search.trim();
+      const validatedPage = Math.max(1, paginationQuery.page);
+      const validatedLimit = Math.min(50, Math.max(1, paginationQuery.limit));
+      const trimmedSearch = paginationQuery.search.trim();
 
       const { drivers, totalItems } =
         await this._adminRepo.findUsersByStatusWithPagination(
-          status,
+          paginationQuery.status,
           validatedPage,
           validatedLimit,
           trimmedSearch
@@ -91,13 +91,12 @@ export class AdminService implements IAdminService {
         },
       };
     } catch (error: unknown) {
-      console.log(error);
-      
-      return {
-        status: StatusCode.InternalServerError,
-        message: "something went wrong",
-      };
-    }
+  if (error instanceof HttpError) throw error;
+
+  throw InternalError("Failed to check Google login", {
+    details: { cause: error instanceof Error ? error.message : String(error) },
+  });
+}
   }
 
   async adminGetDriverDetailsById(
@@ -110,11 +109,7 @@ export class AdminService implements IAdminService {
       );
 
       if (!response) {
-        return {
-          status: StatusCode.NotFound,
-          data: null,
-          message: "driver not found",
-        };
+        throw NotFoundError("driver not found")
       }
 
       const result = {
@@ -127,9 +122,13 @@ export class AdminService implements IAdminService {
         status: StatusCode.OK,
         data: result,
       };
-    } catch (error) {
-      throw new Error((error as Error).message);
-    }
+    } catch (error: unknown) {
+      if (error instanceof HttpError) throw error;
+
+  throw InternalError("Failed to check Google login", {
+    details: { cause: error instanceof Error ? error.message : String(error) },
+  });
+}
   }
 
   async adminUpdateDriverAccountStatus(
@@ -159,6 +158,8 @@ export class AdminService implements IAdminService {
       }
       const driver = await this._driverRepo.findById(request.id);
 
+      if (!driver) throw NotFoundError("Driver not found");
+
       const updateData = {
         accountStatus: request.status,
         ...(request.status === "Good" &&
@@ -175,11 +176,7 @@ export class AdminService implements IAdminService {
       const response = await this._driverRepo.update(request.id, updateData);
 
       if (!response?.email) {
-        return {
-          status: StatusCode.InternalServerError,
-          message: "Driver email not found",
-          data: false,
-        };
+        throw NotFoundError("Driver email not found")
       }
 
       const subjectAndText = generateStatusEmail(
@@ -188,7 +185,6 @@ export class AdminService implements IAdminService {
         request.reason
       );
 
-      try {
         await sendMail(
           response.email,
           subjectAndText.subject,
@@ -199,19 +195,13 @@ export class AdminService implements IAdminService {
           message: "Success",
           data: true,
         };
-      } catch {
-        return {
-          status: StatusCode.InternalServerError,
-          message: "Failed to send email",
-          data: false,
-        };
-      }
-    } catch (error) {
-      return {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-        data: false,
-      };
-    }
+
+    } catch (error: unknown) {
+  if (error instanceof HttpError) throw error;
+
+  throw InternalError("Failed to check Google login", {
+    details: { cause: error instanceof Error ? error.message : String(error) },
+  });
+}
   }
 }

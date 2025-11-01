@@ -4,18 +4,30 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../types/inversify-types";
 import { NextFunction, Request, Response } from "express";
 import uploadToS3 from "../../utilities/s3";
+import { BadRequestError } from "@retro-routes/shared";
 
 @injectable()
 export class LoginController implements ILoginController {
   constructor(@inject(TYPES.LoginService)private _loginService: ILoginService) {}
 
   checkLogin = async (req: Request, res: Response, _next: NextFunction) => {
-    const mobile = req.body.mobile;
     try {
-      const response = await this._loginService.loginCheckDriver(mobile);
-      console.log("response",response);
+      const mobile = req.body.mobile;
 
-      res.status(+response.status).json(response)
+      if(!mobile) BadRequestError("mobile number is missing")
+      
+      const response = await this._loginService.loginCheckDriver(mobile);
+     
+      const { refreshToken, ...responseWithoutToken } = response;
+
+      res.cookie('refreshToken', refreshToken, {
+              httpOnly: true,
+              sameSite: 'lax',
+              secure:false,
+              maxAge: 7 * 24 * 60 * 60 * 1000,
+            })
+            
+      res.status(+response.status).json(responseWithoutToken);
       
     } catch (error: unknown) {
         _next(error);
@@ -29,7 +41,18 @@ export class LoginController implements ILoginController {
      if (!email) res.status(400).json({ message: "Missing user email" });
 
       const response = await this._loginService.checkGoogleLoginDriver(email);
-      res.status(+response.status).json(response);
+
+            const { refreshToken, ...responseWithoutToken } = response;
+
+
+            res.cookie('refreshToken', refreshToken, {
+              httpOnly: true,
+              sameSite: 'lax',
+              secure: false,
+              maxAge: 7 * 24 * 60 * 60 * 1000,
+            })
+            
+      res.status(+response.status).json(responseWithoutToken);
     } catch (error: unknown) {
      _next(error)
     }

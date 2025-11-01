@@ -1,43 +1,55 @@
-import { createChannel, QUEUES } from "@retro-routes/shared";
-import { Channel } from "amqplib";
-import { IDriverController } from "../controllers/interfaces/i-driver-controller";
+import { createChannel, QUEUES } from '@retro-routes/shared';
+import { Channel } from 'amqplib';
+import { container } from '../config/inversify.config';
+import { IDriverController } from '../controllers/interfaces/i-driver-controller';
+import { TYPES } from '../types/inversify-types';
 
-export class DriverConsumer {
+const driverController = container.get<IDriverController>(
+    TYPES.DriverController
+);
 
-   private ch?: Channel;
-   
-  constructor(private driverController: IDriverController) {}
+class DriverConsumer {
+    private ch?: Channel;
 
-  async start() {
-    const RABBIT_URL = process.env.RABBIT_URL!;
-    const ch = await createChannel(RABBIT_URL);
-    this.ch = ch;
+    constructor(private driverController: IDriverController) {}
 
-    console.log("🚀 Driver service started with RabbitMQ consumers");
+    async start() {
+        try {
+            const RABBIT_URL = process.env.RABBIT_URL!;
+            const ch = await createChannel(RABBIT_URL);
+            this.ch = ch;
 
-    // Driver rejection handler
-    await ch.consume(QUEUES.driver.rejection, async (msg) => {
-      if (!msg) return;
-      try {
-        const payload = JSON.parse(msg.content.toString());
-        console.log("📩 driver.rejection payload:", payload);
+            console.log('🚀 Driver service started with RabbitMQ consumers');
 
-        await this.driverController.increaseCancelCount(payload);
-        ch.ack(msg);
-      } catch (err) {
-        console.error("❌ driver.rejection handler error:", err);
-        ch.nack(msg, false, false);
-      }
-    });
-  }
+            // Driver rejection handler
+            await ch.consume(QUEUES.driver.rejection, async (msg) => {
+                if (!msg) return;
+                try {
+                    const payload = JSON.parse(msg.content.toString());
+                    console.log('📩 driver.rejection payload:', payload);
 
-  async stop() {
-    try {
-      if (this.ch) await this.ch.close();
-      console.log("✅ Driver consumer channel closed");
-    } catch (err) {
-      console.error("❌ Error stopping driver consumer:", err);
+                    await this.driverController.increaseCancelCount(payload);
+                    ch.ack(msg);
+                } catch (err) {
+                    console.error('❌ driver.rejection handler error:', err);
+                    ch.nack(msg, false, false);
+                }
+            });
+        } catch (err) {
+            console.log(err);
+
+            process.exit(1);
+        }
     }
-  }
+
+    async stop() {
+        try {
+            if (this.ch) await this.ch.close();
+            console.log('✅ Driver consumer channel closed');
+        } catch (err) {
+            console.error('❌ Error stopping driver consumer:', err);
+        }
+    }
 }
 
+export const consumer = new DriverConsumer(driverController);

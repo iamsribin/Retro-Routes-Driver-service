@@ -5,6 +5,8 @@ import app from "./app";
 import { startGrpcServer } from "./grpc/server";
 import connectDB from "./config/mongo";
 import { isEnvDefined } from "./utilities/envChecker";
+// import { consumer } from "./events/consumer";
+import { createRedisService } from "@retro-routes/shared";
 
 // server
 const startServer = async () => {
@@ -14,6 +16,12 @@ const startServer = async () => {
 
         // connect to db
         connectDB();
+         
+        //creating redis server
+        createRedisService(process.env.REDIS_URL as string);
+
+        //start rabbit consumer
+        // consumer.start()
 
         // start grpc server
         startGrpcServer()
@@ -28,3 +36,4 @@ const startServer = async () => {
 };
 
 startServer();
+

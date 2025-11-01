@@ -11,7 +11,6 @@ import { RideController } from "../controllers/implementation/ride-controller";
 
 // Repositories
 import { AdminRepository } from "../repositories/implementation/admin-repository";
-import { BaseRepository } from "../repositories/implementation/base-repository";
 import { DriverRepository } from "../repositories/implementation/driver-repository";
 import { RideRepository } from "../repositories/implementation/ride-repository";
 
@@ -38,11 +37,10 @@ import { IRideService } from "../services/interfaces/i-ride-service";
 import { IAdminRepository } from "../repositories/interfaces/i-admin-repository";
 import { IDriverRepository } from "../repositories/interfaces/i-driver-repository";
 import { IRideRepository } from "../repositories/interfaces/i-ride-repository";
-import { IBaseRepository } from "../repositories/interfaces/i-base-repository";
 
-import { DriverInterface } from "../interface/driver.interface";
 import { ResubmissionInterface } from "../interface/resubmission.interface";
 import { ResubmissionModel } from "../model/resubmission.model";
+import { IMongoBaseRepository, MongoBaseRepository } from "@retro-routes/shared";
 
 const container = new Container();
 
@@ -61,13 +59,13 @@ container.bind<IRegistrationService>(TYPES.RegistrationService).to(RegistrationS
 container.bind<IRideService>(TYPES.RideService).to(RideService);
 
 // Repositories
-container.bind<IBaseRepository<DriverInterface>>(TYPES.BaseRepository).to(BaseRepository);
+// container.bind<IMongoBaseRepository<DriverInterface>>(TYPES.BaseRepository).to(MongoBaseRepository);
 container.bind<IAdminRepository>(TYPES.AdminRepository).to(AdminRepository);
 container.bind<IDriverRepository>(TYPES.DriverRepository).to(DriverRepository);
 container.bind<IRideRepository>(TYPES.RideRepository).to(RideRepository);
 container
-  .bind<IBaseRepository<ResubmissionInterface>>(TYPES.ResubmissionRepository)
-  .toDynamicValue(() => new BaseRepository<ResubmissionInterface>(ResubmissionModel))
+  .bind<IMongoBaseRepository<ResubmissionInterface>>(TYPES.ResubmissionRepository)
+  .toDynamicValue(() => new MongoBaseRepository<ResubmissionInterface>(ResubmissionModel))
   .inSingletonScope();
 
 export { container };

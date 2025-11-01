@@ -15,22 +15,16 @@ import {
 import { PaymentResponse } from "../../types/driver-type/response-type";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../types/inversify-types";
-import { getRedisService, IResponse, StatusCode } from "@retro-routes/shared";
+import { getRedisService, HttpError, InternalError, IResponse, NotFoundError, StatusCode } from "@retro-routes/shared";
 
 @injectable()
 export class DriverService implements IDriverService {
   constructor(@inject(TYPES.DriverRepository) private _driverRepo: IDriverRepository) {}
 
   async fetchDriverProfile(id: string): Promise<IResponse<DriverProfileDTO>> {
-    try {
       const response = await this._driverRepo.findById(id);
 
-      if (!response)
-        return {
-          status: StatusCode.NotFound,
-          message: "no driver found",
-          data: null,
-        };
+      if (!response) throw NotFoundError("Driver not found")
 
       const driver: DriverProfileDTO = {
         name: response.name,
@@ -51,14 +45,6 @@ export class DriverService implements IDriverService {
         message: "success",
         data: driver,
       };
-    } catch (error) {
-      console.log(error);
-      return {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-        data: null,
-      };
-    }
   }
 
   async updateDriverProfile(
@@ -78,21 +64,20 @@ export class DriverService implements IDriverService {
 
       const response = await this._driverRepo.updateOne(filter, updateData);
 
-      if (!response) {
-        return {
-          status: StatusCode.NotFound,
-          message: "Driver not found",
-          navigate: -1,
-        };
-      }
-      return { status: StatusCode.OK, message: "Success" };
+      if (!response) throw NotFoundError("Driver not found") 
+        
+        return { status: StatusCode.OK, message: "Success" };
+    
     } catch (error: unknown) {
-      return {
-        status: StatusCode.InternalServerError,
-        message: error instanceof Error ? error.message : "Unknown error",
-      };
-    }
+  if (error instanceof HttpError) throw error;
+
+  throw InternalError("", {
+    details: { cause: error instanceof Error ? error.message : String(error) },
+  });
+}
   }
+
+
   async fetchDriverDocuments(
     id: string
   ): Promise<IResponse<DriverDocumentDTO>> {
@@ -100,11 +85,7 @@ export class DriverService implements IDriverService {
       const document = await this._driverRepo.getDocuments(id);
 
       if (!document) {
-        return {
-          status: StatusCode.NotFound,
-          message: "Driver not found",
-          data: null,
-        };
+        return NotFoundError("Driver documents not found");
       }
 
       const driverDocumentDto: DriverDocumentDTO = {
@@ -142,15 +123,13 @@ export class DriverService implements IDriverService {
         message: "Driver documents fetched successfully",
         data: driverDocumentDto,
       };
-    } catch (error: unknown) {
-      console.log(error);
+        } catch (error: unknown) {
+  if (error instanceof HttpError) throw error;
 
-      return {
-        status: StatusCode.InternalServerError,
-        message: "Internal Server Error",
-        data: null,
-      };
-    }
+  throw InternalError("", {
+    details: { cause: error instanceof Error ? error.message : String(error) },
+  });
+}
   }
 
   async updateDriverDocuments(
@@ -172,22 +151,16 @@ export class DriverService implements IDriverService {
         { $set: updateQuery }
       );
 
-      if (!response) {
-        return {
-          status: StatusCode.NotFound,
-          message: "Driver not found",
-        };
-      }
+      if (!response) throw NotFoundError("Driver not found")
 
       return { status: StatusCode.OK, message: "Success" };
-    } catch (error) {
-      console.log(error);
+       } catch (error: unknown) {
+  if (error instanceof HttpError) throw error;
 
-      return {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      };
-    }
+  throw InternalError("", {
+    details: { cause: error instanceof Error ? error.message : String(error) },
+  });
+}
   }
 
   async handleOnlineChange(
@@ -198,7 +171,7 @@ export class DriverService implements IDriverService {
 
       const driver = await this._driverRepo.findById(data.driverId);
       if (!driver) {
-        return { status: StatusCode.Unauthorized, message: "Invalid driver" };
+        throw NotFoundError("Driver not found");
       }
       
         const redisService =  getRedisService();
@@ -239,23 +212,21 @@ export class DriverService implements IDriverService {
         { $set: { onlineStatus: data.online } }
       );
 
-      return { status: StatusCode.OK, message: "Driver status updated" };
-    } catch (error) {
-      console.log(error);
+      return { status: StatusCode.OK, message: "Driver status updated" }          } catch (error: unknown) {
+  if (error instanceof HttpError) throw error;
 
-      return {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      };
+  throw InternalError("", {
+    details: { cause: error instanceof Error ? error.message : String(error) },
+  });
+
+      if (error instanceof HttpError) throw error;
     }
   }
 
   async addEarnings(earnings: AddEarningsRequest): Promise<PaymentResponse> {
     try {
-      console.log("ooooo hello---", earnings);
 
       const res = await this._driverRepo.addEarnings(earnings);
-      console.log("res", res);
 
       if (!res)
         return {

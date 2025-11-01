@@ -1,6 +1,6 @@
+import { commonRes } from "@retro-routes/shared";
 import { postResubmissionDocumentsReq } from "../../types";
 import { CheckLoginDriverRes, GetResubmissionDocumentsRes } from "../../types/auth-types/response-types";
-import { commonRes } from "../../types/common/commonRes";
 
 export interface ILoginService {
   loginCheckDriver(mobile: number): Promise<CheckLoginDriverRes>;

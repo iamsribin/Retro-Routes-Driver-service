@@ -2,7 +2,7 @@ import { IRegisterController } from "../interfaces/i-register-controller";
 import { IRegistrationService } from "../../services/interfaces/i-registration-service";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../types/inversify-types";
-import {  StatusCode } from "@retro-routes/shared";
+import {  BadRequestError, ForbiddenError, StatusCode } from "@retro-routes/shared";
 import { NextFunction, Request, Response } from "express";
 import uploadToS3, { uploadToS3Public } from "../../utilities/s3";
 
@@ -10,9 +10,12 @@ import uploadToS3, { uploadToS3Public } from "../../utilities/s3";
 export class RegisterController implements IRegisterController {
   constructor(@inject(TYPES.RegistrationService) private _registrationService: IRegistrationService) {}
 
-  async register(req: Request, res: Response, _next: NextFunction): Promise<void> {
+
+  register = async (req: Request, res: Response, _next: NextFunction): Promise<void> =>{
     try {
       const { name, email, mobile, password, reffered_code } = req.body;
+
+      if(!name || !email || !mobile || !password) throw BadRequestError("All fields are required");
 
       const userData = {
         name,
@@ -28,48 +31,43 @@ export class RegisterController implements IRegisterController {
     }
   }
 
-  async checkRegisterDriver(req: Request, res: Response, _next: NextFunction):Promise<void> {
+    refreshToken = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    )=> {
+        try {
+          
+            const refreshToken = req.cookies.refreshToken;
+
+            if (!refreshToken) throw ForbiddenError("No refresh token provided");
+
+            const accessToken  = await this._registrationService.refreshToken(refreshToken);
+            res.status(200).json(accessToken);
+            
+        } catch (err: unknown) {
+            next(err);
+        } 
+ }
+
+  checkRegisterDriver = async (req: Request, res: Response, _next: NextFunction):Promise<void> =>{
     try {
-      const { mobile } = req.body;
+      const { mobile } = req.body;      
+
+      if(!mobile) throw BadRequestError("Mobile number is required");
+
       const response = await this._registrationService.checkRegisterDriver(
         mobile 
       );
-      console.log("ersdf",response);
       
-      if ((response.status !== StatusCode.OK &&
-              response.status !== StatusCode.Accepted)
-          ) {
-            res.status(+response?.status || 500).json({
-              message: response?.message || "Something went wrong",
-              data: response,
-            });
-          }
-
-          if (response.isFullyRegistered) {
-            res.status(StatusCode.OK).json({
-              status: StatusCode.OK,
-              message: "Driver already registered. Please login.",
-              isFullyRegistered: true,
-            });
-            return;
-          }
-
-          if (response.nextStep && response.driverId) {
-            res.status(StatusCode.Accepted).json({
-              status: StatusCode.Accepted,
-              message: `Driver Already registered! Please submit your ${response.nextStep}`,
-              nextStep: response.nextStep,
-              driverId: response.driverId,
-            });
-            return;
-          }
-          res.status(StatusCode.OK).json({status: StatusCode.OK});
+     res.status(+response.status).json(response);
+     
     } catch (error: unknown) {
       _next(error)
     }
   }
 
-  async identificationUpdate(req: Request, res: Response, _next: NextFunction):Promise<void> {
+ identificationUpdate = async (req: Request, res: Response, _next: NextFunction):Promise<void> => {
     try {
         const files = req.files as {
       [fieldname: string]: Express.Multer.File[];
@@ -78,6 +76,8 @@ export class RegisterController implements IRegisterController {
       let aadharBackImage = "sample";
       let licenseFrontImage = "sample";
       let licenseBackImage = "sample";
+
+      if(!files) throw BadRequestError("Files are required");
 
       if (files) {
         [
@@ -100,7 +100,7 @@ export class RegisterController implements IRegisterController {
         aadharBackImage,
         licenseFrontImage,
         licenseBackImage,
-      };
+      };      
       
       const response = await this._registrationService.identificationUpdate(
         data
@@ -111,21 +111,19 @@ export class RegisterController implements IRegisterController {
     }
   }
 
-  async updateDriverImage(req: Request, res: Response, _next: NextFunction):Promise<void> {
+ updateDriverImage = async (req: Request, res: Response, _next: NextFunction):Promise<void> =>{
     try {
       const files: Express.Multer.File | undefined = req.file;
+      const rawDriverId = req.query.driverId;
+
       let url = "sample";
+
+      if (!rawDriverId ) throw BadRequestError("Driver ID is required");
+      if (!files ) throw BadRequestError("Driver Image is required");
 
       if (files) {
         url = await uploadToS3Public(files);
       }
-
-    const rawDriverId = req.query.driverId;
-
-    if (!rawDriverId) {
-      res.status(400).json({ message: "Missing driverId" });
-      return; 
-    }
 
     const driverId =
       Array.isArray(rawDriverId) ? String(rawDriverId[0]) : String(rawDriverId);
@@ -142,7 +140,7 @@ export class RegisterController implements IRegisterController {
     }
   }
 
-  async vehicleUpdate(req: Request, res: Response, _next: NextFunction):Promise<void> {
+ vehicleUpdate = async (req: Request, res: Response, _next: NextFunction):Promise<void> =>{
     try {
         const files = req.files as {
       [fieldname: string]: Express.Multer.File[];
@@ -177,13 +175,16 @@ export class RegisterController implements IRegisterController {
     }
   }
 
-  async vehicleInsurancePollutionUpdate(req: Request, res: Response, _next: NextFunction):Promise<void> {
+ vehicleInsurancePollutionUpdate = async (req: Request, res: Response, _next: NextFunction):Promise<void> =>{
     try {
-        const files = req.files as {
+
+     const files = req.files as {
       [fieldname: string]: Express.Multer.File[];
     };
       let pollutionImageUrl = "";
       let insuranceImageUrl = "";
+
+      if(!files) throw BadRequestError("Files are required");
 
       if (files) {
         [pollutionImageUrl, insuranceImageUrl] = await Promise.all([
@@ -195,9 +196,11 @@ export class RegisterController implements IRegisterController {
       const request = {
         ...req.query,
         ...req.body,
-        pollutionImageUrl,
-        insuranceImageUrl,
+      pollutionImageUrl,
+      insuranceImageUrl
       };
+      console.log("request==",request);
+      
       const response =
         await this._registrationService.vehicleInsurancePollutionUpdate(request);
         res.status(+response.status).json(response);
@@ -207,7 +210,16 @@ export class RegisterController implements IRegisterController {
     }
   }
 
-  async location(req: Request, res: Response, _next: NextFunction):Promise<void> {
+  logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {          
+             res.clearCookie("refreshToken");
+            res.status(StatusCode.OK).json({ message: "successfully logged out" })
+        } catch (err) {
+            next(err)
+        }
+    }
+
+ location = async (req: Request, res: Response, _next: NextFunction):Promise<void> =>{
     try {
       const request = { ...req.body, ...req.query };
       const response = await this._registrationService.locationUpdate(request);
