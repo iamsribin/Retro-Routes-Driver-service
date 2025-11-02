@@ -70,13 +70,16 @@ export class DriverService implements IDriverService {
             if (data?.imageUrl) updateData.driverImage = data.imageUrl;
 
             updateData.accountStatus = AccountStatus.Pending;
-
+             
             const response = await this._driverRepo.updateOne(
                 filter,
                 updateData
             );
 
             if (!response) throw NotFoundError('Driver not found');
+
+            const redisService = getRedisService();
+            await redisService.addBlacklistedToken(data.driverId,604800); // Blacklist for 7 days
 
             return { status: StatusCode.OK, message: 'Success' };
         } catch (error: unknown) {
@@ -175,6 +178,11 @@ export class DriverService implements IDriverService {
 
             if (!response) throw NotFoundError('Driver not found');
 
+            const redisService = getRedisService();
+            redisService.addBlacklistedToken(driverId,604800); // Blacklist for 7 days
+            console.log("token black listed");
+            
+            
             return { status: StatusCode.OK, message: 'Success' };
         } catch (error: unknown) {
             if (error instanceof HttpError) throw error;
