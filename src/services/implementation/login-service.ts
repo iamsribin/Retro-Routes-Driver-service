@@ -38,7 +38,6 @@ export class LoginService implements ILoginService {
             if (!response) {
                 throw NotFoundError(
                     'Account not found. Please create a new account.',
-                    '/driver/signup'
                 );
             }
 
@@ -69,13 +68,13 @@ export class LoginService implements ILoginService {
                     name: response.name,
                     refreshToken,
                     token: accessToken,
-                    driverId: response._id.toString(),
+                    id: response._id.toString(),
                 };
             } else if (response.accountStatus === 'Rejected') {
                 return {
                     status: StatusCode.OK,
                     message: 'Rejected',
-                    driverId: response._id.toString(),
+                    id: response._id.toString(),
                 };
             } else if (response.accountStatus === 'Blocked') {
                 return { status: StatusCode.OK, message: 'Blocked' };
@@ -103,14 +102,10 @@ export class LoginService implements ILoginService {
     }
 
     async checkGoogleLoginDriver(email: string): Promise<CheckLoginDriverRes> {
-        try {
             const response = await this._driverRepo.findOne({ email });
 
             if (!response) {
-                throw NotFoundError(
-                    'Account not found. Please create a new account.',
-                    '/driver/signup'
-                );
+                throw NotFoundError('Account not found. Please create a new account.');
             }
 
             if (
@@ -140,13 +135,13 @@ export class LoginService implements ILoginService {
                     name: response.name,
                     refreshToken,
                     token: accessToken,
-                    driverId: response._id.toString(),
+                    id: response._id.toString(),
                 };
             } else if (response.accountStatus === 'Rejected') {
                 return {
                     status: StatusCode.OK,
                     message: 'Rejected',
-                    driverId: response._id.toString(),
+                    id: response._id.toString(),
                 };
             } else if (response.accountStatus === 'Blocked') {
                 return { status: StatusCode.OK, message: 'Blocked' };
@@ -161,9 +156,6 @@ export class LoginService implements ILoginService {
                     message: 'Incomplete',
                 };
             }
-        } catch (error) {
-            throw new Error((error as Error).message);
-        }
     }
 
     async getResubmissionDocuments(

@@ -8,7 +8,7 @@ export interface CheckLoginDriverRes {
   name?: string;
   refreshToken?: string;
   token?: string;
-  driverId?: string;
+  id?: string;
 }
 
 export interface CheckRegisterDriverRes {

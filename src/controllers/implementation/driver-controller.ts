@@ -7,7 +7,7 @@ import { NextFunction, Request, Response } from 'express';
 import uploadToS3, { uploadToS3Public } from '../../utilities/s3';
 import { sendUnaryData, ServerUnaryCall } from '@grpc/grpc-js';
 import { PaymentResponse } from '../../types/driver-type/response-type';
-import { StatusCode } from '@retro-routes/shared';
+import { BadRequestError, StatusCode, UnauthorizedError } from '@retro-routes/shared';
 import { recursivelySignImageUrls } from '../../utilities/createImageUrl';
 
 @injectable()
@@ -36,6 +36,7 @@ export class DriverController implements IDriverController {
   updateDriverProfile = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
       const file: Express.Multer.File | undefined = req.file;
+      console.log("reach");
 
       const tokenPayload = JSON.parse(req.headers['x-user-payload'] as string);
       const id = tokenPayload.id;
@@ -52,6 +53,7 @@ export class DriverController implements IDriverController {
       };
 
       const response = await this._driverService.updateDriverProfile(data);
+      res.clearCookie("refreshToken");
       res.status(+response.status).json(response);
     } catch (error) {
       _next(error);
@@ -65,8 +67,12 @@ export class DriverController implements IDriverController {
 
       const tokenPayload = JSON.parse(req.headers['x-user-payload'] as string);
       const id = tokenPayload.id;
+      console.log("id",id);
+      
       const response = await this._driverService.fetchDriverDocuments(id);
       await recursivelySignImageUrls(response.data as unknown as Record<string, unknown>);
+      console.log("res",response);
+      
       res.status(+response.status).json(response.data);
     } catch (error) {
       console.log(error);
@@ -79,7 +85,12 @@ export class DriverController implements IDriverController {
       const tokenPayload = JSON.parse(req.headers['x-user-payload'] as string);
       const driverId = String(tokenPayload.id);
 
+      if(!driverId) throw UnauthorizedError("Invalid driver ID")
+
       const fields = req.body;
+
+      if(!fields) throw BadRequestError("No fields to update");
+
       let section = String(req.body.section || 'vehicleDetails');
 
       const files = req.files as Express.Multer.File[] | Record<string, Express.Multer.File[]> | undefined;
@@ -114,6 +125,7 @@ export class DriverController implements IDriverController {
       };
 
       const response = await this._driverService.updateDriverDocuments(payload);
+      res.clearCookie("refreshToken");
       res.status(Number(response.status)).json(response);
     } catch (error) {
       _next(error);

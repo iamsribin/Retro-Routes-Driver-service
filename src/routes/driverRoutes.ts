@@ -4,6 +4,7 @@ import { container } from "../config/inversify.config";
 import { DriverController } from "../controllers/implementation/driver-controller";
 import { TYPES } from "../types/inversify-types";
 import { catchAsync } from "@retro-routes/shared";
+import { ensureDriverActive } from "../middleware/validateDriver";
 
 
 const driverController = container.get<DriverController>(TYPES.DriverController);
@@ -11,17 +12,17 @@ const driverController = container.get<DriverController>(TYPES.DriverController)
 const driverRouter = express.Router()
 
 driverRouter.post(
-  "/handle-online-change",
+  "/handle-online-change",ensureDriverActive,
   catchAsync(driverController.handleOnlineChange)
 );
 
 driverRouter.get(
-  "/get-driver-profile",
+  "/get-driver-profile",ensureDriverActive,
   catchAsync(driverController.fetchDriverProfile)
 );
 
 driverRouter.get(
-  "/get-my-documents",
+  "/get-my-documents",ensureDriverActive,
   catchAsync(driverController.fetchDriverDocuments)
 );
 

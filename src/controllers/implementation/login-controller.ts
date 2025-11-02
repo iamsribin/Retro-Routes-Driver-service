@@ -31,18 +31,17 @@ export class LoginController implements ILoginController {
       
     } catch (error: unknown) {
         _next(error);
-
     }
   };
 
-  async checkGoogleLoginDriver(req: Request, res: Response, _next: NextFunction) {
+   checkGoogleLoginDriver = async(req: Request, res: Response, _next: NextFunction) =>{
     try {
       const email = req.body.email;
-     if (!email) res.status(400).json({ message: "Missing user email" });
+     if (!email) throw BadRequestError("Email is required");
 
       const response = await this._loginService.checkGoogleLoginDriver(email);
 
-            const { refreshToken, ...responseWithoutToken } = response;
+      const { refreshToken, ...responseWithoutToken } = response;
 
 
             res.cookie('refreshToken', refreshToken, {
@@ -58,10 +57,10 @@ export class LoginController implements ILoginController {
     }
   }
 
-  async getResubmissionDocuments(req: Request, res: Response, _next: NextFunction): Promise<void> {
+   getResubmissionDocuments= async(req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
       const id = req.body.id;
-    if (!id) res.status(400).json({ message: "Missing user id" });
+    if (!id) throw BadRequestError("Driver ID is required");
 
       const response = await this._loginService.getResubmissionDocuments(id);
       console.log(response);
@@ -72,11 +71,14 @@ export class LoginController implements ILoginController {
     }
   }
 
-  async postResubmissionDocuments(req: Request, res: Response, _next: NextFunction): Promise<void> {
+   postResubmissionDocuments = async(req: Request, res: Response, _next: NextFunction): Promise<void> =>{
     try {
        const { driverId } = req.query;
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       const body = req.body;
+
+      if (!driverId) throw BadRequestError("Driver ID is required");
+      if (!files) throw BadRequestError("Files are required");
 
       const uploadPromises: Promise<string>[] = [];
       const fileFields = [

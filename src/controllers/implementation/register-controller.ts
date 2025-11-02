@@ -10,7 +10,6 @@ import uploadToS3, { uploadToS3Public } from "../../utilities/s3";
 export class RegisterController implements IRegisterController {
   constructor(@inject(TYPES.RegistrationService) private _registrationService: IRegistrationService) {}
 
-
   register = async (req: Request, res: Response, _next: NextFunction): Promise<void> =>{
     try {
       const { name, email, mobile, password, reffered_code } = req.body;
@@ -211,10 +210,14 @@ export class RegisterController implements IRegisterController {
   }
 
   logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        try {          
+        try {     
+          console.log("logout");
+               
              res.clearCookie("refreshToken");
             res.status(StatusCode.OK).json({ message: "successfully logged out" })
         } catch (err) {
+          console.log("err",err);
+          
             next(err)
         }
     }
