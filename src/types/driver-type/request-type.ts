@@ -1,4 +1,3 @@
-import { Coordinates } from "../common/common-types";
 
 export interface UpdateDriverProfileReq{
   driverId:string;
@@ -47,7 +46,7 @@ type PollutionUpdates = {
   pollutionExpiryDate?: string;
 };
 
-type SectionUpdates =
+export type SectionUpdates =
   | AadharUpdates
   | LicenseUpdates
   | VehicleRCUpdates  
@@ -57,13 +56,7 @@ type SectionUpdates =
 
 export interface UpdateDriverDocumentsReq {
   driverId: string;
-  section:
-    | "aadhar"
-    | "license"
-    | "vehicleRC"
-    | "vehicleDetails"
-    | "insurance"
-    | "pollution";
+  section:string;
   updates: SectionUpdates;
 }
 
@@ -71,7 +64,10 @@ export interface handleOnlineChangeReq{
   online: boolean;
   driverId: string;
   onlineTimestamp:Date;
-  location:Coordinates
+  location:{
+    lat: number;
+    lng: number;
+}
 }
 
 export interface AddEarningsRequest{

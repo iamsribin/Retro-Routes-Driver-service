@@ -1,12 +1,9 @@
 import { refferalCode } from "../../utilities/referral-code";
-import bcrypt from "../../utilities/bcrypt";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
 import { DriverInterface } from "../../interface/driver.interface";
 import { IRegistrationService } from "../interfaces/i-registration-service";
-import { StatusCode } from "../../types/common/enum";
 import {
   CheckRegisterDriverRes,
-  commonRes,
   IdentificationUpdateReq,
   InsuranceUpdateReq,
   LocationUpdateReq,
@@ -14,18 +11,45 @@ import {
   UpdateDriverImageReq,
   VehicleUpdateReq,
 } from "../../types";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../types/inversify-types";
+import {
+  AccessPayload,
+  BadRequestError,
+  bcryptService,
+  commonRes,
+  ForbiddenError,
+  generateJwtToken,
+  HttpError,
+  InternalError,
+  NotFoundError,
+  StatusCode,
+  UnauthorizedError,
+  verifyToken,
+} from "@retro-routes/shared";
+import { IRefreshTokenDto } from "../../dto/auth/auth-response.dto";
 
+
+@injectable()
 export class RegistrationService implements IRegistrationService {
-  constructor(private _driverRepo: IDriverRepository) {}
+  constructor(
+    @inject(TYPES.DriverRepository) private _driverRepo: IDriverRepository
+  ) {}
 
-  // ✅ Register new driver
+  /**
+   * Register a new driver.
+   * - Generates referral code
+   * - Hashes password
+   * - Persists driver via repository
+   *
+   * Returns created id on success.
+   */
   async register(driverData: RegisterReq): Promise<commonRes> {
     try {
-      const { name, email, mobile, password, referralCode } = driverData;
-console.log("referralCode",referralCode);
+      const { name, email, mobile, password } = driverData;
 
       const newReferralCode = refferalCode();
-      const hashedPassword = await bcrypt.securePassword(password);
+      const hashedPassword = await bcryptService.securePassword(password);
 
       const newDriver: Partial<DriverInterface> = {
         name,
@@ -38,10 +62,7 @@ console.log("referralCode",referralCode);
       const createdDriver = await this._driverRepo.create(newDriver);
 
       if (!createdDriver) {
-        return {
-          status: StatusCode.NotFound,
-          message: "Registration failed. Please try again.",
-        };
+        throw NotFoundError("Driver registration failed");
       }
 
       return {
@@ -49,32 +70,78 @@ console.log("referralCode",referralCode);
         message: "Success",
         id: createdDriver._id.toString(),
       };
-    } catch (error) {
-      return {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      };
+    } catch (error: unknown) {
+      if (error instanceof HttpError) throw error;
+
+      throw InternalError("Driver registration failed", {
+        details: { cause: error instanceof Error ? error.message : String(error) },
+      });
     }
   }
 
-  // ✅ Check driver registration and status
+  /**
+   * Refresh access token using a refresh token.
+   * - Validates token
+   * - Ensures driver exists and is not blocked
+   * - Issues short-lived access token
+   */
+  async refreshToken(token: string): Promise<IRefreshTokenDto> {
+    try {
+
+      const payload = verifyToken(
+        token,
+        process.env.JWT_REFRESH_TOKEN_SECRET as string
+      ) as AccessPayload;
+
+      if (!payload) throw ForbiddenError("Invalid refresh token");
+
+      const user = await this._driverRepo.findById(payload.id);
+      if (!user) throw ForbiddenError("User not found");
+
+      if (user.accountStatus === "Blocked") {
+        throw UnauthorizedError(
+          "Your account has been blocked. Please contact support!"
+        );
+      }
+
+      const accessToken = generateJwtToken(
+        { id: payload.id, role: payload.role },
+        process.env.JWT_REFRESH_TOKEN_SECRET as string,
+        "3m"
+      );
+
+      return { accessToken };
+    } catch (error: unknown) {
+      if (error instanceof HttpError) throw error;
+
+      throw InternalError("Failed to refresh access token", {
+        details: { cause: error instanceof Error ? error.message : String(error) },
+      });
+    }
+  }
+
+  /**
+   * Check registration completeness for a driver identified by mobile number.
+   * Returns an Accepted response with nextStep when some resource is missing,
+   * otherwise returns OK with isFullyRegistered = true.
+   */
   async checkRegisterDriver(mobile: number): Promise<CheckRegisterDriverRes> {
     try {
-      console.log("mobile", mobile);
-
       const driver = await this._driverRepo.getByMobile(mobile);
-      console.log("driver", driver);
 
+      //new driver
       if (!driver) {
         return {
           status: StatusCode.OK,
-          message: "New registration",
+          message: "Success",
+          nextStep: null,
           isFullyRegistered: false,
         };
-      }
+      };
 
       const { aadhar, driverImage, vehicleDetails, location, license } = driver;
 
+      // Check for missing resources step-by-step
       if (!aadhar?.id) {
         return {
           status: StatusCode.Accepted,
@@ -85,10 +152,10 @@ console.log("referralCode",referralCode);
         };
       }
 
-      if (!license.backImageUrl ||!license.id) {
+      if (!license?.id || !license?.backImageUrl) {
         return {
           status: StatusCode.Accepted,
-          message: "license document pending",
+          message: "License document pending",
           nextStep: "documents",
           driverId: driver._id.toString(),
           isFullyRegistered: false,
@@ -153,40 +220,48 @@ console.log("referralCode",referralCode);
         };
       }
 
-      // Fully registered, proceed to OTP login
+      // All required data present — driver is fully registered
       return {
         status: StatusCode.OK,
         message: "Driver already registered",
         driverId: driver._id.toString(),
         isFullyRegistered: true,
       };
-    } catch (error) {
-      return {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message || "Internal Server Error",
-      };
+    } catch (error: unknown) {
+      if (error instanceof HttpError) throw error;
+
+      throw InternalError("Failed to check registration", {
+        details: { cause: error instanceof Error ? error.message : String(error) },
+      });
     }
   }
 
-  // ✅ Update Aadhar or License
+  /**
+   * Update identification documents (Aadhar / License).
+   * Delegates to repository and returns success/failure response.
+   */
   async identificationUpdate(
     data: IdentificationUpdateReq
   ): Promise<commonRes> {
     try {
-      
       const updated = await this._driverRepo.updateIdentification(data);
-      return updated
-        ? { status: StatusCode.OK, message: "Success" }
-        : { status: StatusCode.Forbidden, message: "Update failed" };
-    } catch (error) { 
-      return {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      };
+ 
+      if(!updated) throw BadRequestError("Identification update failed");
+      
+      return { status: StatusCode.OK, message: "Success" }
+
+    } catch (error: unknown) {
+      if (error instanceof HttpError) throw error;
+
+      throw InternalError("Failed to update identification", {
+        details: { cause: error instanceof Error ? error.message : String(error) },
+      });
     }
   }
 
-  // ✅ Update Driver Image
+  /**
+   * Update driver profile image.
+   */
   async driverImageUpdate(data: UpdateDriverImageReq): Promise<commonRes> {
     try {
       const updated = await this._driverRepo.updateDriverImage({
@@ -197,15 +272,18 @@ console.log("referralCode",referralCode);
       return updated
         ? { status: StatusCode.OK, message: "Success" }
         : { status: StatusCode.BadRequest, message: "Image update failed" };
-    } catch (error) {
-      return {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      };
+    } catch (error: unknown) {
+      if (error instanceof HttpError) throw error;
+
+      throw InternalError("Failed to update driver image", {
+        details: { cause: error instanceof Error ? error.message : String(error) },
+      });
     }
   }
 
-  // ✅ Update Vehicle info
+  /**
+   * Update vehicle details (basic vehicle info).
+   */
   async vehicleUpdate(data: VehicleUpdateReq): Promise<commonRes> {
     try {
       const updated = await this._driverRepo.vehicleUpdate(data);
@@ -213,47 +291,58 @@ console.log("referralCode",referralCode);
       return updated
         ? { status: StatusCode.OK, message: "Success" }
         : { status: StatusCode.BadRequest, message: "Update failed" };
-    } catch (error) {
-      return {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      };
+        
+    } catch (error: unknown) {
+      if (error instanceof HttpError) throw error;
+
+      throw InternalError("Failed to update vehicle details", {
+        details: { cause: error instanceof Error ? error.message : String(error) },
+      });
     }
   }
 
-  // ✅ Update Location
+  /**
+   * Update driver's geolocation (latitude / longitude).
+   */
   async locationUpdate(data: LocationUpdateReq): Promise<commonRes> {
     try {
       const updated = await this._driverRepo.locationUpdate(data);
 
-      return updated
-        ? { status: StatusCode.OK, message: "Success" }
-        : { status: StatusCode.BadRequest, message: "Location update failed" };
-    } catch (error) {
-      return {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      };
+      if(!updated) throw BadRequestError("Location update failed");
+
+      return { status: StatusCode.OK, message: "Success" }
+
+    } catch (error: unknown) {
+      if (error instanceof HttpError) throw error;
+
+      throw InternalError("Failed to update location", {
+        details: { cause: error instanceof Error ? error.message : String(error) },
+      });
     }
   }
 
-  // ✅ Update Insurance & Pollution
+  /**
+   * Update vehicle insurance and pollution documents.
+   */
   async vehicleInsurancePollutionUpdate(
     data: InsuranceUpdateReq
   ): Promise<commonRes> {
     try {
-      const updated = await this._driverRepo.vehicleInsurancePollutionUpdate(
-        data
-      );
+      const updated =
+        await this._driverRepo.vehicleInsurancePollutionUpdate(data);
 
-      return updated
-        ? { status: StatusCode.OK, message: "Success" }
-        : { status: StatusCode.BadRequest, message: "Update failed" };
-    } catch (error) {
-      return {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      };
+        if(!updated) throw BadRequestError("Update failed");
+
+        return { status: StatusCode.OK, message: "Success" }
+
+    } catch (error: unknown) {
+      console.log(error);
+      
+      if (error instanceof HttpError) throw error;
+
+      throw InternalError("Failed to update insurance/pollution", {
+        details: { cause: error instanceof Error ? error.message : String(error) },
+      });
     }
   }
 }

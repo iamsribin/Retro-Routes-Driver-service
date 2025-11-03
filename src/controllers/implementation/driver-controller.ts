@@ -1,144 +1,196 @@
-import { IDriverController } from "../interfaces/i-driver-controller";
-import { IDriverService } from "../../services/interfaces/i-driver-service";
-import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
-import { DriverDocumentDTO, DriverProfileDTO } from "../../dto/driver.dto";
-import {
-  UpdateDriverDocumentsReq,
-  UpdateDriverProfileReq,
-  Id,
-  StatusCode,
-  IResponse,
-  handleOnlineChangeReq,
-  increaseCancelCountReq,
-  AddEarningsRequest,
-} from "../../types";
-import { PaymentResponse } from "../../types/driver-type/response-type";
+import { IDriverController } from '../interfaces/i-driver-controller';
+import { IDriverService } from '../../services/interfaces/i-driver-service';
+import { AddEarningsRequest, increaseCancelCountReq, SectionUpdates } from '../../types';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../types/inversify-types';
+import { NextFunction, Request, Response } from 'express';
+import uploadToS3, { uploadToS3Public } from '../../utilities/s3';
+import { sendUnaryData, ServerUnaryCall } from '@grpc/grpc-js';
+import { PaymentResponse } from '../../types/driver-type/response-type';
+import { BadRequestError, StatusCode, UnauthorizedError } from '@retro-routes/shared';
+import { recursivelySignImageUrls } from '../../utilities/createImageUrl';
 
+@injectable()
 export class DriverController implements IDriverController {
-  constructor(private _driverService: IDriverService) {}
+  constructor(
+    @inject(TYPES.DriverService) private readonly _driverService: IDriverService
+  ) {}
 
-  async fetchDriverProfile(
-    call: ServerUnaryCall<Id, IResponse<DriverProfileDTO>>,
-    callback: sendUnaryData<IResponse<DriverProfileDTO>>
-  ): Promise<void> {
+  fetchDriverProfile = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
-      const { id } = call.request;
+      res.setHeader('Cache-Control', 'no-store, no-cache');
+
+      const tokenPayload = JSON.parse(req.headers['x-user-payload'] as string);
+      const id = tokenPayload.id;
+
       const response = await this._driverService.fetchDriverProfile(id);
-      callback(null, response);
+      
+      res.status(+response.status).json(response.data);
     } catch (error) {
       console.log(error);
-      callback(null, {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      });
+      _next(error);
     }
-  }
+  };
 
-  async updateDriverProfile(
-    call: ServerUnaryCall<UpdateDriverProfileReq, IResponse<null>>,
-    callback: sendUnaryData<IResponse<null>>
-  ): Promise<void> {
+
+  updateDriverProfile = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
-      const data = { ...call.request };
+      const file: Express.Multer.File | undefined = req.file;
+      console.log("reach");
+
+      const tokenPayload = JSON.parse(req.headers['x-user-payload'] as string);
+      const id = tokenPayload.id;
+      let imageUrl: string | null = null;
+
+      if (file) imageUrl = await uploadToS3Public(file);
+
+      const { name } = req.body;
+
+      const data = {
+        driverId: id,
+        ...(name && { name }),
+        ...(imageUrl && { imageUrl }),
+      };
+
       const response = await this._driverService.updateDriverProfile(data);
-      callback(null, response);
+      res.clearCookie("refreshToken");
+      res.status(+response.status).json(response);
     } catch (error) {
-      callback(null, {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      });
+      _next(error);
     }
-  }
+  };
 
-  async fetchDriverDocuments(
-    call: ServerUnaryCall<Id, IResponse<DriverDocumentDTO>>,
-    callback: sendUnaryData<IResponse<DriverDocumentDTO>>
-  ): Promise<void> {
+  fetchDriverDocuments = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
-      const { id } = call.request;
+
+      res.setHeader('Cache-Control', 'no-store, no-cache');
+
+      const tokenPayload = JSON.parse(req.headers['x-user-payload'] as string);
+      const id = tokenPayload.id;
+      console.log("id",id);
+      
       const response = await this._driverService.fetchDriverDocuments(id);
-      callback(null, response);
+      await recursivelySignImageUrls(response.data as unknown as Record<string, unknown>);
+      console.log("res",response);
+      
+      res.status(+response.status).json(response.data);
     } catch (error) {
       console.log(error);
-      callback(null, {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      });
+      _next(error);
     }
-  }
+  };
 
-async updateDriverDocuments(
-  call: ServerUnaryCall<UpdateDriverDocumentsReq, IResponse<null>>,
-  callback: sendUnaryData<IResponse<null>>
-): Promise<void> {
-  try {
-    console.log({ ...call.request });
-    
-    const data = { ...call.request };
-    
-    if (typeof data.updates === 'string') {
-      try {
-        data.updates = JSON.parse(data.updates);
-        console.log("Parsed updates:", data.updates);
-      } catch (parseError) {
-        console.error("Error parsing updates JSON:", parseError);
-      }
-    }
-    
-    const response = await this._driverService.updateDriverDocuments(data);
-    callback(null, response);
-  } catch (error) {
-    callback(null, {
-      status: StatusCode.InternalServerError,
-      message: (error as Error).message,
-    });
-  }
-}
-
-  async handleOnlineChange(
-    call: ServerUnaryCall<handleOnlineChangeReq, IResponse<null>>,
-    callback: sendUnaryData<IResponse<null>>
-  ): Promise<void> {
+  updateDriverDocuments = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
-      const data = { ...call.request };
+      const tokenPayload = JSON.parse(req.headers['x-user-payload'] as string);
+      const driverId = String(tokenPayload.id);
+
+      if(!driverId) throw UnauthorizedError("Invalid driver ID")
+
+      const fields = req.body;
+
+      if(!fields) throw BadRequestError("No fields to update");
+
+      let section = String(req.body.section || 'vehicleDetails');
+
+      const files = req.files as Express.Multer.File[] | Record<string, Express.Multer.File[]> | undefined;
+
+      const fileUrls: Record<string, string> = {};
+      if (files) {
+        if (Array.isArray(files)) {
+          for (const file of files) {
+            const s3Url = await uploadToS3(file);
+            fileUrls[file.fieldname] = s3Url;
+          }
+        } else {
+          const entries = Object.entries(files);
+          for (const [fieldname, arr] of entries) {
+            if (arr && arr.length) {
+              fileUrls[fieldname] = await uploadToS3(arr[0]);
+            }
+          }
+        }
+      }
+
+      if (!['vehicleDetails', 'license', 'aadhar'].includes(section)) {
+        section = 'vehicleDetails';
+      }
+
+      const updatesObj = { ...fields, ...fileUrls };
+
+      const payload = {
+        driverId,
+        section: section,
+        updates: updatesObj as SectionUpdates,
+      };
+
+      const response = await this._driverService.updateDriverDocuments(payload);
+      res.clearCookie("refreshToken");
+      res.status(Number(response.status)).json(response);
+    } catch (error) {
+      _next(error);
+    }
+  };
+
+  handleOnlineChange = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
+    try {
+      const { ...data } = req.body;
       const response = await this._driverService.handleOnlineChange(data);
-      callback(null, response);
+      res.status(+response.status).json(response);
     } catch (error) {
       console.log(error);
-      callback(null, {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      });
+      _next(error);
     }
-  }
+  };
 
-async AddEarnings(
+  AddEarnings = async (
     call: ServerUnaryCall<AddEarningsRequest, PaymentResponse>,
     callback: sendUnaryData<PaymentResponse>
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
-     const response = await this._driverService.addEarnings(call.request);
-     callback(null, response);
-
+      const response = await this._driverService.addEarnings(call.request);
+      callback(null, response);
     } catch (error) {
       console.log(error);
-      
-     callback(null, {
-        status: "failed",
-        message: (error as Error).message,
-      });
+      callback(null, { status: 'failed', message: (error as Error).message });
     }
-  }
+  };
 
+  getDriverStripe = async (
+    call: ServerUnaryCall<{ driverId: string }, { status: string; stripeId: string }>,
+    callback: sendUnaryData<{ status: string; stripeId: string }>
+  ): Promise<void> => {
+    try {
+      const response = await this._driverService.getDriverStripe(call.request.driverId);
+      callback(null, response);
+    } catch (error) {
+      console.log(error);
+      callback(null, { status: 'failed', stripeId: '' });
+    }
+  };
 
+  uploadChatFile = async (req: Request, res: Response) => {
+    try {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
 
+      if (!files || !files['file'] || !files['file'].length) {
+        return res.status(400).json({ message: 'No file provided' });
+      }
 
-  async increaseCancelCount(payload:increaseCancelCountReq):Promise<void>{
-try {
-  this._driverService.increaseCancelCount(payload)
-} catch (error) {
-  console.log("error",error);
-  
-}
-  }
+      const file = files['file'][0];
+      const url = await uploadToS3Public(file);
+      return res.status(202).json({ message: 'success', fileUrl: url });
+    } catch (error) {
+      console.log('error', error);
+      res.status(StatusCode.InternalServerError).json({ message: 'Internal Server Error' });
+    }
+  };
+
+  increaseCancelCount = async (payload: increaseCancelCountReq): Promise<void> => {
+    try {
+      await this._driverService.increaseCancelCount(payload);
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
 }

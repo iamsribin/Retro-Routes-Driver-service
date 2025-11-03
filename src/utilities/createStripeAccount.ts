@@ -33,17 +33,3 @@ import { stripe } from "../config/stripe";
        throw new Error( 'Stripe account creation failed');
     }
   }
-
-  // const accountLink = await stripe.accountLinks.create({
-//     account: driverDetails.stripeId,
-//     refresh_url: `${process.env.FRONTEND_URL}/onboard/refresh`, // must include http(s) 
-//     return_url: `${process.env.FRONTEND_URL}/onboard/complete`,
-//     type: 'account_onboarding',
-//   });
-//   console.log("accountLink",accountLink);
-
-    //  https://connect.stripe.com/setup/e/acct_1SLPnb1IGLplzzU6/Aqz9HAEf0rVA acct_1SLPnb1IGLplzzU6
-// {
-//   accountId: 'acct_1SLQiD1kAmVkPtnD',
-//   accountLinkUrl: 'https://connect.stripe.com/setup/e/acct_1SLQiD1kAmVkPtnD/0OndQ4GBjh2g'
-// }

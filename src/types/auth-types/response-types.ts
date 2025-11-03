@@ -1,5 +1,5 @@
+import { StatusCode } from "@retro-routes/shared";
 import { ResubmissionInterface } from "../../interface/resubmission.interface";
-import { StatusCode } from "../common/enum";
 
 export interface CheckLoginDriverRes {
   status: StatusCode;
@@ -8,7 +8,7 @@ export interface CheckLoginDriverRes {
   name?: string;
   refreshToken?: string;
   token?: string;
-  driverId?: string;
+  id?: string;
 }
 
 export interface CheckRegisterDriverRes {

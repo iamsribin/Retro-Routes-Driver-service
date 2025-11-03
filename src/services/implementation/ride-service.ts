@@ -1,14 +1,16 @@
 import { IRideService } from "../interfaces/i-ride-service";
 import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
-import { StatusCode } from "../../types/common/enum";
 import { IRideRepository } from "../../repositories/interfaces/i-ride-repository";
 import { OnlineDriverDTO } from "../../dto/ride.dto";
-import { IResponse } from "../../types";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../types/inversify-types";
+import { IResponse, StatusCode } from "@retro-routes/shared";
 
+@injectable()
 export class RideService implements IRideService {
   constructor(
-    private _driverRepo: IDriverRepository,
-    private _rideRepo: IRideRepository
+    @inject(TYPES.DriverRepository) private _driverRepo: IDriverRepository,
+    @inject(TYPES.RideRepository) private _rideRepo: IRideRepository
   ) {}
  
   async getOnlineDriverDetails(

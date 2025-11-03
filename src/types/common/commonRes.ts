@@ -1,16 +1,16 @@
-import { StatusCode } from "./enum";
+// import { StatusCode } from "./enum";
 
-export interface commonRes{
-  status:StatusCode,
-  message:string,
-  id?:string,
-  navigate?:string,
-}
+// export interface commonRes{
+//   status:StatusCode,
+//   message:string,
+//   id?:string,
+//   navigate?:string,
+// }
 
-export interface IResponse<T> {
-  status: StatusCode;
-  message: string;
-  navigate?: string | number;
-  data?: T | null | [] | boolean;
-}
+// export interface IResponse<T> {
+//   status: StatusCode;
+//   message: string;
+//   navigate?: string | number;
+//   data?: T | null | [] | boolean;
+// }
 

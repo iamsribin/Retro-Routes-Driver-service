@@ -1,85 +1,66 @@
 import { IAdminController } from "../interfaces/i-admin-controller";
 import { IAdminService } from "../../services/interfaces/i-admin-service";
-import { StatusCode } from "../../types/common/enum";
-import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
-import {
-  AdminUpdateDriverStatusReq,
-  Id,    
-  IResponse,
-} from "../../types";
-import {
-  AdminDriverDetailsDTO,
-  PaginatedUserListDTO,
-} from "../../dto/admin.dto";
-import { PaginationQuery } from "../../types/admin-type/request-types";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../types/inversify-types";
+import { NextFunction, Request, Response } from "express";
+import { recursivelySignImageUrls } from "../../utilities/createImageUrl";
+import { BadRequestError } from "@retro-routes/shared";
 
+@injectable()
 export class AdminController implements IAdminController {
-  constructor(private _adminService: IAdminService) {}
+  constructor(@inject(TYPES.AdminRepository) private _adminService: IAdminService) {}
 
-  async getDriversListByAccountStatus(
-    call: ServerUnaryCall<PaginationQuery, IResponse<PaginatedUserListDTO>>,
-    callback: sendUnaryData<IResponse<PaginatedUserListDTO>>
-  ): Promise<void> {
+  async getDriversListByAccountStatus(req: Request, res: Response, _next: NextFunction):Promise<void> {
     try {
-      const { page = "1", limit = "6", search = "", status } = call.request;
-      console.log({ page, limit , search, status });
-      
-      const pageNum = Math.max(1, parseInt(page, 10) || 1);
-      const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 6));
+      const { page = 1, limit = 10, search = "", status } = req.query;
 
-      const response = await this._adminService.getDriversListByAccountStatus(
-        status,
-        pageNum,
-        limitNum,
-        search.trim()      
-      );
+      const data ={
+        status: status as "Good" | "Block",
+        page: page as number,
+        limit: limit as number,
+        search: search.toString().trim()
+      }
 
-      callback(null, response);
+      const response = await this._adminService.getDriversListByAccountStatus(data);
+
+      res.status(+response.status).json(response.data);
     } catch (error) {
-      callback(null, {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      });
+      _next(error);
     }
   }
 
-  async adminGetDriverDetailsById(
-    call: ServerUnaryCall<Id, IResponse<AdminDriverDetailsDTO["data"]>>,
-    callback: sendUnaryData<IResponse<AdminDriverDetailsDTO["data"]>>
-  ): Promise<void> {
+  async adminGetDriverDetailsById(req: Request, res: Response, _next: NextFunction):Promise<void> {
     try {
-      console.log("call.request",call.request);
-       
-      const { id } = call.request;
+      
+      const { id } = req.params;
+
+      if(!id) throw BadRequestError("id id required")
+
       const response = await this._adminService.adminGetDriverDetailsById(id);
-      console.log("response",response);
-      
-      callback(null, response);
+        if (response.data) {
+            await recursivelySignImageUrls(response.data as Record<string, unknown>);
+          }
+
+          res.status(+response.status).json(response.data);
     } catch (error: unknown) {
-      console.log("error",error);
       
-      callback(null, {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      });
+      _next(error);
     }
   }
 
-  async adminUpdateDriverAccountStatus(
-    call: ServerUnaryCall<AdminUpdateDriverStatusReq, IResponse<boolean>>,
-    callback: sendUnaryData<IResponse<boolean>>
-  ): Promise<void> {
+  async adminUpdateDriverAccountStatus(req: Request, res: Response, _next: NextFunction):Promise<void> {
     try {
-      const data = { ...call.request };
-      const response = await this._adminService.adminUpdateDriverAccountStatus(
-        data
-      );
-      callback(null, response);
+      const id = req.params.id;
+      const { note, status, fields } = req.body;
+
+      if(!id || !note || !status ||fields) throw BadRequestError("some fields is missing")
+
+      const request = { id, reason: note, status, fields };
+
+      const response = await this._adminService.adminUpdateDriverAccountStatus(request);
+      res.status(+response.status).json(response);
     } catch (error) {
-      callback(null, {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      });
+      _next(error)
     }
   }
 }
