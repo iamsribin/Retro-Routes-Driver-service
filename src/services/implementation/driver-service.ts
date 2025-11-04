@@ -179,7 +179,7 @@ export class DriverService implements IDriverService {
             if (!response) throw NotFoundError('Driver not found');
 
             const redisService = getRedisService();
-            redisService.addBlacklistedToken(driverId,604800); // Blacklist for 7 days
+            await redisService.addBlacklistedToken(driverId,604800); // Blacklist for 7 days
             console.log("token black listed");
             
             

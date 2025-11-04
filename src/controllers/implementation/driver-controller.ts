@@ -20,10 +20,11 @@ export class DriverController implements IDriverController {
     try {
       res.setHeader('Cache-Control', 'no-store, no-cache');
 
-      const tokenPayload = JSON.parse(req.headers['x-user-payload'] as string);
-      const id = tokenPayload.id;
+      const user = req.gatewayUser!;
 
-      const response = await this._driverService.fetchDriverProfile(id);
+      if(!user) throw UnauthorizedError("Invalid driver ID")
+      
+      const response = await this._driverService.fetchDriverProfile(user.id);
       
       res.status(+response.status).json(response.data);
     } catch (error) {
@@ -36,10 +37,9 @@ export class DriverController implements IDriverController {
   updateDriverProfile = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
       const file: Express.Multer.File | undefined = req.file;
-      console.log("reach");
 
-      const tokenPayload = JSON.parse(req.headers['x-user-payload'] as string);
-      const id = tokenPayload.id;
+      const user = req.gatewayUser!;
+
       let imageUrl: string | null = null;
 
       if (file) imageUrl = await uploadToS3Public(file);
@@ -47,7 +47,7 @@ export class DriverController implements IDriverController {
       const { name } = req.body;
 
       const data = {
-        driverId: id,
+        driverId: user.id,
         ...(name && { name }),
         ...(imageUrl && { imageUrl }),
       };
@@ -62,14 +62,12 @@ export class DriverController implements IDriverController {
 
   fetchDriverDocuments = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
-
+     
       res.setHeader('Cache-Control', 'no-store, no-cache');
 
-      const tokenPayload = JSON.parse(req.headers['x-user-payload'] as string);
-      const id = tokenPayload.id;
-      console.log("id",id);
+      const user = req.gatewayUser!;
       
-      const response = await this._driverService.fetchDriverDocuments(id);
+      const response = await this._driverService.fetchDriverDocuments(user.id);
       await recursivelySignImageUrls(response.data as unknown as Record<string, unknown>);
       console.log("res",response);
       

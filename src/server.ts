@@ -12,19 +12,13 @@ import { createRedisService } from "@retro-routes/shared";
 const startServer = async () => {
     try {
         // check all env are defined
-        isEnvDefined();
+        isEnvDefined(); 
 
         // connect to db
         connectDB();
          
         //creating redis server
         createRedisService(process.env.REDIS_URL as string);
-
-        // get redis service instance
-        const redisService = createRedisService(process.env.REDIS_URL!);
-        redisService.ping().then(() => {
-            console.log("Connected to Redis successfully");
-        })
         
         //start rabbit consumer
         // consumer.start()
