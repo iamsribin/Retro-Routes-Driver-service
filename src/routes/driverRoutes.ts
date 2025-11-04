@@ -3,12 +3,15 @@ import { upload } from "../middleware/multer";
 import { container } from "../config/inversify.config";
 import { DriverController } from "../controllers/implementation/driver-controller";
 import { TYPES } from "../types/inversify-types";
-import { catchAsync } from "@retro-routes/shared";
+import { catchAsync, verifyGatewayJwt } from "@retro-routes/shared";
 
 
 const driverController = container.get<DriverController>(TYPES.DriverController);
 
 const driverRouter = express.Router()
+
+//  All routes below require a valid gateway JWT
+driverRouter.use(verifyGatewayJwt(true,process.env.GATEWAY_SHARED_SECRET!)); // strict true => returns 401 on failure
 
 driverRouter.post(
   "/handle-online-change",
