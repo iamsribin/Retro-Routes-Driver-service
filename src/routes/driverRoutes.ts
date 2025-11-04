@@ -5,13 +5,12 @@ import { DriverController } from "../controllers/implementation/driver-controlle
 import { TYPES } from "../types/inversify-types";
 import { catchAsync, verifyGatewayJwt } from "@retro-routes/shared";
 
-
 const driverController = container.get<DriverController>(TYPES.DriverController);
 
 const driverRouter = express.Router()
 
 //  All routes below require a valid gateway JWT
-driverRouter.use(verifyGatewayJwt(true,process.env.GATEWAY_SHARED_SECRET!)); // strict true => returns 401 on failure
+driverRouter.use(verifyGatewayJwt(true,process.env.GATEWAY_SHARED_SECRET!)); 
 
 driverRouter.post(
   "/handle-online-change",

@@ -3,10 +3,8 @@ dotenv.config();
 
 import app from "./app";
 import { startGrpcServer } from "./grpc/server";
-import connectDB from "./config/mongo";
 import { isEnvDefined } from "./utilities/envChecker";
-// import { consumer } from "./events/consumer";
-import { createRedisService } from "@retro-routes/shared";
+import { connectDB, createRedisService } from "@retro-routes/shared";
 
 // server
 const startServer = async () => {
@@ -15,7 +13,7 @@ const startServer = async () => {
         isEnvDefined(); 
 
         // connect to db
-        connectDB();
+        connectDB(process.env.MONGO_URL!);
          
         //creating redis server
         createRedisService(process.env.REDIS_URL as string);

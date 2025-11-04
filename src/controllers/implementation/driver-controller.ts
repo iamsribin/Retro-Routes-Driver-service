@@ -7,7 +7,7 @@ import { NextFunction, Request, Response } from 'express';
 import uploadToS3, { uploadToS3Public } from '../../utilities/s3';
 import { sendUnaryData, ServerUnaryCall } from '@grpc/grpc-js';
 import { PaymentResponse } from '../../types/driver-type/response-type';
-import { BadRequestError, StatusCode, UnauthorizedError } from '@retro-routes/shared';
+import { BadRequestError, StatusCode } from '@retro-routes/shared';
 import { recursivelySignImageUrls } from '../../utilities/createImageUrl';
 
 @injectable()
@@ -21,8 +21,6 @@ export class DriverController implements IDriverController {
       res.setHeader('Cache-Control', 'no-store, no-cache');
 
       const user = req.gatewayUser!;
-
-      if(!user) throw UnauthorizedError("Invalid driver ID")
       
       const response = await this._driverService.fetchDriverProfile(user.id);
       
@@ -69,7 +67,6 @@ export class DriverController implements IDriverController {
       
       const response = await this._driverService.fetchDriverDocuments(user.id);
       await recursivelySignImageUrls(response.data as unknown as Record<string, unknown>);
-      console.log("res",response);
       
       res.status(+response.status).json(response.data);
     } catch (error) {
@@ -80,10 +77,8 @@ export class DriverController implements IDriverController {
 
   updateDriverDocuments = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
-      const tokenPayload = JSON.parse(req.headers['x-user-payload'] as string);
-      const driverId = String(tokenPayload.id);
 
-      if(!driverId) throw UnauthorizedError("Invalid driver ID")
+      const user = req.gatewayUser!;
 
       const fields = req.body;
 
@@ -117,7 +112,7 @@ export class DriverController implements IDriverController {
       const updatesObj = { ...fields, ...fileUrls };
 
       const payload = {
-        driverId,
+        driverId: user.id,
         section: section,
         updates: updatesObj as SectionUpdates,
       };

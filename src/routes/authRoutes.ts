@@ -11,7 +11,6 @@ import { upload } from "../middleware/multer";
 const registrationController = container.get<RegisterController>(TYPES.RegisterController);
 const loginController = container.get<LoginController>(TYPES.LoginController);
 
-
 const authRouter = express.Router();
 
 authRouter.get("/resubmission/:id", catchAsync(loginController.getResubmissionDocuments));
