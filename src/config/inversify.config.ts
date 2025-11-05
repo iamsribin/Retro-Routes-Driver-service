@@ -40,7 +40,7 @@ import { IRideRepository } from "../repositories/interfaces/i-ride-repository";
 
 import { ResubmissionInterface } from "../interface/resubmission.interface";
 import { ResubmissionModel } from "../model/resubmission.model";
-import { IMongoBaseRepository, MongoBaseRepository } from "@retro-routes/shared";
+import { IMongoBaseRepository, MongoBaseRepository } from "@Pick2Me/shared";
 
 const container = new Container();
 

@@ -1,4 +1,4 @@
-import { createChannel, QUEUES } from '@retro-routes/shared';
+import { createChannel, QUEUES } from "@Pick2Me/shared";
 import { Channel } from 'amqplib';
 import { container } from '../config/inversify.config';
 import { IDriverController } from '../controllers/interfaces/i-driver-controller';

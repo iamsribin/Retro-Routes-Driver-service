@@ -2,7 +2,7 @@ import { IRegisterController } from "../interfaces/i-register-controller";
 import { IRegistrationService } from "../../services/interfaces/i-registration-service";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../types/inversify-types";
-import {  BadRequestError, ForbiddenError, StatusCode } from "@retro-routes/shared";
+import {  BadRequestError, ForbiddenError, StatusCode } from "@Pick2Me/shared";
 import { NextFunction, Request, Response } from "express";
 import uploadToS3, { uploadToS3Public } from "../../utilities/s3";
 

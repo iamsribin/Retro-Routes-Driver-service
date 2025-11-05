@@ -4,7 +4,7 @@ dotenv.config();
 import app from "./app";
 import { startGrpcServer } from "./grpc/server";
 import { isEnvDefined } from "./utilities/envChecker";
-import { connectDB, createRedisService } from "@retro-routes/shared";
+import { connectDB, createRedisService } from "@Pick2Me/shared";
 
 // server
 const startServer = async () => {

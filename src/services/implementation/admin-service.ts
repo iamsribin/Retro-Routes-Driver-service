@@ -14,7 +14,7 @@ import {
 } from "../../dto/admin.dto";
 import { TYPES } from "../../types/inversify-types";
 import { inject, injectable } from "inversify";
-import { HttpError, IMongoBaseRepository, InternalError, IResponse, NotFoundError, StatusCode } from "@retro-routes/shared";
+import { HttpError, IMongoBaseRepository, InternalError, IResponse, NotFoundError, StatusCode } from "@Pick2Me/shared";
 
 @injectable()
 export class AdminService implements IAdminService {

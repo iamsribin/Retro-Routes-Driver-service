@@ -7,7 +7,7 @@ import { NextFunction, Request, Response } from 'express';
 import uploadToS3, { uploadToS3Public } from '../../utilities/s3';
 import { sendUnaryData, ServerUnaryCall } from '@grpc/grpc-js';
 import { PaymentResponse } from '../../types/driver-type/response-type';
-import { BadRequestError, StatusCode } from '@retro-routes/shared';
+import { BadRequestError, StatusCode } from "@Pick2Me/shared";
 import { recursivelySignImageUrls } from '../../utilities/createImageUrl';
 
 @injectable()

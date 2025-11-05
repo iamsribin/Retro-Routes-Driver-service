@@ -26,7 +26,7 @@ import {
   StatusCode,
   UnauthorizedError,
   verifyToken,
-} from "@retro-routes/shared";
+} from "@Pick2Me/shared";
 import { IRefreshTokenDto } from "../../dto/auth/auth-response.dto";
 
 

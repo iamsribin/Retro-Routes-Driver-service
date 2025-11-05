@@ -1,4 +1,4 @@
-import { IResponse } from '@retro-routes/shared';
+import { IResponse } from "@Pick2Me/shared";
 import { AdminDriverDetailsDTO, PaginatedUserListDTO } from '../../dto/admin.dto';
 import { AdminUpdateDriverStatusReq } from '../../types';
 

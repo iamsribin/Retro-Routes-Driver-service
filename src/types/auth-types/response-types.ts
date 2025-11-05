@@ -1,4 +1,4 @@
-import { StatusCode } from "@retro-routes/shared";
+import { StatusCode } from "@Pick2Me/shared";
 import { ResubmissionInterface } from "../../interface/resubmission.interface";
 
 export interface CheckLoginDriverRes {

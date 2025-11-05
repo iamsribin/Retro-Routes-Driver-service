@@ -1,7 +1,7 @@
 
 import express from "express";
 
-import { catchAsync } from "@retro-routes/shared";
+import { catchAsync } from "@Pick2Me/shared";
 import { RegisterController } from "../controllers/implementation/register-controller";
 import { LoginController } from "../controllers/implementation/login-controller";
 import { container } from "../config/inversify.config";

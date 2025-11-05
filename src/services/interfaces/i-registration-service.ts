@@ -1,4 +1,4 @@
-import { commonRes } from '@retro-routes/shared';
+import { commonRes } from "@Pick2Me/shared";
 import { CheckRegisterDriverRes, IdentificationUpdateReq, InsuranceUpdateReq, LocationUpdateReq, RegisterReq, UpdateDriverImageReq, VehicleUpdateReq } from '../../types';
 import { IRefreshTokenDto } from '../../dto/auth/auth-response.dto';
 

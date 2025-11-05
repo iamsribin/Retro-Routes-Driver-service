@@ -22,7 +22,7 @@ import {
     IResponse,
     NotFoundError,
     StatusCode,
-} from '@retro-routes/shared';
+} from "@Pick2Me/shared";
 
 @injectable()
 export class DriverService implements IDriverService {

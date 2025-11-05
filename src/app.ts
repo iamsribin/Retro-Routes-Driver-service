@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import { authRouter } from "./routes/authRoutes";
 import { driverRouter } from "./routes/driverRoutes";
 import { adminRouter } from "./routes/adminRoutes";
-import { errorHandler } from "@retro-routes/shared";
+import { errorHandler } from "@Pick2Me/shared";
 
 
 // create app

@@ -22,7 +22,7 @@ import {
     InternalError,
     NotFoundError,
     StatusCode,
-} from '@retro-routes/shared';
+} from "@Pick2Me/shared";
 
 @injectable()
 export class LoginService implements ILoginService {

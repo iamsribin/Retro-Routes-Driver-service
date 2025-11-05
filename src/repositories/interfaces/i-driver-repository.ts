@@ -1,7 +1,7 @@
 import { FilterQuery } from 'mongoose';
 import { DriverInterface } from '../../interface/driver.interface';
 import { AddEarningsRequest, IdentificationUpdateReq, InsuranceUpdateReq, LocationUpdateReq, VehicleUpdateReq } from '../../types';
-import { IMongoBaseRepository } from '@retro-routes/shared';
+import { IMongoBaseRepository } from "@Pick2Me/shared";
 
 export interface IDriverRepository extends IMongoBaseRepository<DriverInterface>{
   getByEmail(email: string): Promise<DriverInterface | null>;

@@ -11,7 +11,7 @@ import {
   LocationUpdateReq,
   VehicleUpdateReq,
 } from "../../types";
-import { MongoBaseRepository, NotFoundError } from "@retro-routes/shared";
+import { MongoBaseRepository, NotFoundError } from "@Pick2Me/shared";
 
 @injectable()
 export class DriverRepository

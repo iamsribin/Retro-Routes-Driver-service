@@ -4,7 +4,7 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../types/inversify-types";
 import { NextFunction, Request, Response } from "express";
 import uploadToS3 from "../../utilities/s3";
-import { BadRequestError } from "@retro-routes/shared";
+import { BadRequestError } from "@Pick2Me/shared";
 
 @injectable()
 export class LoginController implements ILoginController {

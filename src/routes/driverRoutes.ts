@@ -3,7 +3,7 @@ import { upload } from "../middleware/multer";
 import { container } from "../config/inversify.config";
 import { DriverController } from "../controllers/implementation/driver-controller";
 import { TYPES } from "../types/inversify-types";
-import { catchAsync, verifyGatewayJwt } from "@retro-routes/shared";
+import { catchAsync, verifyGatewayJwt } from "@Pick2Me/shared";
 
 const driverController = container.get<DriverController>(TYPES.DriverController);
 

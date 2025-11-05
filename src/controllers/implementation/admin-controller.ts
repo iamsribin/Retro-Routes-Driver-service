@@ -4,7 +4,7 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../types/inversify-types";
 import { NextFunction, Request, Response } from "express";
 import { recursivelySignImageUrls } from "../../utilities/createImageUrl";
-import { BadRequestError } from "@retro-routes/shared";
+import { BadRequestError } from "@Pick2Me/shared";
 
 @injectable()
 export class AdminController implements IAdminController {

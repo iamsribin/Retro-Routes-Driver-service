@@ -1,6 +1,7 @@
 import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
 import { OnlineDriverDTO } from "../../dto/ride.dto";
-import {  Id, IResponse } from "../../types";
+import {  Id } from "../../types";
+import { IResponse } from "@Pick2Me/shared";
 
 
 export interface IRideController {
