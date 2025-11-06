@@ -1,5 +1,5 @@
 {
-  "name": "retro-routes-driver-service",
+  "name": "Pick2Me-driver-service",
   "version": "1.0.0",
   "description": "",
   "license": "ISC",
@@ -9,6 +9,7 @@
   "scripts": {
     "start": "nodemon ./src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write \"src/**/*.{js,ts,tsx,json,css,md}\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -18,7 +19,7 @@
     "@aws-sdk/s3-request-presigner": "^3.919.0",
     "@grpc/grpc-js": "^1.13.4",
     "@grpc/proto-loader": "^0.8.0",
-    "@retro-routes/shared": "file:../Retro-Routes-Shared/retro-routes-shared-1.0.1.tgz",
+    "@Pick2Me/shared": "file:../Retro-Routes-Shared/Pick2Me-shared-1.0.1.tgz",
     "@types/amqplib": "^0.10.7",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/nodemailer": "^6.4.17",

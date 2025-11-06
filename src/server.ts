@@ -1,39 +1,36 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 dotenv.config();
 
-import app from "./app";
-import { startGrpcServer } from "./grpc/server";
-import connectDB from "./config/mongo";
-import { isEnvDefined } from "./utilities/envChecker";
-// import { consumer } from "./events/consumer";
-import { createRedisService } from "@retro-routes/shared";
+import app from './app';
+import { startGrpcServer } from './grpc/server';
+import { isEnvDefined } from './utilities/envChecker';
+import { connectDB, createRedisService } from '@Pick2Me/shared';
 
 // server
 const startServer = async () => {
-    try {
-        // check all env are defined
-        isEnvDefined(); 
+  try {
+    // check all env are defined
+    isEnvDefined();
 
-        // connect to db
-        connectDB();
-         
-        //creating redis server
-        createRedisService(process.env.REDIS_URL as string);
-        
-        //start rabbit consumer
-        // consumer.start()
+    // connect to db
+    connectDB(process.env.MONGO_URL!);
 
-        // start grpc server
-        startGrpcServer()
+    //creating redis server
+    createRedisService(process.env.REDIS_URL as string);
 
-        //listen to port
-        app.listen(process.env.PORT, () =>
-            console.log(`User service running on port ${process.env.PORT}`)
-        );
-    } catch (err: unknown) {
-        console.log(err);
-    }
+    //start rabbit consumer
+    // consumer.start()
+
+    // start grpc server
+    startGrpcServer();
+
+    //listen to port
+    app.listen(process.env.PORT, () =>
+      console.log(`User service running on port ${process.env.PORT}`)
+    );
+  } catch (err: unknown) {
+    console.log(err);
+  }
 };
 
 startServer();
-

@@ -7,8 +7,8 @@ export interface AccountStatus {
 }
 
 export interface AdminUpdateDriverStatusReq {
-  id:string;
-  status: "Good" | "Warning" | "Rejected" | "Blocked";
+  id: string;
+  status: 'Good' | 'Warning' | 'Rejected' | 'Blocked';
   reason: string;
   fields?: string[];
 }

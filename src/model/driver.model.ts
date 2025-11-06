@@ -1,5 +1,5 @@
-import mongoose, { Schema } from "mongoose";
-import { AccountStatus, DriverInterface } from "../interface/driver.interface";
+import mongoose, { Schema } from 'mongoose';
+import { AccountStatus, DriverInterface } from '../interface/driver.interface';
 
 const DriverSchema: Schema = new Schema(
   {
@@ -11,8 +11,8 @@ const DriverSchema: Schema = new Schema(
     driverImage: { type: String },
     referralCode: { type: String },
     joiningDate: { type: Date, default: Date.now },
-    accountId:{type: String},
-    accountLinkUrl:{type: String},
+    accountId: { type: String },
+    accountLinkUrl: { type: String },
 
     aadhar: {
       id: { type: String },
@@ -39,7 +39,7 @@ const DriverSchema: Schema = new Schema(
       rcBackImageUrl: { type: String },
       rcStartDate: { type: Date },
       rcExpiryDate: { type: Date },
-      
+
       vehicleNumber: { type: String },
       vehicleColor: { type: String },
       model: { type: String },
@@ -49,7 +49,7 @@ const DriverSchema: Schema = new Schema(
       insuranceImageUrl: { type: String },
       insuranceStartDate: { type: Date },
       insuranceExpiryDate: { type: Date },
-      
+
       pollutionImageUrl: { type: String },
       pollutionStartDate: { type: Date },
       pollutionExpiryDate: { type: Date },
@@ -60,7 +60,7 @@ const DriverSchema: Schema = new Schema(
       enum: Object.values(AccountStatus),
     },
 
-    onlineStatus:{type : Boolean},
+    onlineStatus: { type: Boolean },
 
     wallet: {
       balance: { type: Number, default: 0 },
@@ -104,10 +104,7 @@ const DriverSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-DriverSchema.index({ location: "2dsphere" });
-DriverSchema.index({ "wallet.transactions.date": -1 });
+DriverSchema.index({ location: '2dsphere' });
+DriverSchema.index({ 'wallet.transactions.date': -1 });
 
-export const DriverModel = mongoose.model<DriverInterface>(
-  "Driver",
-  DriverSchema
-);
+export const DriverModel = mongoose.model<DriverInterface>('Driver', DriverSchema);

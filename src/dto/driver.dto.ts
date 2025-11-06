@@ -1,4 +1,11 @@
-import { Aadhar, Insurance, License, Pollution, VehicleDetails, VehicleRC } from "../interface/document-interfaces";
+import {
+  Aadhar,
+  Insurance,
+  License,
+  Pollution,
+  VehicleDetails,
+  VehicleRC,
+} from '../interface/document-interfaces';
 
 export interface DriverDocumentDTO {
   _id: string;

@@ -1,17 +1,17 @@
-import { FilterQuery, UpdateQuery } from "mongoose";
-import { injectable } from "inversify";
+import { FilterQuery, UpdateQuery } from 'mongoose';
+import { injectable } from 'inversify';
 
-import { DriverInterface } from "../../interface/driver.interface";
-import { DriverModel } from "../../model/driver.model";
-import { IDriverRepository } from "../interfaces/i-driver-repository";
+import { DriverInterface } from '../../interface/driver.interface';
+import { DriverModel } from '../../model/driver.model';
+import { IDriverRepository } from '../interfaces/i-driver-repository';
 import {
   AddEarningsRequest,
   IdentificationUpdateReq,
   InsuranceUpdateReq,
   LocationUpdateReq,
   VehicleUpdateReq,
-} from "../../types";
-import { MongoBaseRepository, NotFoundError } from "@retro-routes/shared";
+} from '../../types';
+import { MongoBaseRepository, NotFoundError } from '@Pick2Me/shared';
 
 @injectable()
 export class DriverRepository
@@ -50,7 +50,7 @@ export class DriverRepository
   async getActiveById(id: string): Promise<DriverInterface | null> {
     try {
       return this.findOne({ _id: id, isAvailable: true });
-    } catch  {
+    } catch {
       return null;
     }
   }
@@ -64,7 +64,7 @@ export class DriverRepository
   ): Promise<DriverInterface | null> {
     try {
       return this.update(id, updateData);
-    } catch  {
+    } catch {
       return null;
     }
   }
@@ -78,7 +78,7 @@ export class DriverRepository
   ): Promise<DriverInterface | null> {
     try {
       return this.updateOne(filter, updateData);
-    } catch  {
+    } catch {
       return null;
     }
   }
@@ -86,10 +86,10 @@ export class DriverRepository
   /**
    * Delete driver by id.
    */
-  async deleteDriverById(id: string): Promise<boolean| null> {
+  async deleteDriverById(id: string): Promise<boolean | null> {
     try {
       return this.delete(id);
-    } catch  {
+    } catch {
       return null;
     }
   }
@@ -97,12 +97,10 @@ export class DriverRepository
   /**
    * Get multiple drivers with an optional filter.
    */
-  async getDrivers(
-    filter: FilterQuery<DriverInterface> = {}
-  ): Promise<DriverInterface[] | null> {
+  async getDrivers(filter: FilterQuery<DriverInterface> = {}): Promise<DriverInterface[] | null> {
     try {
       return this.find(filter);
-    } catch  {
+    } catch {
       return null;
     }
   }
@@ -110,13 +108,10 @@ export class DriverRepository
   /**
    * Get driver by id with a projection string.
    */
-  async getByIdWithProjection(
-    id: string,
-    projection: string
-  ): Promise<DriverInterface | null> {
+  async getByIdWithProjection(id: string, projection: string): Promise<DriverInterface | null> {
     try {
       return this.findById(id, projection);
-    } catch  {
+    } catch {
       return null;
     }
   }
@@ -124,11 +119,11 @@ export class DriverRepository
   /**
    * Check existence of a driver matching the filter.
    */
-  async exists(filter: FilterQuery<DriverInterface>): Promise<boolean| null> {
+  async exists(filter: FilterQuery<DriverInterface>): Promise<boolean | null> {
     try {
       const driver = await this.findOne(filter);
       return !!driver;
-    } catch  {
+    } catch {
       return null;
     }
   }
@@ -136,9 +131,7 @@ export class DriverRepository
   /**
    * Update identification documents (Aadhar & License) for a driver.
    */
-  async updateIdentification(
-    data: IdentificationUpdateReq
-  ): Promise<DriverInterface | null> {
+  async updateIdentification(data: IdentificationUpdateReq): Promise<DriverInterface | null> {
     try {
       return this.update(data.driverId, {
         $set: {
@@ -155,7 +148,7 @@ export class DriverRepository
           },
         },
       });
-    } catch  {
+    } catch {
       return null;
     }
   }
@@ -173,7 +166,7 @@ export class DriverRepository
           driverImage: data.imageUrl,
         },
       });
-    } catch  {
+    } catch {
       return null;
     }
   }
@@ -187,19 +180,19 @@ export class DriverRepository
     try {
       return this.update(data.driverId, {
         $set: {
-          "vehicleDetails.registrationId": data.registrationId,
-          "vehicleDetails.model": data.model,
-          "vehicleDetails.vehicleColor": data.vehicleColor,
-          "vehicleDetails.vehicleNumber": data.vehicleNumber,
-          "vehicleDetails.rcFrontImageUrl": data.carFrondImageUrl,
-          "vehicleDetails.rcBackImageUrl": data.rcBackImageUrl,
-          "vehicleDetails.carFrontImageUrl": data.carFrondImageUrl,
-          "vehicleDetails.carBackImageUrl": data.carBackImageUrl,
-          "vehicleDetails.rcStartDate": data.rcStartDate,
-          "vehicleDetails.rcExpiryDate": data.rcExpiryDate,
+          'vehicleDetails.registrationId': data.registrationId,
+          'vehicleDetails.model': data.model,
+          'vehicleDetails.vehicleColor': data.vehicleColor,
+          'vehicleDetails.vehicleNumber': data.vehicleNumber,
+          'vehicleDetails.rcFrontImageUrl': data.carFrondImageUrl,
+          'vehicleDetails.rcBackImageUrl': data.rcBackImageUrl,
+          'vehicleDetails.carFrontImageUrl': data.carFrondImageUrl,
+          'vehicleDetails.carBackImageUrl': data.carBackImageUrl,
+          'vehicleDetails.rcStartDate': data.rcStartDate,
+          'vehicleDetails.rcExpiryDate': data.rcExpiryDate,
         },
       });
-    } catch  {
+    } catch {
       return null;
     }
   }
@@ -207,19 +200,17 @@ export class DriverRepository
   /**
    * Update driver's location and mark accountStatus as Pending.
    */
-  async locationUpdate(
-    data: LocationUpdateReq
-  ): Promise<DriverInterface | null> {
+  async locationUpdate(data: LocationUpdateReq): Promise<DriverInterface | null> {
     try {
       return this.update(data.driverId, {
         $set: {
-          "location.latitude": data.latitude,
-          "location.longitude": data.longitude,
-          "location.address": data.address,
-          accountStatus: "Pending",
+          'location.latitude': data.latitude,
+          'location.longitude': data.longitude,
+          'location.address': data.address,
+          accountStatus: 'Pending',
         },
       });
-    } catch  {
+    } catch {
       return null;
     }
   }
@@ -227,21 +218,19 @@ export class DriverRepository
   /**
    * Update vehicle insurance & pollution data.
    */
-  async vehicleInsurancePollutionUpdate(
-    data: InsuranceUpdateReq
-  ): Promise<DriverInterface | null> {
+  async vehicleInsurancePollutionUpdate(data: InsuranceUpdateReq): Promise<DriverInterface | null> {
     try {
       return this.update(data.driverId, {
         $set: {
-          "vehicleDetails.insuranceImageUrl": data.insuranceImageUrl,
-          "vehicleDetails.insuranceStartDate": data.insuranceStartDate,
-          "vehicleDetails.insuranceExpiryDate": data.insuranceExpiryDate,
-          "vehicleDetails.pollutionImageUrl": data.pollutionImageUrl,
-          "vehicleDetails.pollutionStartDate": data.pollutionStartDate,
-          "vehicleDetails.pollutionExpiryDate": data.pollutionExpiryDate,
+          'vehicleDetails.insuranceImageUrl': data.insuranceImageUrl,
+          'vehicleDetails.insuranceStartDate': data.insuranceStartDate,
+          'vehicleDetails.insuranceExpiryDate': data.insuranceExpiryDate,
+          'vehicleDetails.pollutionImageUrl': data.pollutionImageUrl,
+          'vehicleDetails.pollutionStartDate': data.pollutionStartDate,
+          'vehicleDetails.pollutionExpiryDate': data.pollutionExpiryDate,
         },
       });
-    } catch  {
+    } catch {
       return null;
     }
   }
@@ -251,8 +240,8 @@ export class DriverRepository
    */
   async getDocuments(id: string): Promise<DriverInterface | null> {
     try {
-      return this.findById(id, "aadhar license vehicleDetails");
-    } catch  {
+      return this.findById(id, 'aadhar license vehicleDetails');
+    } catch {
       return null;
     }
   }
@@ -268,14 +257,14 @@ export class DriverRepository
 
       const driver = await DriverModel.findOne({
         _id: driverId,
-        "rideDetails.date": { $gte: today },
+        'rideDetails.date': { $gte: today },
       });
 
       if (driver) {
         // update existing day entry
         await DriverModel.updateOne(
-          { _id: driverId, "rideDetails.date": { $gte: today } },
-          { $inc: { "rideDetails.$.hour": hoursToAdd } }
+          { _id: driverId, 'rideDetails.date': { $gte: today } },
+          { $inc: { 'rideDetails.$.hour': hoursToAdd } }
         );
       } else {
         // push new day entry
@@ -294,7 +283,7 @@ export class DriverRepository
           }
         );
       }
-    } catch  {
+    } catch {
       return null;
     }
   }
@@ -310,17 +299,17 @@ export class DriverRepository
 
       const driver = await DriverModel.findOne({
         _id: driverId,
-        "rideDetails.date": { $gte: today },
+        'rideDetails.date': { $gte: today },
       });
 
       if (driver) {
         // increment global + today's entry
         await DriverModel.updateOne(
-          { _id: driverId, "rideDetails.date": { $gte: today } },
+          { _id: driverId, 'rideDetails.date': { $gte: today } },
           {
             $inc: {
               totalCancelledRides: 1,
-              "rideDetails.$.cancelledRides": 1,
+              'rideDetails.$.cancelledRides': 1,
             },
           }
         );
@@ -342,7 +331,7 @@ export class DriverRepository
           }
         );
       }
-    } catch  {
+    } catch {
       return null;
     }
   }
@@ -364,10 +353,13 @@ export class DriverRepository
 
       // Try to increment an existing today's entry
       const updated = await DriverModel.findOneAndUpdate(
-        { _id: driverId, "rideDetails.date": { $gte: today, $lte: endOfDay } },
+        {
+          _id: driverId,
+          'rideDetails.date': { $gte: today, $lte: endOfDay },
+        },
         {
           $inc: {
-            "rideDetails.$.Earnings": Number(driverShare),
+            'rideDetails.$.Earnings': Number(driverShare),
             adminCommission: Number(adminShare),
           },
         },
@@ -394,10 +386,10 @@ export class DriverRepository
         { new: true }
       ).exec();
 
-      if (!pushed) throw NotFoundError("Driver not found");
+      if (!pushed) throw NotFoundError('Driver not found');
 
       return pushed;
-    } catch  {
+    } catch {
       return null;
     }
   }

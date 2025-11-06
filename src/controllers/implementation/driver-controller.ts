@@ -1,19 +1,20 @@
 import { IDriverController } from '../interfaces/i-driver-controller';
 import { IDriverService } from '../../services/interfaces/i-driver-service';
-import { AddEarningsRequest, increaseCancelCountReq, SectionUpdates } from '../../types';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../types/inversify-types';
 import { NextFunction, Request, Response } from 'express';
 import uploadToS3, { uploadToS3Public } from '../../utilities/s3';
 import { sendUnaryData, ServerUnaryCall } from '@grpc/grpc-js';
 import { PaymentResponse } from '../../types/driver-type/response-type';
-import { BadRequestError, StatusCode, UnauthorizedError } from '@retro-routes/shared';
+import { BadRequestError, StatusCode } from '@Pick2Me/shared';
 import { recursivelySignImageUrls } from '../../utilities/createImageUrl';
+import { AddEarningsRequest, increaseCancelCountReq, SectionUpdates } from '../../types';
 
 @injectable()
 export class DriverController implements IDriverController {
   constructor(
-    @inject(TYPES.DriverService) private readonly _driverService: IDriverService
+    @inject(TYPES.DriverService)
+    private readonly _driverService: IDriverService
   ) {}
 
   fetchDriverProfile = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
@@ -22,17 +23,14 @@ export class DriverController implements IDriverController {
 
       const user = req.gatewayUser!;
 
-      if(!user) throw UnauthorizedError("Invalid driver ID")
-      
       const response = await this._driverService.fetchDriverProfile(user.id);
-      
+
       res.status(+response.status).json(response.data);
     } catch (error) {
       console.log(error);
       _next(error);
     }
   };
-
 
   updateDriverProfile = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
@@ -53,24 +51,26 @@ export class DriverController implements IDriverController {
       };
 
       const response = await this._driverService.updateDriverProfile(data);
-      res.clearCookie("refreshToken");
+      res.clearCookie('refreshToken');
       res.status(+response.status).json(response);
     } catch (error) {
       _next(error);
     }
   };
 
-  fetchDriverDocuments = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
+  fetchDriverDocuments = async (
+    req: Request,
+    res: Response,
+    _next: NextFunction
+  ): Promise<void> => {
     try {
-     
       res.setHeader('Cache-Control', 'no-store, no-cache');
 
       const user = req.gatewayUser!;
-      
+
       const response = await this._driverService.fetchDriverDocuments(user.id);
       await recursivelySignImageUrls(response.data as unknown as Record<string, unknown>);
-      console.log("res",response);
-      
+
       res.status(+response.status).json(response.data);
     } catch (error) {
       console.log(error);
@@ -78,20 +78,24 @@ export class DriverController implements IDriverController {
     }
   };
 
-  updateDriverDocuments = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
+  updateDriverDocuments = async (
+    req: Request,
+    res: Response,
+    _next: NextFunction
+  ): Promise<void> => {
     try {
-      const tokenPayload = JSON.parse(req.headers['x-user-payload'] as string);
-      const driverId = String(tokenPayload.id);
-
-      if(!driverId) throw UnauthorizedError("Invalid driver ID")
+      const user = req.gatewayUser!;
 
       const fields = req.body;
 
-      if(!fields) throw BadRequestError("No fields to update");
+      if (!fields) throw BadRequestError('No fields to update');
 
       let section = String(req.body.section || 'vehicleDetails');
 
-      const files = req.files as Express.Multer.File[] | Record<string, Express.Multer.File[]> | undefined;
+      const files = req.files as
+        | Express.Multer.File[]
+        | Record<string, Express.Multer.File[]>
+        | undefined;
 
       const fileUrls: Record<string, string> = {};
       if (files) {
@@ -117,13 +121,13 @@ export class DriverController implements IDriverController {
       const updatesObj = { ...fields, ...fileUrls };
 
       const payload = {
-        driverId,
+        driverId: user.id,
         section: section,
         updates: updatesObj as SectionUpdates,
       };
 
       const response = await this._driverService.updateDriverDocuments(payload);
-      res.clearCookie("refreshToken");
+      res.clearCookie('refreshToken');
       res.status(Number(response.status)).json(response);
     } catch (error) {
       _next(error);
@@ -150,7 +154,10 @@ export class DriverController implements IDriverController {
       callback(null, response);
     } catch (error) {
       console.log(error);
-      callback(null, { status: 'failed', message: (error as Error).message });
+      callback(null, {
+        status: 'failed',
+        message: (error as Error).message,
+      });
     }
   };
 
@@ -180,7 +187,9 @@ export class DriverController implements IDriverController {
       return res.status(202).json({ message: 'success', fileUrl: url });
     } catch (error) {
       console.log('error', error);
-      res.status(StatusCode.InternalServerError).json({ message: 'Internal Server Error' });
+      res.status(StatusCode.InternalServerError).json({
+        message: 'Internal Server Error',
+      });
     }
   };
 

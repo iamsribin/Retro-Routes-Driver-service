@@ -1,10 +1,10 @@
-import { IRideService } from "../interfaces/i-ride-service";
-import { IDriverRepository } from "../../repositories/interfaces/i-driver-repository";
-import { IRideRepository } from "../../repositories/interfaces/i-ride-repository";
-import { OnlineDriverDTO } from "../../dto/ride.dto";
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../types/inversify-types";
-import { IResponse, StatusCode } from "@retro-routes/shared";
+import { IRideService } from '../interfaces/i-ride-service';
+import { IDriverRepository } from '../../repositories/interfaces/i-driver-repository';
+import { IRideRepository } from '../../repositories/interfaces/i-ride-repository';
+import { OnlineDriverDTO } from '../../dto/ride.dto';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../types/inversify-types';
+import { IResponse, StatusCode } from '@Pick2Me/shared';
 
 @injectable()
 export class RideService implements IRideService {
@@ -12,17 +12,15 @@ export class RideService implements IRideService {
     @inject(TYPES.DriverRepository) private _driverRepo: IDriverRepository,
     @inject(TYPES.RideRepository) private _rideRepo: IRideRepository
   ) {}
- 
-  async getOnlineDriverDetails(
-    id: string
-  ): Promise<IResponse<OnlineDriverDTO>> {
+
+  async getOnlineDriverDetails(id: string): Promise<IResponse<OnlineDriverDTO>> {
     try {
       const response = await this._driverRepo.getActiveById(id);
 
       if (!response)
         return {
           status: StatusCode.NotFound,
-          message: "driver not found",
+          message: 'driver not found',
         };
 
       const driverDetails: OnlineDriverDTO = {
@@ -39,11 +37,11 @@ export class RideService implements IRideService {
 
       return {
         status: StatusCode.Accepted,
-        message: "Success",
+        message: 'Success',
         data: driverDetails,
       };
     } catch (error) {
-      console.log("error:", error);
+      console.log('error:', error);
       return {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
@@ -53,28 +51,27 @@ export class RideService implements IRideService {
 
   async updateDriverCancelCount(id: string): Promise<IResponse<null>> {
     try {
-      console.log("updateDriverCancelCount id----", id);
+      console.log('updateDriverCancelCount id----', id);
 
       const response = await this._rideRepo.increaseCancelledRides(id);
 
       if (!response)
         return {
           status: StatusCode.NotFound,
-          message: "driver not found",
+          message: 'driver not found',
         };
 
       return {
         status: StatusCode.Created,
-        message: "Success", 
+        message: 'Success',
         data: null,
       };
     } catch (error) {
-      console.log("error:", error);
-      return { 
+      console.log('error:', error);
+      return {
         status: StatusCode.InternalServerError,
         message: (error as Error).message,
       };
     }
-  } 
+  }
 }
-  

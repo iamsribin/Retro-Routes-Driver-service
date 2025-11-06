@@ -1,8 +1,7 @@
-
-export interface UpdateDriverProfileReq{
-  driverId:string;
-  name:string;
-  imageUrl:string;
+export interface UpdateDriverProfileReq {
+  driverId: string;
+  name: string;
+  imageUrl: string;
 }
 
 type AadharUpdates = {
@@ -49,38 +48,38 @@ type PollutionUpdates = {
 export type SectionUpdates =
   | AadharUpdates
   | LicenseUpdates
-  | VehicleRCUpdates  
+  | VehicleRCUpdates
   | VehicleDetailsUpdates
   | InsuranceUpdates
   | PollutionUpdates;
 
 export interface UpdateDriverDocumentsReq {
   driverId: string;
-  section:string;
+  section: string;
   updates: SectionUpdates;
 }
 
-export interface handleOnlineChangeReq{
+export interface handleOnlineChangeReq {
   online: boolean;
   driverId: string;
-  onlineTimestamp:Date;
-  location:{
+  onlineTimestamp: Date;
+  location: {
     lat: number;
     lng: number;
-}
-}
-
-export interface AddEarningsRequest{
-  driverId: string,
-  adminShare: string,
-  driverShare: string,
-  transactionId: string
+  };
 }
 
-export interface increaseCancelCountReq{
-        driverId:string,
-        bookingId:string,
-        requestId:string,
-        reason: string,
-        timestamp: Date,
+export interface AddEarningsRequest {
+  driverId: string;
+  adminShare: string;
+  driverShare: string;
+  transactionId: string;
+}
+
+export interface increaseCancelCountReq {
+  driverId: string;
+  bookingId: string;
+  requestId: string;
+  reason: string;
+  timestamp: Date;
 }

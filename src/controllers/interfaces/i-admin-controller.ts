@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
 export interface IAdminController {
-    getDriversListByAccountStatus(req: Request, res: Response, _next: NextFunction):Promise<void>;
-    adminUpdateDriverAccountStatus(req: Request, res: Response, _next: NextFunction):Promise<void>;
-    adminGetDriverDetailsById(req: Request, res: Response, _next: NextFunction):Promise<void>;
-}   
+  getDriversList(req: Request, res: Response, _next: NextFunction): Promise<void>;
+  UpdateDriverAccountStatus(req: Request, res: Response, _next: NextFunction): Promise<void>;
+  GetDriverDetails(req: Request, res: Response, _next: NextFunction): Promise<void>;
+}
