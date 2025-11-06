@@ -1,4 +1,4 @@
-    export interface PaymentResponse {
-    status: string;
-    message: string;
-    }
+export interface PaymentResponse {
+  status: string;
+  message: string;
+}

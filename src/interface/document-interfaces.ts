@@ -1,4 +1,3 @@
-
 export interface Aadhar {
   id: string;
   frontImageUrl: string;

@@ -1,98 +1,106 @@
-import { ILoginService } from "../../services/interfaces/i-login-service";
-import { ILoginController } from "../interfaces/i-login-controller";
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../types/inversify-types";
-import { NextFunction, Request, Response } from "express";
-import uploadToS3 from "../../utilities/s3";
-import { BadRequestError } from "@Pick2Me/shared";
+import { ILoginService } from '../../services/interfaces/i-login-service';
+import { ILoginController } from '../interfaces/i-login-controller';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../types/inversify-types';
+import { NextFunction, Request, Response } from 'express';
+import uploadToS3 from '../../utilities/s3';
+import { BadRequestError } from '@Pick2Me/shared';
 
 @injectable()
 export class LoginController implements ILoginController {
-  constructor(@inject(TYPES.LoginService)private _loginService: ILoginService) {}
+  constructor(@inject(TYPES.LoginService) private _loginService: ILoginService) {}
 
   checkLogin = async (req: Request, res: Response, _next: NextFunction) => {
     try {
       const mobile = req.body.mobile;
 
-      if(!mobile) BadRequestError("mobile number is missing")
-      
+      if (!mobile) BadRequestError('mobile number is missing');
+
       const response = await this._loginService.loginCheckDriver(mobile);
-     
+
       const { refreshToken, ...responseWithoutToken } = response;
 
       res.cookie('refreshToken', refreshToken, {
-              httpOnly: true,
-              sameSite: 'lax',
-              secure:false,
-              maxAge: 7 * 24 * 60 * 60 * 1000,
-            })
-            
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: false,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
       res.status(+response.status).json(responseWithoutToken);
-      
     } catch (error: unknown) {
-        _next(error);
+      _next(error);
     }
   };
 
-   checkGoogleLoginDriver = async(req: Request, res: Response, _next: NextFunction) =>{
+  checkGoogleLoginDriver = async (req: Request, res: Response, _next: NextFunction) => {
     try {
       const email = req.body.email;
-     if (!email) throw BadRequestError("Email is required");
+      if (!email) throw BadRequestError('Email is required');
 
       const response = await this._loginService.checkGoogleLoginDriver(email);
 
       const { refreshToken, ...responseWithoutToken } = response;
 
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: false,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
 
-            res.cookie('refreshToken', refreshToken, {
-              httpOnly: true,
-              sameSite: 'lax',
-              secure: false,
-              maxAge: 7 * 24 * 60 * 60 * 1000,
-            })
-            
       res.status(+response.status).json(responseWithoutToken);
     } catch (error: unknown) {
-     _next(error)
+      _next(error);
     }
-  }
+  };
 
-   getResubmissionDocuments= async(req: Request, res: Response, _next: NextFunction): Promise<void> => {
+  getResubmissionDocuments = async (
+    req: Request,
+    res: Response,
+    _next: NextFunction
+  ): Promise<void> => {
     try {
       const id = req.body.id;
-    if (!id) throw BadRequestError("Driver ID is required");
+      if (!id) throw BadRequestError('Driver ID is required');
 
       const response = await this._loginService.getResubmissionDocuments(id);
       console.log(response);
-      
-    res.status(+response.status).json(response);
-    } catch (error: unknown) {
-      _next(error)
-    }
-  }
 
-   postResubmissionDocuments = async(req: Request, res: Response, _next: NextFunction): Promise<void> =>{
+      res.status(+response.status).json(response);
+    } catch (error: unknown) {
+      _next(error);
+    }
+  };
+
+  postResubmissionDocuments = async (
+    req: Request,
+    res: Response,
+    _next: NextFunction
+  ): Promise<void> => {
     try {
-       const { driverId } = req.query;
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const { driverId } = req.query;
+      const files = req.files as {
+        [fieldname: string]: Express.Multer.File[];
+      };
       const body = req.body;
 
-      if (!driverId) throw BadRequestError("Driver ID is required");
-      if (!files) throw BadRequestError("Files are required");
+      if (!driverId) throw BadRequestError('Driver ID is required');
+      if (!files) throw BadRequestError('Files are required');
 
       const uploadPromises: Promise<string>[] = [];
       const fileFields = [
-        "aadharFrontImage",
-        "aadharBackImage",
-        "licenseFrontImage",
-        "licenseBackImage",
-        "rcFrontImage",
-        "rcBackImage",
-        "carFrontImage",
-        "carBackImage",
-        "insuranceImage",
-        "pollutionImage",
-        "driverImage",
+        'aadharFrontImage',
+        'aadharBackImage',
+        'licenseFrontImage',
+        'licenseBackImage',
+        'rcFrontImage',
+        'rcBackImage',
+        'carFrontImage',
+        'carBackImage',
+        'insuranceImage',
+        'pollutionImage',
+        'driverImage',
       ];
 
       const fileUrls: { [key: string]: string } = {};
@@ -115,12 +123,12 @@ export class LoginController implements ILoginController {
         ...body,
         ...fileUrls,
       };
-      
+
       const response = await this._loginService.postResubmissionDocuments(payload);
-      
-     res.status(+response.status).json(response);
+
+      res.status(+response.status).json(response);
     } catch (error: unknown) {
-      _next(error)
+      _next(error);
     }
-  }
+  };
 }

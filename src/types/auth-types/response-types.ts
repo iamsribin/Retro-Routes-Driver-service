@@ -1,5 +1,5 @@
-import { StatusCode } from "@Pick2Me/shared";
-import { ResubmissionInterface } from "../../interface/resubmission.interface";
+import { StatusCode } from '@Pick2Me/shared';
+import { ResubmissionInterface } from '../../interface/resubmission.interface';
 
 export interface CheckLoginDriverRes {
   status: StatusCode;
@@ -16,13 +16,7 @@ export interface CheckRegisterDriverRes {
   message: string;
   isFullyRegistered?: boolean;
   driverId?: string;
-  nextStep?:
-    | "documents"
-    | "driverImage"
-    | "location"
-    | "insurance"
-    | "vehicle"
-    | null;
+  nextStep?: 'documents' | 'driverImage' | 'location' | 'insurance' | 'vehicle' | null;
 }
 
 export interface GetResubmissionDocumentsRes {

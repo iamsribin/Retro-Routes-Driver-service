@@ -1,4 +1,4 @@
-import { DriverInterface } from "../interface/driver.interface";
+import { DriverInterface } from '../interface/driver.interface';
 
 export interface DriverListDTO {
   id: string;
@@ -6,20 +6,14 @@ export interface DriverListDTO {
   email: string;
   mobile: number;
   joiningDate: string;
-  accountStatus:
-    | "Good"
-    | "Warning"
-    | "Rejected"
-    | "Blocked"
-    | "Pending"
-    | "Incomplete"; 
+  accountStatus: 'Good' | 'Warning' | 'Rejected' | 'Blocked' | 'Pending' | 'Incomplete';
   vehicle: string;
   driverImage: string;
 }
 
-export interface PaginatedUserListDTO{
-  drivers:DriverListDTO[],
-  pagination: Pagination
+export interface PaginatedUserListDTO {
+  drivers: DriverListDTO[];
+  pagination: Pagination;
 }
 
 export interface Pagination {
@@ -33,7 +27,7 @@ export interface Pagination {
 
 export interface AdminDriverDetailsDTO {
   data:
-    | (Omit<DriverInterface, "password" | "referralCode" | "_id"> & {
+    | (Omit<DriverInterface, 'password' | 'referralCode' | '_id'> & {
         _id: string;
       })
     | null;

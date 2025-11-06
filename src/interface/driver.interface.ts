@@ -1,12 +1,12 @@
-import { ObjectId, Document } from "mongoose";
+import { ObjectId, Document } from 'mongoose';
 
 export enum AccountStatus {
-  Good = "Good",
-  Warning = "Warning",
-  Rejected = "Rejected",
-  Blocked = "Blocked",
-  Pending = "Pending",
-  Incomplete = "Incomplete",
+  Good = 'Good',
+  Warning = 'Warning',
+  Rejected = 'Rejected',
+  Blocked = 'Blocked',
+  Pending = 'Pending',
+  Incomplete = 'Incomplete',
 }
 
 export interface DriverRideStats {
@@ -15,7 +15,7 @@ export interface DriverRideStats {
   totalCancelledRides: number;
   totalEarnings: number;
   totalWorkingHours: number;
-  rideDetails: DriverInterface["rideDetails"];
+  rideDetails: DriverInterface['rideDetails'];
 }
 
 export interface DriverInterface extends Document {
@@ -31,7 +31,7 @@ export interface DriverInterface extends Document {
   joiningDate: Date;
   accountId: string;
   accountLinkUrl: string;
-  
+
   aadhar: {
     id: string;
     frontImageUrl: string;
@@ -79,7 +79,7 @@ export interface DriverInterface extends Document {
       date: Date;
       details: string;
       amount: number;
-      status: "credit" | "debit" | "failed";
+      status: 'credit' | 'debit' | 'failed';
       rideId: string;
     }[];
   };

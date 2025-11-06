@@ -1,3 +1,3 @@
-export type IRefreshTokenDto={
-    accessToken:string
-}
+export type IRefreshTokenDto = {
+  accessToken: string;
+};

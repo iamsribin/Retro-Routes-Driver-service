@@ -1,6 +1,9 @@
-import { commonRes } from "@Pick2Me/shared";
-import { postResubmissionDocumentsReq } from "../../types";
-import { CheckLoginDriverRes, GetResubmissionDocumentsRes } from "../../types/auth-types/response-types";
+import { commonRes } from '@Pick2Me/shared';
+import { postResubmissionDocumentsReq } from '../../types';
+import {
+  CheckLoginDriverRes,
+  GetResubmissionDocumentsRes,
+} from '../../types/auth-types/response-types';
 
 export interface ILoginService {
   loginCheckDriver(mobile: number): Promise<CheckLoginDriverRes>;

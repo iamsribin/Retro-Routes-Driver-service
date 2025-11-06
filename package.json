@@ -9,6 +9,7 @@
   "scripts": {
     "start": "nodemon ./src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write \"src/**/*.{js,ts,tsx,json,css,md}\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

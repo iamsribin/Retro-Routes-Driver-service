@@ -1,5 +1,13 @@
-import { commonRes } from "@Pick2Me/shared";
-import { CheckRegisterDriverRes, IdentificationUpdateReq, InsuranceUpdateReq, LocationUpdateReq, RegisterReq, UpdateDriverImageReq, VehicleUpdateReq } from '../../types';
+import { commonRes } from '@Pick2Me/shared';
+import {
+  CheckRegisterDriverRes,
+  IdentificationUpdateReq,
+  InsuranceUpdateReq,
+  LocationUpdateReq,
+  RegisterReq,
+  UpdateDriverImageReq,
+  VehicleUpdateReq,
+} from '../../types';
 import { IRefreshTokenDto } from '../../dto/auth/auth-response.dto';
 
 export interface IRegistrationService {
@@ -10,6 +18,5 @@ export interface IRegistrationService {
   vehicleUpdate(data: VehicleUpdateReq): Promise<commonRes>;
   vehicleInsurancePollutionUpdate(data: InsuranceUpdateReq): Promise<commonRes>;
   locationUpdate(data: LocationUpdateReq): Promise<commonRes>;
-  refreshToken(token:string):Promise<IRefreshTokenDto>
-
+  refreshToken(token: string): Promise<IRefreshTokenDto>;
 }
