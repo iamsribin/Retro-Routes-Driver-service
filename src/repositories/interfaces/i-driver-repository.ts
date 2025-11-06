@@ -2,10 +2,10 @@ import { FilterQuery } from 'mongoose';
 import { DriverInterface } from '../../interface/driver.interface';
 import {
   AddEarningsRequest,
-  IdentificationUpdateReq,
-  InsuranceUpdateReq,
+  IdentificationUpdateQuery,
+  InsuranceUpdateQuery,
   LocationUpdateReq,
-  VehicleUpdateReq,
+  VehicleUpdateQuery,
 } from '../../types';
 import { IMongoBaseRepository } from '@Pick2Me/shared';
 
@@ -19,11 +19,11 @@ export interface IDriverRepository extends IMongoBaseRepository<DriverInterface>
   ): Promise<DriverInterface | null>;
   getByIdWithProjection(id: string, projection: string): Promise<DriverInterface | null>;
   exists(filter: FilterQuery<DriverInterface>): Promise<boolean | null>;
-  updateIdentification(data: IdentificationUpdateReq): Promise<DriverInterface | null>;
-  vehicleUpdate(data: VehicleUpdateReq): Promise<DriverInterface | null>;
+  updateIdentification(data: IdentificationUpdateQuery): Promise<DriverInterface | null>;
+  vehicleUpdate(data: VehicleUpdateQuery): Promise<DriverInterface | null>;
   locationUpdate(data: LocationUpdateReq): Promise<DriverInterface | null>;
   updateDriverImage(data: { driverId: string; imageUrl: string }): Promise<DriverInterface | null>;
-  vehicleInsurancePollutionUpdate(data: InsuranceUpdateReq): Promise<DriverInterface | null>;
+  vehicleInsurancePollutionUpdate(data: InsuranceUpdateQuery): Promise<DriverInterface | null>;
   getDocuments(id: string): Promise<DriverInterface | null>;
   updateOnlineHours(driverId: string, hoursToAdd: number): Promise<void | null>;
   increaseCancelCount(driverId: string): Promise<void | null>;

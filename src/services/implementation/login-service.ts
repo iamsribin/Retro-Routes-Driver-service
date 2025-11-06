@@ -5,11 +5,11 @@ import { IDriverRepository } from '../../repositories/interfaces/i-driver-reposi
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../types/inversify-types';
 import { postResubmissionDocumentsReq } from '../../types';
+import { AccountStatus, DriverInterface } from '../../interface/driver.interface';
 import {
   CheckLoginDriverRes,
   GetResubmissionDocumentsRes,
 } from '../../types/auth-types/response-types';
-import { AccountStatus, DriverInterface } from '../../interface/driver.interface';
 import {
   AccessPayload,
   commonRes,
@@ -44,13 +44,13 @@ export class LoginService implements ILoginService {
 
         const refreshToken = generateJwtToken(
           payload,
-          process.env.JWT_REFRESH_TOKEN_SECRET as string,
+          process.env.TOKEN_SECRET as string,
           '7d'
         );
 
         const accessToken = generateJwtToken(
-          payload,
-          process.env.JWT_REFRESH_TOKEN_SECRET as string,
+          payload, 
+          process.env.TOKEN_SECRET as string,
           '3m'
         );
 
@@ -107,13 +107,13 @@ export class LoginService implements ILoginService {
 
       const refreshToken = generateJwtToken(
         payload,
-        process.env.JWT_REFRESH_TOKEN_SECRET as string,
+        process.env.TOKEN_SECRET as string,
         '7d'
       );
 
       const accessToken = generateJwtToken(
         payload,
-        process.env.JWT_REFRESH_TOKEN_SECRET as string,
+        process.env.TOKEN_SECRET as string,
         '3m'
       );
 

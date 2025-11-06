@@ -28,6 +28,7 @@ import {
   UnauthorizedError,
   verifyToken,
 } from '@Pick2Me/shared';
+import uploadToS3, { uploadToS3Public } from '../../utilities/s3';
 
 @injectable()
 export class RegistrationService implements IRegistrationService {
@@ -69,10 +70,7 @@ export class RegistrationService implements IRegistrationService {
   async refreshToken(token: string): Promise<IRefreshTokenDto> {
     try {
       if (!token) throw ForbiddenError('token not provided');
-      const payload = verifyToken(
-        token,
-        process.env.JWT_REFRESH_TOKEN_SECRET! as string
-      ) as AccessPayload;
+      const payload = verifyToken(token, process.env.TOKEN_SECRET! as string) as AccessPayload;
 
       const user = await this._driverRepo.findById(payload.id);
       if (!user) throw ForbiddenError('User not found');
@@ -83,7 +81,7 @@ export class RegistrationService implements IRegistrationService {
 
       const accessToken = generateJwtToken(
         { id: payload.id, role: payload.role },
-        process.env.JWT_REFRESH_TOKEN_SECRET! as string,
+        process.env.TOKEN_SECRET! as string,
         '3m'
       );
 
@@ -206,7 +204,35 @@ export class RegistrationService implements IRegistrationService {
 
   async identificationUpdate(data: IdentificationUpdateReq): Promise<commonRes> {
     try {
-      const updated = await this._driverRepo.updateIdentification(data);
+      const isRegistered = await this._driverRepo.findById(data.driverId);
+
+      if (!isRegistered) throw BadRequestError('please register before uploading identification');
+
+      let aadharFrontImage = 'sample';
+      let aadharBackImage = 'sample';
+      let licenseFrontImage = 'sample';
+      let licenseBackImage = 'sample';
+
+      [aadharFrontImage, aadharBackImage, licenseFrontImage, licenseBackImage] = await Promise.all([
+        uploadToS3(data.files['aadharFrontImage'][0]),
+        uploadToS3(data.files['aadharBackImage'][0]),
+        uploadToS3(data.files['licenseFrontImage'][0]),
+        uploadToS3(data.files['licenseBackImage'][0]),
+      ]);
+
+      const { files, ...documents } = data;
+
+      console.log(files);
+
+      const identificationData = {
+        ...documents,
+        aadharFrontImage,
+        aadharBackImage,
+        licenseFrontImage,
+        licenseBackImage,
+      };
+
+      const updated = await this._driverRepo.updateIdentification(identificationData);
 
       if (!updated) throw BadRequestError('Identification update failed');
 
@@ -224,9 +250,15 @@ export class RegistrationService implements IRegistrationService {
 
   async driverImageUpdate(data: UpdateDriverImageReq): Promise<commonRes> {
     try {
+      const isRegistered = await this._driverRepo.findById(data.driverId);
+
+      if (isRegistered) throw BadRequestError('Please register before uploading image');
+
+      const driverImageUrl = await uploadToS3Public(data.file);
+
       const updated = await this._driverRepo.updateDriverImage({
         driverId: data.driverId,
-        imageUrl: data.driverImageUrl,
+        imageUrl: driverImageUrl,
       });
 
       return updated
@@ -244,7 +276,34 @@ export class RegistrationService implements IRegistrationService {
 
   async vehicleUpdate(data: VehicleUpdateReq): Promise<commonRes> {
     try {
-      const updated = await this._driverRepo.vehicleUpdate(data);
+      const isRegistered = await this._driverRepo.findById(data.driverId);
+
+      if (!isRegistered) throw BadRequestError('register before uploading documents');
+
+      let rcFrondImageUrl = '';
+      let rcBackImageUrl = '';
+      let carFrondImageUrl = '';
+      let carBackImageUrl = '';
+
+      [rcFrondImageUrl, rcBackImageUrl, carFrondImageUrl, carBackImageUrl] = await Promise.all([
+        uploadToS3(data.files['rcFrontImage'][0]),
+        uploadToS3(data.files['rcBackImage'][0]),
+        uploadToS3(data.files['carFrontImage'][0]),
+        uploadToS3(data.files['carSideImage'][0]),
+      ]);
+      const { files, ...documents } = data;
+
+      console.log(files);
+
+      const vehicleData = {
+        ...documents,
+        rcFrondImageUrl,
+        rcBackImageUrl,
+        carFrondImageUrl,
+        carBackImageUrl,
+      };
+
+      const updated = await this._driverRepo.vehicleUpdate(vehicleData);
 
       return updated
         ? { status: StatusCode.OK, message: 'Success' }
@@ -272,7 +331,28 @@ export class RegistrationService implements IRegistrationService {
 
   async vehicleInsurancePollutionUpdate(data: InsuranceUpdateReq): Promise<commonRes> {
     try {
-      const updated = await this._driverRepo.vehicleInsurancePollutionUpdate(data);
+      const isRegistered = await this._driverRepo.findById(data.driverId);
+
+      if (!isRegistered) throw BadRequestError('register before submitting documents');
+
+      let pollutionImageUrl = '';
+      let insuranceImageUrl = '';
+
+      [pollutionImageUrl, insuranceImageUrl] = await Promise.all([
+        uploadToS3(data.files['pollutionImage'][0]),
+        uploadToS3(data.files['insuranceImage'][0]),
+      ]);
+      const { files, ...documents } = data;
+
+      console.log(files);
+
+      const pollutionDoc = {
+        pollutionImageUrl,
+        insuranceImageUrl,
+        ...documents,
+      };
+
+      const updated = await this._driverRepo.vehicleInsurancePollutionUpdate(pollutionDoc);
 
       if (!updated) throw BadRequestError('Update failed');
 

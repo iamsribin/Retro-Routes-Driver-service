@@ -6,10 +6,10 @@ import { DriverModel } from '../../model/driver.model';
 import { IDriverRepository } from '../interfaces/i-driver-repository';
 import {
   AddEarningsRequest,
-  IdentificationUpdateReq,
-  InsuranceUpdateReq,
+  IdentificationUpdateQuery,
+  InsuranceUpdateQuery,
   LocationUpdateReq,
-  VehicleUpdateReq,
+  VehicleUpdateQuery,
 } from '../../types';
 import { MongoBaseRepository, NotFoundError } from '@Pick2Me/shared';
 
@@ -131,7 +131,7 @@ export class DriverRepository
   /**
    * Update identification documents (Aadhar & License) for a driver.
    */
-  async updateIdentification(data: IdentificationUpdateReq): Promise<DriverInterface | null> {
+  async updateIdentification(data: IdentificationUpdateQuery): Promise<DriverInterface | null> {
     try {
       return this.update(data.driverId, {
         $set: {
@@ -176,7 +176,7 @@ export class DriverRepository
    *
    * NOTE: field names mirror schema fields. Keep them as-is to avoid breaking updates.
    */
-  async vehicleUpdate(data: VehicleUpdateReq): Promise<DriverInterface | null> {
+  async vehicleUpdate(data: VehicleUpdateQuery): Promise<DriverInterface | null> {
     try {
       return this.update(data.driverId, {
         $set: {
@@ -218,7 +218,7 @@ export class DriverRepository
   /**
    * Update vehicle insurance & pollution data.
    */
-  async vehicleInsurancePollutionUpdate(data: InsuranceUpdateReq): Promise<DriverInterface | null> {
+  async vehicleInsurancePollutionUpdate(data: InsuranceUpdateQuery): Promise<DriverInterface | null> {
     try {
       return this.update(data.driverId, {
         $set: {

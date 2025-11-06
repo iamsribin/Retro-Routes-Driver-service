@@ -4,7 +4,6 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from '../../types/inversify-types';
 import { BadRequestError, ForbiddenError, StatusCode } from '@Pick2Me/shared';
 import { NextFunction, Request, Response } from 'express';
-import uploadToS3, { uploadToS3Public } from '../../utilities/s3';
 
 @injectable()
 export class RegisterController implements IRegisterController {
@@ -69,30 +68,13 @@ export class RegisterController implements IRegisterController {
       const files = req.files as {
         [fieldname: string]: Express.Multer.File[];
       };
-      let aadharFrontImage = 'sample';
-      let aadharBackImage = 'sample';
-      let licenseFrontImage = 'sample';
-      let licenseBackImage = 'sample';
-
+      
       if (!files) throw BadRequestError('Files are required');
-
-      if (files) {
-        [aadharFrontImage, aadharBackImage, licenseFrontImage, licenseBackImage] =
-          await Promise.all([
-            uploadToS3(files['aadharFrontImage'][0]),
-            uploadToS3(files['aadharBackImage'][0]),
-            uploadToS3(files['licenseFrontImage'][0]),
-            uploadToS3(files['licenseBackImage'][0]),
-          ]);
-      }
 
       const data = {
         ...req.body,
         ...req.query,
-        aadharFrontImage,
-        aadharBackImage,
-        licenseFrontImage,
-        licenseBackImage,
+        files
       };
 
       const response = await this._registrationService.identificationUpdate(data);
@@ -104,24 +86,17 @@ export class RegisterController implements IRegisterController {
 
   updateDriverImage = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
-      const files: Express.Multer.File | undefined = req.file;
-      const rawDriverId = req.query.driverId;
+      const file: Express.Multer.File | undefined = req.file;
+      const driverId = req.query.driverId as string;
 
-      let url = 'sample';
-
-      if (!rawDriverId) throw BadRequestError('Driver ID is required');
-      if (!files) throw BadRequestError('Driver Image is required');
-
-      if (files) {
-        url = await uploadToS3Public(files);
-      }
-
-      const driverId = Array.isArray(rawDriverId) ? String(rawDriverId[0]) : String(rawDriverId);
+      if (!driverId) throw BadRequestError('Driver ID is required');
+      if (!file) throw BadRequestError('Driver Image is required');
 
       const request = {
         driverId: driverId?.toString(),
-        driverImageUrl: url,
+        file: file,
       };
+
       const response = await this._registrationService.driverImageUpdate(request);
       res.status(+response.status).json(response);
     } catch (error) {
@@ -134,28 +109,15 @@ export class RegisterController implements IRegisterController {
       const files = req.files as {
         [fieldname: string]: Express.Multer.File[];
       };
-      let rcFrondImageUrl = '';
-      let rcBackImageUrl = '';
-      let carFrondImageUrl = '';
-      let carBackImageUrl = '';
 
-      if (files) {
-        [rcFrondImageUrl, rcBackImageUrl, carFrondImageUrl, carBackImageUrl] = await Promise.all([
-          uploadToS3(files['rcFrontImage'][0]),
-          uploadToS3(files['rcBackImage'][0]),
-          uploadToS3(files['carFrontImage'][0]),
-          uploadToS3(files['carSideImage'][0]),
-        ]);
-      }
+      if(!files) throw BadRequestError("some fields are missing")
 
       const request = {
         ...req.body,
         ...req.query,
-        rcFrondImageUrl,
-        rcBackImageUrl,
-        carFrondImageUrl,
-        carBackImageUrl,
+        files
       };
+
       const response = await this._registrationService.vehicleUpdate(request);
       res.status(+response.status).json(response);
     } catch (error) {
@@ -172,25 +134,25 @@ export class RegisterController implements IRegisterController {
       const files = req.files as {
         [fieldname: string]: Express.Multer.File[];
       };
-      let pollutionImageUrl = '';
-      let insuranceImageUrl = '';
-
+      
       if (!files) throw BadRequestError('Files are required');
+      // let pollutionImageUrl = '';
+      // let insuranceImageUrl = '';
 
-      if (files) {
-        [pollutionImageUrl, insuranceImageUrl] = await Promise.all([
-          uploadToS3(files['pollutionImage'][0]),
-          uploadToS3(files['insuranceImage'][0]),
-        ]);
-      }
+      // if (files) {
+      //   [pollutionImageUrl, insuranceImageUrl] = await Promise.all([
+      //     uploadToS3(files['pollutionImage'][0]),
+      //     uploadToS3(files['insuranceImage'][0]),
+      //   ]);
+      // }
 
       const request = {
         ...req.query,
         ...req.body,
-        pollutionImageUrl,
-        insuranceImageUrl,
+        files
       };
-      console.log('request==', request);
+      // pollutionImageUrl,
+      // insuranceImageUrl,
 
       const response = await this._registrationService.vehicleInsurancePollutionUpdate(request);
       res.status(+response.status).json(response);

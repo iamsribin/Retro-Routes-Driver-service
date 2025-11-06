@@ -26,7 +26,7 @@ const startServer = async () => {
 
     //listen to port
     app.listen(process.env.PORT, () =>
-      console.log(`User service running on port ${process.env.PORT}`)
+      console.log(`Driver service running on port ${process.env.PORT}`)
     );
   } catch (err: unknown) {
     console.log(err);
