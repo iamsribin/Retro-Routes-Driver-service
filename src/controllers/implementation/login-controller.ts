@@ -18,13 +18,20 @@ export class LoginController implements ILoginController {
 
       const response = await this._loginService.loginCheckDriver(mobile);
 
-      const { refreshToken, ...responseWithoutToken } = response;
+      const { refreshToken, token, ...responseWithoutToken } = response;
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        sameSite: 'lax',
-        secure: false,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, //7 day
+      });
+
+      res.cookie('accessToken', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 3 * 60 * 1000, //3 min
       });
 
       res.status(+response.status).json(responseWithoutToken);
@@ -40,13 +47,20 @@ export class LoginController implements ILoginController {
 
       const response = await this._loginService.checkGoogleLoginDriver(email);
 
-      const { refreshToken, ...responseWithoutToken } = response;
+      const { refreshToken, token, ...responseWithoutToken } = response;
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        sameSite: 'lax',
-        secure: false,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, //7 day
+      });
+
+      res.cookie('accessToken', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 3 * 60 * 1000, //3 min
       });
 
       res.status(+response.status).json(responseWithoutToken);

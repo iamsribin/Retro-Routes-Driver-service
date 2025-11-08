@@ -2,7 +2,7 @@ import { IRegisterController } from '../interfaces/i-register-controller';
 import { IRegistrationService } from '../../services/interfaces/i-registration-service';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../types/inversify-types';
-import { BadRequestError, ForbiddenError, StatusCode } from '@Pick2Me/shared';
+import { BadRequestError } from '@Pick2Me/shared';
 import { NextFunction, Request, Response } from 'express';
 
 @injectable()
@@ -32,19 +32,6 @@ export class RegisterController implements IRegisterController {
     }
   };
 
-  refreshToken = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const refreshToken = req.cookies.refreshToken;
-
-      if (!refreshToken) throw ForbiddenError('No refresh token provided');
-
-      const accessToken = await this._registrationService.refreshToken(refreshToken);
-      res.status(200).json(accessToken);
-    } catch (err: unknown) {
-      next(err);
-    }
-  };
-
   checkRegisterDriver = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
       const { mobile } = req.body;
@@ -68,13 +55,13 @@ export class RegisterController implements IRegisterController {
       const files = req.files as {
         [fieldname: string]: Express.Multer.File[];
       };
-      
+
       if (!files) throw BadRequestError('Files are required');
 
       const data = {
         ...req.body,
         ...req.query,
-        files
+        files,
       };
 
       const response = await this._registrationService.identificationUpdate(data);
@@ -110,12 +97,12 @@ export class RegisterController implements IRegisterController {
         [fieldname: string]: Express.Multer.File[];
       };
 
-      if(!files) throw BadRequestError("some fields are missing")
+      if (!files) throw BadRequestError('some fields are missing');
 
       const request = {
         ...req.body,
         ...req.query,
-        files
+        files,
       };
 
       const response = await this._registrationService.vehicleUpdate(request);
@@ -134,45 +121,19 @@ export class RegisterController implements IRegisterController {
       const files = req.files as {
         [fieldname: string]: Express.Multer.File[];
       };
-      
-      if (!files) throw BadRequestError('Files are required');
-      // let pollutionImageUrl = '';
-      // let insuranceImageUrl = '';
 
-      // if (files) {
-      //   [pollutionImageUrl, insuranceImageUrl] = await Promise.all([
-      //     uploadToS3(files['pollutionImage'][0]),
-      //     uploadToS3(files['insuranceImage'][0]),
-      //   ]);
-      // }
+      if (!files) throw BadRequestError('Files are required');
 
       const request = {
         ...req.query,
         ...req.body,
-        files
+        files,
       };
-      // pollutionImageUrl,
-      // insuranceImageUrl,
 
       const response = await this._registrationService.vehicleInsurancePollutionUpdate(request);
       res.status(+response.status).json(response);
     } catch (error) {
       _next(error);
-    }
-  };
-
-  logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      console.log('logout');
-
-      res.clearCookie('refreshToken');
-      res.status(StatusCode.OK).json({
-        message: 'successfully logged out',
-      });
-    } catch (err) {
-      console.log('err', err);
-
-      next(err);
     }
   };
 
@@ -185,4 +146,32 @@ export class RegisterController implements IRegisterController {
       _next(error);
     }
   };
+
+  // logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  //   try {
+  //     console.log('logout');
+
+  //     res.clearCookie('refreshToken');
+  //     res.status(StatusCode.OK).json({
+  //       message: 'successfully logged out',
+  //     });
+  //   } catch (err) {
+  //     console.log('err', err);
+
+  //     next(err);
+  //   }
+  // };
+
+  // refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+  //   try {
+  //     const refreshToken = req.cookies.refreshToken;
+
+  //     if (!refreshToken) throw ForbiddenError('No refresh token provided');
+
+  //     const accessToken = await this._registrationService.refreshToken(refreshToken);
+  //     res.status(200).json(accessToken);
+  //   } catch (err: unknown) {
+  //     next(err);
+  //   }
+  // };
 }

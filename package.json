@@ -25,6 +25,7 @@
     "@types/nodemailer": "^6.4.17",
     "amqplib": "^0.10.8",
     "bcryptjs": "^3.0.2",
+    "class-transformer": "^0.5.1",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",

@@ -73,8 +73,8 @@ authRouter.post(
   catchAsync(registrationController.vehicleInsurancePollutionUpdate)
 );
 
-authRouter.get('/refresh', catchAsync(registrationController.refreshToken));
+// authRouter.get('/refresh', catchAsync(registrationController.refreshToken));
 
-authRouter.delete('/logout', catchAsync(registrationController.logout));
+// authRouter.delete('/logout', catchAsync(registrationController.logout));
 
 export { authRouter };

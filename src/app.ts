@@ -2,7 +2,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import { authRouter } from './routes/authRoutes';
 import { driverRouter } from './routes/driverRoutes';
-// import { adminRouter } from './routes/adminRoutes';
+import { adminRouter } from './routes/adminRoutes';
 import { errorHandler } from '@Pick2Me/shared';
 
 // create app
@@ -15,7 +15,7 @@ app.use(cookieParser());
 // routes
 app.use('/', authRouter);
 app.use('/', driverRouter);
-// app.use('/', adminRouter);
+app.use('/', adminRouter);
 
 // error handler
 app.use(errorHandler);

@@ -44,13 +44,13 @@ export class LoginService implements ILoginService {
 
         const refreshToken = generateJwtToken(
           payload,
-          process.env.TOKEN_SECRET as string,
+          process.env.REFRESH_TOKEN_SECRET as string,
           '7d'
         );
 
         const accessToken = generateJwtToken(
-          payload, 
-          process.env.TOKEN_SECRET as string,
+          payload,
+          process.env.ACCESS_TOKEN_SECRET as string,
           '3m'
         );
 
@@ -107,13 +107,12 @@ export class LoginService implements ILoginService {
 
       const refreshToken = generateJwtToken(
         payload,
-        process.env.TOKEN_SECRET as string,
+        process.env.REFRESH_TOKEN_SECRET as string,
         '7d'
       );
-
       const accessToken = generateJwtToken(
         payload,
-        process.env.TOKEN_SECRET as string,
+        process.env.ACCESS_TOKEN_SECRET as string,
         '3m'
       );
 

@@ -8,29 +8,39 @@ import { BadRequestError } from '@Pick2Me/shared';
 
 @injectable()
 export class AdminController implements IAdminController {
-  constructor(@inject(TYPES.AdminRepository) private _adminService: IAdminService) {}
+  constructor(@inject(TYPES.AdminService) private _adminService: IAdminService) {}
 
-
-  getDriversList = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
+  getDriversList = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { page = 1, limit = 10, search = '', status } = req.query;
+      const page = Math.max(1, Number(req.query.page) || 1);
+      const limit = Math.min(100, Number(req.query.limit) || 6);
+      const status = req.query.status;
 
-      const data = {
-        status: status as 'Good' | 'Block',
-        page: page as number,
-        limit: limit as number,
-        search: search.toString().trim(),
-      };
+      const search = String(req.query.search || '');
 
-      const response = await this._adminService.getDriversListByAccountStatus(data);
+      const result = await this._adminService.getDriversList(
+        status as 'Good' | 'Block' | 'Pending',
+        page,
+        limit,
+        String(search).trim()
+      );
 
-      res.status(+response.status).json(response.data);
-    } catch (error) {
-      _next(error);
+      console.log('result', result);
+
+      res.status(200).json({
+        users: result.drivers || [],
+        pagination: result.pagination || {
+          currentPage: page,
+          totalPages: 1,
+          totalItems: 0,
+          itemsPerPage: limit,
+        },
+      });
+    } catch (err) {
+      next(err);
     }
   };
 
-  
   async GetDriverDetails(req: Request, res: Response, _next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
@@ -47,7 +57,6 @@ export class AdminController implements IAdminController {
       _next(error);
     }
   }
-
 
   async UpdateDriverAccountStatus(req: Request, res: Response, _next: NextFunction): Promise<void> {
     try {

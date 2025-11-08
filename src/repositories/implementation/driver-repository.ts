@@ -1,9 +1,9 @@
 import { FilterQuery, UpdateQuery } from 'mongoose';
 import { injectable } from 'inversify';
-
 import { DriverInterface } from '../../interface/driver.interface';
 import { DriverModel } from '../../model/driver.model';
 import { IDriverRepository } from '../interfaces/i-driver-repository';
+import { MongoBaseRepository, NotFoundError } from '@Pick2Me/shared';
 import {
   AddEarningsRequest,
   IdentificationUpdateQuery,
@@ -11,7 +11,6 @@ import {
   LocationUpdateReq,
   VehicleUpdateQuery,
 } from '../../types';
-import { MongoBaseRepository, NotFoundError } from '@Pick2Me/shared';
 
 @injectable()
 export class DriverRepository
@@ -22,9 +21,6 @@ export class DriverRepository
     super(DriverModel);
   }
 
-  /**
-   * Find driver by email.
-   */
   async getByEmail(email: string): Promise<DriverInterface | null> {
     try {
       return this.findOne({ email });
@@ -33,9 +29,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Find driver by mobile number.
-   */
   async getByMobile(mobile: number): Promise<DriverInterface | null> {
     try {
       return this.findOne({ mobile });
@@ -44,9 +37,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Find active driver by id (isAvailable === true).
-   */
   async getActiveById(id: string): Promise<DriverInterface | null> {
     try {
       return this.findOne({ _id: id, isAvailable: true });
@@ -55,9 +45,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Update driver profile by id.
-   */
   async updateProfileById(
     id: string,
     updateData: UpdateQuery<DriverInterface>
@@ -69,9 +56,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Update a single driver matched by filter.
-   */
   async updateOneDriver(
     filter: FilterQuery<DriverInterface>,
     updateData: UpdateQuery<DriverInterface>
@@ -83,9 +67,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Delete driver by id.
-   */
   async deleteDriverById(id: string): Promise<boolean | null> {
     try {
       return this.delete(id);
@@ -94,9 +75,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Get multiple drivers with an optional filter.
-   */
   async getDrivers(filter: FilterQuery<DriverInterface> = {}): Promise<DriverInterface[] | null> {
     try {
       return this.find(filter);
@@ -105,9 +83,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Get driver by id with a projection string.
-   */
   async getByIdWithProjection(id: string, projection: string): Promise<DriverInterface | null> {
     try {
       return this.findById(id, projection);
@@ -116,9 +91,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Check existence of a driver matching the filter.
-   */
   async exists(filter: FilterQuery<DriverInterface>): Promise<boolean | null> {
     try {
       const driver = await this.findOne(filter);
@@ -128,9 +100,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Update identification documents (Aadhar & License) for a driver.
-   */
   async updateIdentification(data: IdentificationUpdateQuery): Promise<DriverInterface | null> {
     try {
       return this.update(data.driverId, {
@@ -153,9 +122,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Update driver's profile image URL.
-   */
   async updateDriverImage(data: {
     driverId: string;
     imageUrl: string;
@@ -171,11 +137,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Update vehicle basic details.
-   *
-   * NOTE: field names mirror schema fields. Keep them as-is to avoid breaking updates.
-   */
   async vehicleUpdate(data: VehicleUpdateQuery): Promise<DriverInterface | null> {
     try {
       return this.update(data.driverId, {
@@ -197,9 +158,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Update driver's location and mark accountStatus as Pending.
-   */
   async locationUpdate(data: LocationUpdateReq): Promise<DriverInterface | null> {
     try {
       return this.update(data.driverId, {
@@ -215,10 +173,9 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Update vehicle insurance & pollution data.
-   */
-  async vehicleInsurancePollutionUpdate(data: InsuranceUpdateQuery): Promise<DriverInterface | null> {
+  async vehicleInsurancePollutionUpdate(
+    data: InsuranceUpdateQuery
+  ): Promise<DriverInterface | null> {
     try {
       return this.update(data.driverId, {
         $set: {
@@ -235,9 +192,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Fetch driver documents (aadhar, license, vehicleDetails).
-   */
   async getDocuments(id: string): Promise<DriverInterface | null> {
     try {
       return this.findById(id, 'aadhar license vehicleDetails');
@@ -246,14 +200,10 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Increment the driver's online hours for today.
-   * If a rideDetails entry for today exists, increment it; otherwise push a new entry.
-   */
   async updateOnlineHours(driverId: string, hoursToAdd: number): Promise<void | null> {
     try {
       const today = new Date();
-      today.setHours(0, 0, 0, 0); // normalize to midnight
+      today.setHours(0, 0, 0, 0);
 
       const driver = await DriverModel.findOne({
         _id: driverId,
@@ -261,13 +211,11 @@ export class DriverRepository
       });
 
       if (driver) {
-        // update existing day entry
         await DriverModel.updateOne(
           { _id: driverId, 'rideDetails.date': { $gte: today } },
           { $inc: { 'rideDetails.$.hour': hoursToAdd } }
         );
       } else {
-        // push new day entry
         await DriverModel.updateOne(
           { _id: driverId },
           {
@@ -288,10 +236,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Increase cancel count globally and for today's rideDetails entry.
-   * If today's entry doesn't exist, create it and increment the global counter.
-   */
   async increaseCancelCount(driverId: string): Promise<void | null> {
     try {
       const today = new Date();
@@ -303,7 +247,6 @@ export class DriverRepository
       });
 
       if (driver) {
-        // increment global + today's entry
         await DriverModel.updateOne(
           { _id: driverId, 'rideDetails.date': { $gte: today } },
           {
@@ -314,7 +257,6 @@ export class DriverRepository
           }
         );
       } else {
-        // increment global + add new entry
         await DriverModel.updateOne(
           { _id: driverId },
           {
@@ -336,12 +278,6 @@ export class DriverRepository
     }
   }
 
-  /**
-   * Add earnings for driver.
-   * - Try to increment today's rideDetails Earnings entry atomically.
-   * - If no entry exists for today, push a new entry and update adminCommission.
-   * - Throws NotFoundError if driver does not exist after push attempt.
-   */
   async addEarnings(data: AddEarningsRequest) {
     try {
       const { driverId, adminShare, driverShare } = data;
@@ -351,7 +287,6 @@ export class DriverRepository
       const endOfDay = new Date();
       endOfDay.setHours(23, 59, 59, 999);
 
-      // Try to increment an existing today's entry
       const updated = await DriverModel.findOneAndUpdate(
         {
           _id: driverId,
@@ -368,7 +303,6 @@ export class DriverRepository
 
       if (updated) return updated;
 
-      // If no today's entry existed, push new entry and increment adminCommission
       const pushed = await DriverModel.findOneAndUpdate(
         { _id: driverId },
         {

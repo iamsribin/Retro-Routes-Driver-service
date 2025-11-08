@@ -4,7 +4,6 @@ import { DriverInterface } from '../../interface/driver.interface';
 import { IRegistrationService } from '../interfaces/i-registration-service';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../types/inversify-types';
-import { IRefreshTokenDto } from '../../dto/auth/auth-response.dto';
 import {
   CheckRegisterDriverRes,
   IdentificationUpdateReq,
@@ -15,18 +14,13 @@ import {
   VehicleUpdateReq,
 } from '../../types';
 import {
-  AccessPayload,
   BadRequestError,
   bcryptService,
   commonRes,
-  ForbiddenError,
-  generateJwtToken,
   HttpError,
   InternalError,
   NotFoundError,
   StatusCode,
-  UnauthorizedError,
-  verifyToken,
 } from '@Pick2Me/shared';
 import uploadToS3, { uploadToS3Public } from '../../utilities/s3';
 
@@ -64,32 +58,6 @@ export class RegistrationService implements IRegistrationService {
       if (error instanceof HttpError) throw error;
 
       throw InternalError('Driver registration failed');
-    }
-  }
-
-  async refreshToken(token: string): Promise<IRefreshTokenDto> {
-    try {
-      if (!token) throw ForbiddenError('token not provided');
-      const payload = verifyToken(token, process.env.TOKEN_SECRET! as string) as AccessPayload;
-
-      const user = await this._driverRepo.findById(payload.id);
-      if (!user) throw ForbiddenError('User not found');
-
-      if (user.accountStatus === 'Blocked') {
-        throw UnauthorizedError('Your account has been blocked. Please contact support!');
-      }
-
-      const accessToken = generateJwtToken(
-        { id: payload.id, role: payload.role },
-        process.env.TOKEN_SECRET! as string,
-        '3m'
-      );
-
-      return { accessToken };
-    } catch (error: unknown) {
-      if (error instanceof HttpError) throw error;
-
-      throw InternalError('Failed to refresh access token');
     }
   }
 
@@ -365,4 +333,30 @@ export class RegistrationService implements IRegistrationService {
       throw InternalError('Failed to update insurance/pollution');
     }
   }
+
+  // async refreshToken(token: string): Promise<IRefreshTokenDto> {
+  //   try {
+  //     if (!token) throw ForbiddenError('token not provided');
+  //     const payload = verifyToken(token, process.env.TOKEN_SECRET! as string) as AccessPayload;
+
+  //     const user = await this._driverRepo.findById(payload.id);
+  //     if (!user) throw ForbiddenError('User not found');
+
+  //     if (user.accountStatus === 'Blocked') {
+  //       throw UnauthorizedError('Your account has been blocked. Please contact support!');
+  //     }
+
+  //     const accessToken = generateJwtToken(
+  //       { id: payload.id, role: payload.role },
+  //       process.env.TOKEN_SECRET! as string,
+  //       '3m'
+  //     );
+
+  //     return { accessToken };
+  //   } catch (error: unknown) {
+  //     if (error instanceof HttpError) throw error;
+
+  //     throw InternalError('Failed to refresh access token');
+  //   }
+  // }
 }

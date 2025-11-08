@@ -9,7 +9,8 @@ import { IDriverRepository } from '../../repositories/interfaces/i-driver-reposi
 import { createDriverConnectAccount } from '../../utilities/createStripeAccount';
 import { TYPES } from '../../types/inversify-types';
 import { inject, injectable } from 'inversify';
-import { AdminDriverDetailsDTO, DriverListDTO, PaginatedUserListDTO } from '../../dto/admin.dto';
+import { AdminDriverDetailsDTO, AdminDriverListDto } from '../../dto/admin.dto';
+import { plainToInstance } from 'class-transformer';
 import {
   HttpError,
   IMongoBaseRepository,
@@ -18,6 +19,7 @@ import {
   NotFoundError,
   StatusCode,
 } from '@Pick2Me/shared';
+import { DriverListDTO } from '../../dto/transformer.dto';
 
 @injectable()
 export class AdminService implements IAdminService {
@@ -28,78 +30,54 @@ export class AdminService implements IAdminService {
     private _resubmissionRepo: IMongoBaseRepository<ResubmissionInterface>
   ) {}
 
-  async getDriversListByAccountStatus(paginationQuery: {
-    status: 'Good' | 'Block';
-    page: number;
-    limit: number;
-    search: string;
-  }): Promise<IResponse<PaginatedUserListDTO>> {
+  async getDriversList(
+    status: 'Good' | 'Block' | 'Pending',
+    page: number = 1,
+    limit: number = 6,
+    search: string = ''
+  ): Promise<AdminDriverListDto> {
     try {
-      const validatedPage = Math.max(1, paginationQuery.page);
-      const validatedLimit = Math.min(50, Math.max(1, paginationQuery.limit));
-      const trimmedSearch = paginationQuery.search.trim();
+      const validatedPage = Math.max(1, page);
+      const validatedLimit = Math.min(50, Math.max(1, limit));
+      const trimmedSearch = search.trim();
 
-      const { drivers, totalItems } = await this._adminRepo.findUsersByStatusWithPagination(
-        paginationQuery.status,
+      const drivers = await this._adminRepo.findUsersByStatusWithPagination(
+        status,
         validatedPage,
         validatedLimit,
         trimmedSearch
       );
+      console.log(drivers);
 
-      if (!drivers.length) {
+      if (!drivers || !Array.isArray(drivers.drivers)) {
         return {
-          status: StatusCode.OK,
-          message: 'No drivers found',
-          data: {
-            drivers: [],
-            pagination: {
-              currentPage: validatedPage,
-              totalPages: 0,
-              totalItems: 0,
-              itemsPerPage: validatedLimit,
-              hasNextPage: false,
-              hasPreviousPage: false,
-            },
-          },
+          drivers: [],
+          pagination: null,
         };
       }
 
-      const result: DriverListDTO[] = drivers.map((driver) => ({
-        id: driver._id.toString(),
-        name: driver.name,
-        email: driver.email,
-        mobile: driver.mobile,
-        joiningDate: driver.joiningDate.toISOString(),
-        accountStatus: driver.accountStatus,
-        vehicle: driver.vehicleDetails.model,
-        driverImage: driver.driverImage,
-      }));
+      const totalCount = Number(drivers.totalItems || 0);
+      const totalPages = totalCount === 0 ? 1 : Math.ceil(totalCount / validatedLimit);
 
-      const totalPages = Math.ceil(totalItems / validatedLimit);
+      const pagination = {
+        currentPage: validatedPage,
+        totalPages,
+        totalItems: totalCount,
+        itemsPerPage: validatedLimit,
+        hasNextPage: validatedPage < totalPages,
+        hasPreviousPage: validatedPage > 1,
+      };
+
+      const transformedDrivers: DriverListDTO[] = plainToInstance(DriverListDTO, drivers.drivers, {
+        excludeExtraneousValues: true,
+      });
 
       return {
-        status: StatusCode.OK,
-        message: 'Driver list fetched successfully',
-        data: {
-          drivers: result,
-          pagination: {
-            currentPage: validatedPage,
-            totalPages,
-            totalItems,
-            itemsPerPage: validatedLimit,
-            hasNextPage: validatedPage < totalPages,
-            hasPreviousPage: validatedPage > 1,
-          },
-        },
+        drivers: transformedDrivers,
+        pagination,
       };
-    } catch (error: unknown) {
-      if (error instanceof HttpError) throw error;
-
-      throw InternalError('Failed to check Google login', {
-        details: {
-          cause: error instanceof Error ? error.message : String(error),
-        },
-      });
+    } catch {
+      throw InternalError('something went wrong');
     }
   }
 

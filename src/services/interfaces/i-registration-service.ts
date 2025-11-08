@@ -8,7 +8,6 @@ import {
   UpdateDriverImageReq,
   VehicleUpdateReq,
 } from '../../types';
-import { IRefreshTokenDto } from '../../dto/auth/auth-response.dto';
 
 export interface IRegistrationService {
   register(driverData: RegisterReq): Promise<commonRes>;
@@ -18,5 +17,5 @@ export interface IRegistrationService {
   vehicleUpdate(data: VehicleUpdateReq): Promise<commonRes>;
   vehicleInsurancePollutionUpdate(data: InsuranceUpdateReq): Promise<commonRes>;
   locationUpdate(data: LocationUpdateReq): Promise<commonRes>;
-  refreshToken(token: string): Promise<IRefreshTokenDto>;
+  // refreshToken(token: string): Promise<IRefreshTokenDto>;
 }

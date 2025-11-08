@@ -34,9 +34,9 @@ export interface IdentificationUpdateReq {
   aadharID: string;
   licenseID: string;
   licenseValidity: Date;
-    files: {
+  files: {
     [fieldname: string]: Express.Multer.File[];
-  }
+  };
 }
 
 export interface IdentificationUpdateQuery {
@@ -63,9 +63,9 @@ export interface VehicleUpdateReq {
   vehicleNumber: string;
   rcStartDate: string;
   rcExpiryDate: string;
-  files:{
+  files: {
     [fieldname: string]: Express.Multer.File[];
-  }
+  };
   // rcFrondImageUrl: string;
   // rcBackImageUrl: string;
   // carFrondImageUrl: string;
@@ -85,7 +85,6 @@ export interface VehicleUpdateQuery {
   carFrondImageUrl: string;
   carBackImageUrl: string;
 }
-
 
 export interface postResubmissionDocumentsReq {
   driverId: string;
@@ -119,16 +118,16 @@ export interface InsuranceUpdateReq {
   insuranceExpiryDate: Date;
   pollutionStartDate: Date;
   pollutionExpiryDate: Date;
-    files:{
+  files: {
     [fieldname: string]: Express.Multer.File[];
-  }
+  };
 }
 
-export interface InsuranceUpdateQuery{
+export interface InsuranceUpdateQuery {
   driverId: string;
   insuranceStartDate: Date;
   insuranceExpiryDate: Date;
-  pollutionExpiryDate:Date;
+  pollutionExpiryDate: Date;
   pollutionStartDate: Date;
   pollutionImageUrl: string;
   insuranceImageUrl: string;
