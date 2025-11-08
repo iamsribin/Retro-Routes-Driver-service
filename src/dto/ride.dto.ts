@@ -7,5 +7,5 @@ export interface OnlineDriverDTO {
   rating: number;
   vehicleNumber: string;
   driverImage: string;
-  mobile: number;
+  mobile: string;
 }

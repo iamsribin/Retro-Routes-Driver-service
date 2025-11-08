@@ -11,6 +11,7 @@ const adminRouter = Router();
 adminRouter.use(verifyGatewayJwt(true, process.env.GATEWAY_SHARED_SECRET!));
 
 adminRouter.get('/drivers', catchAsync(adminDriverController.getDriversList));
+adminRouter.get('/drivers/:id', catchAsync(adminDriverController.GetDriverDetails));
 
 // adminRouter.get('/driverDetails/:id', catchAsync(adminDriverController.adminGetDriverDetailsById));
 // adminRouter.post(

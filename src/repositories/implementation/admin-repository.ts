@@ -19,43 +19,49 @@ export class AdminRepository implements IAdminRepository {
     }
   }
 
-  async findUsersByStatusWithPagination(
-    status: 'Good' | 'Block',
-    page: number,
-    limit: number,
-    search: string
-  ): Promise<{
-    drivers: DriverInterface[];
-    totalItems: number;
-  }> {
-    try {
-      const query: FilterQuery<DriverInterface> = {
-        accountStatus: status,
-      };
+    async findUsersByStatusWithPagination(
+        status: 'Good' | 'Block',
+        page: number,
+        limit: number,
+        search: string
+    ): Promise<{
+        drivers: DriverInterface[];
+        totalItems: number;
+    }> {
+        try {
+            const query: FilterQuery<DriverInterface> = {
+                accountStatus: status,
+            };
 
-      if (search) {
-        const regex = new RegExp(search, 'i');
-        query.$or = [{ name: regex }, { email: regex }, { mobile: { $regex: regex } }];
-      }
+            if (search) {
+                const regex = new RegExp(search, 'i');
+                query.$or = [
+                    { name: regex },
+                    { email: regex },
+                    { mobile: { $regex: regex } },
+                ];
+            }
 
-      const skip = (page - 1) * limit;
+            const skip = (page - 1) * limit;
 
-      const [drivers, totalItems] = await Promise.all([
-        DriverModel.find(query)
-          .skip(skip)
-          .limit(limit)
-          .sort({ createdAt: -1 })
-          .select('name email mobile accountStatus joiningDate driverImage vehicleDetails.model'),
-        DriverModel.countDocuments(query),
-      ]);
+            const [drivers, totalItems] = await Promise.all([
+                DriverModel.find(query)
+                    .skip(skip)
+                    .limit(limit)
+                    .sort({ createdAt: -1 })
+                    .select(
+                        'name email mobile accountStatus joiningDate driverImage vehicleDetails.model'
+                    ),
+                DriverModel.countDocuments(query),
+            ]);
 
-      return {
-        drivers,
-        totalItems,
-      };
-    } catch (error) {
-      console.error('Repo Error:', error);
-      throw new Error('Failed to fetch drivers with pagination.');
+            return {
+                drivers,
+                totalItems,
+            };
+        } catch (error) {
+            console.error('Repo Error:', error);
+            throw new Error('Failed to fetch drivers with pagination.');
+        }
     }
-  }
 }

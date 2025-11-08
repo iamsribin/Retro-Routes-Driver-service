@@ -8,7 +8,7 @@ export interface IAdminRepository {
     limit: number,
     search: string
   ): Promise<{
-    drivers: DriverInterface[];
-    totalItems: number;
-  }>;
+        drivers: DriverInterface[];
+        totalItems: number;
+    }>;
 }

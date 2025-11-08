@@ -279,43 +279,43 @@ export class RideRepository implements IRideRepository {
     }
   }
 
-  async addFeedback(
-    driverId: string,
-    feedback: string,
-    rideId: string,
-    rating: number
-  ): Promise<DriverInterface | null> {
-    try {
-      const driver = await DriverModel.findById(driverId);
-      if (!driver) return null;
+  // async addFeedback(
+  //   driverId: string,
+  //   feedback: string,
+  //   rideId: string,
+  //   rating: number
+  // ): Promise<DriverInterface | null> {
+  //   try {
+  //     const driver = await DriverModel.findById(driverId);
+  //     if (!driver) return null;
 
-      const currentTotalRatings = driver.totalRatings || 0;
-      const currentFeedbackCount = driver.feedbacks?.length || 0;
-      const newTotalRating =
-        (currentTotalRatings * currentFeedbackCount + rating) / (currentFeedbackCount + 1);
+  //     const currentTotalRatings = driver.totalRatings || 0;
+  //     const currentFeedbackCount = driver.feedbacks?.length || 0;
+  //     const newTotalRating =
+  //       (currentTotalRatings * currentFeedbackCount + rating) / (currentFeedbackCount + 1);
 
-      const updatedDriver = await DriverModel.findByIdAndUpdate(
-        driverId,
-        {
-          $push: {
-            feedbacks: {
-              feedback,
-              rideId,
-              rating,
-              date: new Date(),
-            },
-          },
-          $set: { totalRatings: Number(newTotalRating.toFixed(2)) },
-        },
-        { new: true }
-      );
+  //     const updatedDriver = await DriverModel.findByIdAndUpdate(
+  //       driverId,
+  //       {
+  //         $push: {
+  //           feedbacks: {
+  //             feedback,
+  //             rideId,
+  //             rating,
+  //             date: new Date(),
+  //           },
+  //         },
+  //         $set: { totalRatings: Number(newTotalRating.toFixed(2)) },
+  //       },
+  //       { new: true }
+  //     );
 
-      return updatedDriver;
-    } catch (error) {
-      console.error('Error adding feedback:', error);
-      return null;
-    }
-  }
+  //     return updatedDriver;
+  //   } catch (error) {
+  //     console.error('Error adding feedback:', error);
+  //     return null;
+  //   }
+  // }
 
   async getDriverRideStats(
     driverId: string,

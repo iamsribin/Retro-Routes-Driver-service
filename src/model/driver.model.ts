@@ -4,10 +4,21 @@ import { AccountStatus, DriverInterface } from '../interface/driver.interface';
 const DriverSchema: Schema = new Schema(
   {
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    mobile: { type: Number, required: true, unique: true },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    },
+    mobile: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
     password: { type: String, required: true },
-    adminCommission: { type: Number, default: 0 },
     driverImage: { type: String },
     referralCode: { type: String },
     joiningDate: { type: Date, default: Date.now },
@@ -58,53 +69,23 @@ const DriverSchema: Schema = new Schema(
     accountStatus: {
       type: String,
       enum: Object.values(AccountStatus),
+      default: AccountStatus.Incomplete,
     },
 
     onlineStatus: { type: Boolean },
-
-    wallet: {
-      balance: { type: Number, default: 0 },
-      transactions: [
-        {
-          date: { type: Date },
-          details: { type: String },
-          amount: { type: Number },
-          status: { type: String },
-          rideId: { type: String },
-        },
-      ],
-    },
+    adminCommission: { type: Number, default: 0 },
 
     totalCompletedRides: { type: Number, default: 0 },
     totalCancelledRides: { type: Number, default: 0 },
 
-    rideDetails: [
-      {
-        completedRides: { type: Number, default: 0 },
-        cancelledRides: { type: Number, default: 0 },
-        Earnings: { type: Number },
-        hour: { type: Number },
-        date: { type: Date },
-      },
-    ],
-
     isAvailable: { type: Boolean, default: true },
-
     totalRatings: { type: Number, default: 0 },
 
-    feedbacks: [
-      {
-        feedback: { type: String },
-        rideId: { type: String },
-        rating: { type: Number },
-        date: { type: Date },
-      },
-    ],
+    ratingSum: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
 DriverSchema.index({ location: '2dsphere' });
-DriverSchema.index({ 'wallet.transactions.date': -1 });
 
 export const DriverModel = mongoose.model<DriverInterface>('Driver', DriverSchema);

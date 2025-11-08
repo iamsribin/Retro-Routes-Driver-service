@@ -24,7 +24,7 @@ export interface Id {
 export interface RegisterReq {
   name: string;
   email: string;
-  mobile: number;
+  mobile: string;
   password: string;
   referralCode: string;
 }

@@ -40,7 +40,7 @@ export class DriverService implements IDriverService {
       joiningDate: response.joiningDate.toISOString().split('T')[0],
       completedRides: response.totalCompletedRides || 0,
       cancelledRides: response.totalCancelledRides || 0,
-      walletBalance: response.wallet?.balance,
+      walletBalance: 0,
       adminCommission: response.adminCommission || 0,
     };
 

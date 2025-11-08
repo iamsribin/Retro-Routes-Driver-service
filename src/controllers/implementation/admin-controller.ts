@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from '../../types/inversify-types';
 import { NextFunction, Request, Response } from 'express';
 import { recursivelySignImageUrls } from '../../utilities/createImageUrl';
-import { BadRequestError } from '@Pick2Me/shared';
+import { BadRequestError, StatusCode } from '@Pick2Me/shared';
 
 @injectable()
 export class AdminController implements IAdminController {
@@ -18,39 +18,40 @@ export class AdminController implements IAdminController {
 
       const search = String(req.query.search || '');
 
-      const result = await this._adminService.getDriversList(
-        status as 'Good' | 'Block' | 'Pending',
-        page,
-        limit,
-        String(search).trim()
-      );
+        const data ={
+        status: status as "Good" | "Block",
+        page: page as number,
+        limit: limit as number,
+        search: search.toString().trim()
+      }
 
-      console.log('result', result);
+      const result = await this._adminService.getDriversList(data);
 
-      res.status(200).json({
+      console.log(result);
+
+
+      res.status(StatusCode.OK).json({
         users: result.drivers || [],
-        pagination: result.pagination || {
-          currentPage: page,
-          totalPages: 1,
-          totalItems: 0,
-          itemsPerPage: limit,
-        },
+        pagination: result.pagination,
       });
     } catch (err) {
       next(err);
     }
   };
 
-  async GetDriverDetails(req: Request, res: Response, _next: NextFunction): Promise<void> {
+   GetDriverDetails = async(req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
-
+      console.log(id);
+      
       if (!id) throw BadRequestError('id id required');
 
-      const response = await this._adminService.adminGetDriverDetailsById(id);
+      const response = await this._adminService.getDriverDetailsById(id);
       if (response.data) {
         await recursivelySignImageUrls(response.data as Record<string, unknown>);
       }
+      
+      console.log("response",response);
 
       res.status(+response.status).json(response.data);
     } catch (error: unknown) {

@@ -16,7 +16,7 @@ driverRouter.post('/handle-online-change', catchAsync(driverController.handleOnl
 
 driverRouter.get('/get-driver-profile', catchAsync(driverController.fetchDriverProfile));
 
-driverRouter.get('/get-my-documents', catchAsync(driverController.fetchDriverDocuments));
+driverRouter.get('/me/documents', catchAsync(driverController.fetchDriverDocuments));
 
 driverRouter.put(
   '/update-driver-profile',

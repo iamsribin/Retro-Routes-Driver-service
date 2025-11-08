@@ -9,8 +9,8 @@ import { IDriverRepository } from '../../repositories/interfaces/i-driver-reposi
 import { createDriverConnectAccount } from '../../utilities/createStripeAccount';
 import { TYPES } from '../../types/inversify-types';
 import { inject, injectable } from 'inversify';
-import { AdminDriverDetailsDTO, AdminDriverListDto } from '../../dto/admin.dto';
-import { plainToInstance } from 'class-transformer';
+import { AdminDriverDetailsDTO, DriverListDTO, PaginatedUserListDTO } from '../../dto/admin.dto';
+
 import {
   HttpError,
   IMongoBaseRepository,
@@ -19,7 +19,7 @@ import {
   NotFoundError,
   StatusCode,
 } from '@Pick2Me/shared';
-import { DriverListDTO } from '../../dto/transformer.dto';
+import { DriverInterface } from '../../interface/driver.interface';
 
 @injectable()
 export class AdminService implements IAdminService {
@@ -30,58 +30,73 @@ export class AdminService implements IAdminService {
     private _resubmissionRepo: IMongoBaseRepository<ResubmissionInterface>
   ) {}
 
-  async getDriversList(
-    status: 'Good' | 'Block' | 'Pending',
-    page: number = 1,
-    limit: number = 6,
-    search: string = ''
-  ): Promise<AdminDriverListDto> {
+  async getDriversList(paginationQuery: {
+    status: 'Good' | 'Block';
+    page: number;
+    limit: number;
+    search: string;
+  }): Promise<PaginatedUserListDTO> {
     try {
-      const validatedPage = Math.max(1, page);
-      const validatedLimit = Math.min(50, Math.max(1, limit));
-      const trimmedSearch = search.trim();
+      const validatedPage = Math.max(1, paginationQuery.page);
+      const validatedLimit = Math.min(50, Math.max(1, paginationQuery.limit));
+      const trimmedSearch = paginationQuery.search.trim();
 
-      const drivers = await this._adminRepo.findUsersByStatusWithPagination(
-        status,
+      const { drivers, totalItems } = await this._adminRepo.findUsersByStatusWithPagination(
+        paginationQuery.status,
         validatedPage,
         validatedLimit,
         trimmedSearch
       );
-      console.log(drivers);
 
-      if (!drivers || !Array.isArray(drivers.drivers)) {
+      if (!drivers.length) {
         return {
           drivers: [],
-          pagination: null,
+          pagination: {
+            currentPage: validatedPage,
+            totalPages: 0,
+            totalItems: 0,
+            itemsPerPage: validatedLimit,
+            hasNextPage: false,
+            hasPreviousPage: false,
+          },
         };
       }
 
-      const totalCount = Number(drivers.totalItems || 0);
-      const totalPages = totalCount === 0 ? 1 : Math.ceil(totalCount / validatedLimit);
+      const result: DriverListDTO[] = drivers.map((driver) => ({
+        id: driver._id.toString(),
+        name: driver.name,
+        email: driver.email,
+        mobile: driver.mobile,
+        joiningDate: driver.joiningDate.toISOString(),
+        accountStatus: driver.accountStatus,
+        vehicle: driver.vehicleDetails.model,
+        avatar: driver.driverImage,
+      }));
 
-      const pagination = {
-        currentPage: validatedPage,
-        totalPages,
-        totalItems: totalCount,
-        itemsPerPage: validatedLimit,
-        hasNextPage: validatedPage < totalPages,
-        hasPreviousPage: validatedPage > 1,
-      };
-
-      const transformedDrivers: DriverListDTO[] = plainToInstance(DriverListDTO, drivers.drivers, {
-        excludeExtraneousValues: true,
-      });
+      const totalPages = Math.ceil(totalItems / validatedLimit);
 
       return {
-        drivers: transformedDrivers,
-        pagination,
+        drivers: result,
+        pagination: {
+          currentPage: validatedPage,
+          totalPages,
+          totalItems,
+          itemsPerPage: validatedLimit,
+          hasNextPage: validatedPage < totalPages,
+          hasPreviousPage: validatedPage > 1,
+        },
       };
-    } catch {
-      throw InternalError('something went wrong');
+    } catch (error: unknown) {
+      if (error instanceof HttpError) throw error;
+      console.log(error);
+
+      throw InternalError('something went wrong', {
+        details: { cause: error instanceof Error ? error.message : String(error) },
+      });
     }
   }
 
-  async adminGetDriverDetailsById(id: string): Promise<IResponse<AdminDriverDetailsDTO['data']>> {
+  async getDriverDetailsById(id: string): Promise<IResponse<any>> {
     try {
       const response = await this._driverRepo.findById(id, '-password -referralCode');
 
@@ -89,20 +104,16 @@ export class AdminService implements IAdminService {
         throw NotFoundError('driver not found');
       }
 
-      const result = {
-        ...response.toObject(),
-        _id: response._id.toString(),
-      };
-
       return {
         message: 'success',
         status: StatusCode.OK,
-        data: result,
+        data: response,
       };
     } catch (error: unknown) {
+      console.log(error);
       if (error instanceof HttpError) throw error;
 
-      throw InternalError('Failed to check Google login', {
+      throw InternalError('something went wrong', {
         details: {
           cause: error instanceof Error ? error.message : String(error),
         },

@@ -15,7 +15,7 @@ app.use(cookieParser());
 // routes
 app.use('/', authRouter);
 app.use('/', driverRouter);
-app.use('/', adminRouter);
+app.use('/admin', adminRouter);
 
 // error handler
 app.use(errorHandler);

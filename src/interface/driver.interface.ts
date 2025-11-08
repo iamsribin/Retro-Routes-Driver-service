@@ -1,4 +1,3 @@
-import { ObjectId, Document } from 'mongoose';
 
 export enum AccountStatus {
   Good = 'Good',
@@ -15,17 +14,20 @@ export interface DriverRideStats {
   totalCancelledRides: number;
   totalEarnings: number;
   totalWorkingHours: number;
-  rideDetails: DriverInterface['rideDetails'];
+  // rideDetails: DriverInterface['rideDetails'];
 }
 
-export interface DriverInterface extends Document {
-  _id: ObjectId;
+import { Document, Types } from "mongoose";
+
+// Main driver interface
+export interface DriverInterface extends Document{
+  _id: Types.ObjectId;
 
   name: string;
   email: string;
-  mobile: number;
+  mobile: string;
   password: string;
-  adminCommission?: number;
+
   driverImage: string;
   referralCode: string;
   joiningDate: Date;
@@ -45,67 +47,46 @@ export interface DriverInterface extends Document {
     validity: Date;
   };
 
-  vehicleDetails: {
-    registrationId: string;
-    vehicleNumber: string;
-    vehicleColor: string;
-    model: string;
-    rcFrontImageUrl: string;
-    rcBackImageUrl: string;
-    carFrontImageUrl: string;
-    carBackImageUrl: string;
-    rcStartDate: Date;
-    rcExpiryDate: Date;
-    insuranceImageUrl: string;
-    insuranceStartDate: Date;
-    insuranceExpiryDate: Date;
-    pollutionImageUrl: string;
-    pollutionStartDate: Date;
-    pollutionExpiryDate: Date;
-  };
-
   location: {
     longitude: string;
     latitude: string;
     address: string;
   };
 
-  accountStatus: AccountStatus;
-  onlineStatus: boolean;
+  vehicleDetails: {
+    registrationId: string;
+    rcFrontImageUrl: string;
+    rcBackImageUrl: string;
+    rcStartDate: Date;
+    rcExpiryDate: Date;
 
-  wallet?: {
-    balance: number;
-    transactions: {
-      date: Date;
-      details: string;
-      amount: number;
-      status: 'credit' | 'debit' | 'failed';
-      rideId: string;
-    }[];
+    vehicleNumber: string;
+    vehicleColor: string;
+    model: string;
+    carFrontImageUrl: string;
+    carBackImageUrl: string;
+
+    insuranceImageUrl: string;
+    insuranceStartDate: Date;
+    insuranceExpiryDate: Date;
+
+    pollutionImageUrl: string;
+    pollutionStartDate: Date;
+    pollutionExpiryDate: Date;
   };
+
+  accountStatus: AccountStatus;
+  onlineStatus?: boolean;
+  adminCommission?: number;
 
   totalCompletedRides?: number;
   totalCancelledRides?: number;
-
-  rideDetails?: {
-    completedRides: number;
-    cancelledRides: number;
-    Earnings: number;
-    hour: number;
-    date: Date;
-  }[];
-
-  isAvailable: boolean;
+  isAvailable?: boolean;
 
   totalRatings?: number;
+  ratingSum?: number;
 
-  feedbacks?: {
-    feedback: string;
-    rideId: string;
-    rating: number;
-    date: Date;
-  }[];
-
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
+
