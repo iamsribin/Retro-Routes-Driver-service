@@ -60,7 +60,7 @@ export class AdminController implements IAdminController {
       const { note, status, fields } = req.body;
       console.log({id, note, status, fields });
 
-      if (!id || !note || !status || fields) throw BadRequestError('some fields is missing');
+      if (!id || !note || !status) throw BadRequestError('some fields is missing');
 
       const request = { id, reason: note, status, fields };
 

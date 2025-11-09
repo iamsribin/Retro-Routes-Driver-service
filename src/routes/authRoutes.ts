@@ -18,24 +18,24 @@ authRouter.post('/check-registration', catchAsync(registrationController.checkRe
 authRouter.post('/register', catchAsync(registrationController.register));
 //resubmission
 authRouter.get(
-  '/me/documents/resubmission/:id',
+  '/documents/resubmission/:id',
   catchAsync(loginController.getResubmissionDocuments)
 );
-authRouter.post(
-  '/me/documents/resubmission',
-  upload.fields([
-    { name: 'aadharFrontImage', maxCount: 1 },
-    { name: 'aadharBackImage', maxCount: 1 },
-    { name: 'licenseFrontImage', maxCount: 1 },
-    { name: 'licenseBackImage', maxCount: 1 },
-    { name: 'rcFrontImage', maxCount: 1 },
-    { name: 'rcBackImage', maxCount: 1 },
-    { name: 'carFrontImage', maxCount: 1 },
-    { name: 'carBackImage', maxCount: 1 },
-    { name: 'insuranceImage', maxCount: 1 },
-    { name: 'pollutionImage', maxCount: 1 },
-    { name: 'driverImage', maxCount: 1 },
-  ]),
+authRouter.put(
+  '/documents/resubmission/:id',upload.any(),
+  // upload.fields([
+  //   { name: 'aadharFrontImage', maxCount: 1 },
+  //   { name: 'aadharBackImage', maxCount: 1 },
+  //   { name: 'licenseFrontImage', maxCount: 1 },
+  //   { name: 'licenseBackImage', maxCount: 1 },
+  //   { name: 'rcFrontImage', maxCount: 1 },
+  //   { name: 'rcBackImage', maxCount: 1 },
+  //   { name: 'carFrontImage', maxCount: 1 },
+  //   { name: 'carBackImage', maxCount: 1 },
+  //   { name: 'insuranceImage', maxCount: 1 },
+  //   { name: 'pollutionImage', maxCount: 1 },
+  //   { name: 'driverImage', maxCount: 1 },
+  // ]),
   catchAsync(loginController.postResubmissionDocuments)
 );
 

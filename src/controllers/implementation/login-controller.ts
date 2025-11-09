@@ -3,7 +3,7 @@ import { ILoginController } from '../interfaces/i-login-controller';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../types/inversify-types';
 import { NextFunction, Request, Response } from 'express';
-import uploadToS3 from '../../utilities/s3';
+import uploadToS3, { uploadToS3Public } from '../../utilities/s3';
 import { BadRequestError } from '@Pick2Me/shared';
 
 @injectable()
@@ -44,8 +44,7 @@ export class LoginController implements ILoginController {
     try {
       const email = req.body.email;
       if (!email) throw BadRequestError('Email is required');
-       console.log("erem",email);
-       
+
       const response = await this._loginService.checkGoogleLoginDriver(email);
 
       const { refreshToken, token, ...responseWithoutToken } = response;
@@ -76,7 +75,8 @@ export class LoginController implements ILoginController {
     _next: NextFunction
   ): Promise<void> => {
     try {
-      const id = req.body.id;
+      const id = req.params.id;
+
       if (!id) throw BadRequestError('Driver ID is required');
 
       const response = await this._loginService.getResubmissionDocuments(id);
@@ -94,16 +94,23 @@ export class LoginController implements ILoginController {
     _next: NextFunction
   ): Promise<void> => {
     try {
-      const { driverId } = req.query;
-      const files = req.files as {
-        [fieldname: string]: Express.Multer.File[];
-      };
-      const body = req.body;
+      const driverId = req.params.id;
+      const rawFiles = req.files;
 
       if (!driverId) throw BadRequestError('Driver ID is required');
-      if (!files) throw BadRequestError('Files are required');
+      if (!rawFiles) throw BadRequestError('Files are required');
 
-      const uploadPromises: Promise<string>[] = [];
+      const filesMap: Record<string, Express.Multer.File[]> = {};
+
+      if (Array.isArray(rawFiles)) {
+        for (const f of rawFiles as Express.Multer.File[]) {
+          if (!filesMap[f.fieldname]) filesMap[f.fieldname] = [];
+          filesMap[f.fieldname].push(f);
+        }
+      } else {
+        Object.assign(filesMap, rawFiles as Record<string, Express.Multer.File[]>);
+      }
+
       const fileFields = [
         'aadharFrontImage',
         'aadharBackImage',
@@ -118,24 +125,42 @@ export class LoginController implements ILoginController {
         'driverImage',
       ];
 
+      const uploadPromises: Promise<void>[] = [];
       const fileUrls: { [key: string]: string } = {};
 
-      fileFields.forEach((field) => {
-        if (files[field]?.[0]) {
-          uploadPromises.push(
-            uploadToS3(files[field][0]).then((url) => {
+      for (const field of fileFields) {
+        const filesForField = filesMap[field];
+        if (!filesForField || filesForField.length === 0) continue;
+
+        const fileToUpload = filesForField[0];
+        if (field == 'driverImage') {
+          const p = uploadToS3Public(fileToUpload)
+            .then((url) => {
               fileUrls[field] = url;
-              return url;
             })
-          );
+            .catch((err) => {
+              throw err;
+            });
+
+          uploadPromises.push(p);
+        } else {
+          const p = uploadToS3(fileToUpload)
+            .then((url) => {
+              fileUrls[field] = url;
+            })
+            .catch((err) => {
+              throw err;
+            });
+
+          uploadPromises.push(p);
         }
-      });
+      }
 
       await Promise.all(uploadPromises);
 
       const payload = {
         driverId,
-        ...body,
+        ...req.body,
         ...fileUrls,
       };
 

@@ -118,7 +118,7 @@ export class AdminService implements IAdminService {
           insuranceStartDate: response.vehicleDetails.insuranceStartDate.toISOString(),
           insuranceImageUrl: response.vehicleDetails.insuranceImageUrl,
         },
-        joiningDate: response.joiningDate.toISOString(),
+        joiningDate:new Date(response.joiningDate).toLocaleDateString(),
         license: {
           validity: response.license.validity.toISOString(),
           backImageUrl: response.license.backImageUrl,
@@ -225,9 +225,9 @@ export class AdminService implements IAdminService {
         throw NotFoundError('Driver email not found');
       }
 
-      // const subjectAndText = generateStatusEmail(request.status, response.name, request.reason);
+      const subjectAndText = generateStatusEmail(request.status, response.name, request.reason);
 
-      // await sendMail(response.email, subjectAndText.subject, subjectAndText.text);
+      await sendMail(response.email, subjectAndText.subject, subjectAndText.text);
       return {
         status: StatusCode.OK,
         message: 'Success',
