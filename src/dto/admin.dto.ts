@@ -1,6 +1,6 @@
-// import { DriverInterface } from '../interface/driver.interface';
-
 import { AccountStatus } from '../interface/driver.interface';
+
+// import { DriverInterface } from '../interface/driver.interface';
 
 // export interface DriverListDTO {
 //   id: string;
@@ -25,6 +25,7 @@ export interface AdminDriverDetailsDTO {
   // deatils tab
   id:string;
   driverImage: string;
+  name:string;
   email: string;
   mobile: string;
   joiningDate: string;
@@ -33,7 +34,9 @@ export interface AdminDriverDetailsDTO {
   totalCompletedRides: number;
   totalCancelledRides: number;
   accountStatus: AccountStatus;
-
+  isOnline:boolean;
+  transactionCount:number;
+  feedbackCount:number;
   //  documents
   aadhar: {
     id: string;
@@ -45,7 +48,7 @@ export interface AdminDriverDetailsDTO {
     id: string;
     frontImageUrl: string;
     backImageUrl: string;
-    validity: Date;
+    validity: string;
   };
 
   rc: {

@@ -10,8 +10,10 @@ import { createDriverConnectAccount } from '../../utilities/createStripeAccount'
 import { TYPES } from '../../types/inversify-types';
 import { inject, injectable } from 'inversify';
 import { AdminDriverDetailsDTO, DriverListDTO, PaginatedUserListDTO } from '../../dto/admin.dto';
-
 import {
+  BadRequestError,
+  ConflictError,
+  getRedisService,
   HttpError,
   IMongoBaseRepository,
   InternalError,
@@ -19,7 +21,6 @@ import {
   NotFoundError,
   StatusCode,
 } from '@Pick2Me/shared';
-import { DriverInterface } from '../../interface/driver.interface';
 
 @injectable()
 export class AdminService implements IAdminService {
@@ -88,15 +89,13 @@ export class AdminService implements IAdminService {
       };
     } catch (error: unknown) {
       if (error instanceof HttpError) throw error;
-      console.log(error);
-
       throw InternalError('something went wrong', {
         details: { cause: error instanceof Error ? error.message : String(error) },
       });
     }
   }
 
-  async getDriverDetailsById(id: string): Promise<IResponse<any>> {
+  async getDriverDetailsById(id: string): Promise<IResponse<AdminDriverDetailsDTO>> {
     try {
       const response = await this._driverRepo.findById(id, '-password -referralCode');
 
@@ -104,10 +103,62 @@ export class AdminService implements IAdminService {
         throw NotFoundError('driver not found');
       }
 
+      const result: AdminDriverDetailsDTO = {
+        name: response.name,
+        aadhar: response.aadhar,
+        isOnline: response.onlineStatus || false,
+        accountStatus: response.accountStatus,
+        adminCommission: response.adminCommission || 0,
+        address: response.location.address,
+        driverImage: response.driverImage,
+        email: response.email,
+        id: response._id.toString(),
+        insurance: {
+          insuranceExpiryDate: response.vehicleDetails.insuranceExpiryDate.toISOString(),
+          insuranceStartDate: response.vehicleDetails.insuranceStartDate.toISOString(),
+          insuranceImageUrl: response.vehicleDetails.insuranceImageUrl,
+        },
+        joiningDate: response.joiningDate.toISOString(),
+        license: {
+          validity: response.license.validity.toISOString(),
+          backImageUrl: response.license.backImageUrl,
+          frontImageUrl: response.license.frontImageUrl,
+          id: response.license.id,
+        },
+        lifeTimeEarnings: 0,
+        mobile: response.mobile,
+        pollution: {
+          pollutionExpiryDate: response.vehicleDetails.pollutionExpiryDate.toISOString(),
+          pollutionStartDate: response.vehicleDetails.pollutionStartDate.toISOString(),
+          pollutionImageUrl: response.vehicleDetails.pollutionImageUrl,
+        },
+        todayEarnings: 0,
+        totalCancelledRides: 0,
+        totalCompletedRides: 0,
+        totalRating: 0,
+        feedbackCount: 0,
+        transactionCount: 0,
+        walletBalance: 0,
+        rc: {
+          rcBackImageUrl: response.vehicleDetails.rcBackImageUrl,
+          rcExpiryDate: response.vehicleDetails.rcExpiryDate.toISOString(),
+          rcFrontImageUrl: response.vehicleDetails.rcFrontImageUrl,
+          rcStartDate: response.vehicleDetails.rcStartDate.toISOString(),
+          registrationId: response.vehicleDetails.registrationId,
+        },
+        vehicle: {
+          carBackImageUrl: response.vehicleDetails.carBackImageUrl,
+          carFrontImageUrl: response.vehicleDetails.carFrontImageUrl,
+          model: response.vehicleDetails.model,
+          vehicleColor: response.vehicleDetails.vehicleColor,
+          vehicleNumber: response.vehicleDetails.vehicleNumber,
+        },
+      };
+
       return {
         message: 'success',
         status: StatusCode.OK,
-        data: response,
+        data: result,
       };
     } catch (error: unknown) {
       console.log(error);
@@ -121,11 +172,12 @@ export class AdminService implements IAdminService {
     }
   }
 
-  async adminUpdateDriverAccountStatus(
-    request: AdminUpdateDriverStatusReq
-  ): Promise<IResponse<boolean>> {
+  async updateAccountStatus(request: AdminUpdateDriverStatusReq): Promise<IResponse<boolean>> {
     try {
-      if (request.status === 'Rejected' && request.fields) {
+
+      // add resubmission fields if admin reject the documents
+      if (request.status === 'Rejected') {
+        if (!request.fields) throw BadRequestError('fields requires');
         const resubmissionData = {
           driverId: new mongoose.Types.ObjectId(request.id),
           fields: request.fields as ResubmissionInterface['fields'],
@@ -144,6 +196,7 @@ export class AdminService implements IAdminService {
           await this._resubmissionRepo.create(resubmissionData as ResubmissionInterface);
         }
       }
+
       const driver = await this._driverRepo.findById(request.id);
 
       if (!driver) throw NotFoundError('Driver not found');
@@ -155,15 +208,26 @@ export class AdminService implements IAdminService {
           : {}),
       };
 
+      const redisService = await getRedisService();
+      const isOnline = await redisService.isDriverOnline(request.id);
+
+      // checks driver currently online or not
+      if (isOnline && request.status === 'Blocked')
+        throw ConflictError('Driver is currently on a ride. Block after ride completion');
+
       const response = await this._driverRepo.update(request.id, updateData);
+
+      if (request.status == 'Blocked') {
+        redisService.addBlacklistedToken(request.id, 180);
+      }
 
       if (!response?.email) {
         throw NotFoundError('Driver email not found');
       }
 
-      const subjectAndText = generateStatusEmail(request.status, response.name, request.reason);
+      // const subjectAndText = generateStatusEmail(request.status, response.name, request.reason);
 
-      await sendMail(response.email, subjectAndText.subject, subjectAndText.text);
+      // await sendMail(response.email, subjectAndText.subject, subjectAndText.text);
       return {
         status: StatusCode.OK,
         message: 'Success',

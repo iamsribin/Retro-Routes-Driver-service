@@ -27,9 +27,6 @@ export class AdminController implements IAdminController {
 
       const result = await this._adminService.getDriversList(data);
 
-      console.log(result);
-
-
       res.status(StatusCode.OK).json({
         users: result.drivers || [],
         pagination: result.pagination,
@@ -44,31 +41,30 @@ export class AdminController implements IAdminController {
       const { id } = req.params;
       console.log(id);
       
-      if (!id) throw BadRequestError('id id required');
+      if (!id) throw BadRequestError('id required');
 
       const response = await this._adminService.getDriverDetailsById(id);
       if (response.data) {
-        await recursivelySignImageUrls(response.data as Record<string, unknown>);
+        await recursivelySignImageUrls(response.data as any);
       }
       
-      console.log("response",response);
-
       res.status(+response.status).json(response.data);
     } catch (error: unknown) {
       _next(error);
     }
   }
 
-  async UpdateDriverAccountStatus(req: Request, res: Response, _next: NextFunction): Promise<void> {
+   updateAccountStatus = async(req: Request, res: Response, _next: NextFunction): Promise<void> =>{
     try {
-      const id = req.params.id;
+      const id = req.params.driverId;
       const { note, status, fields } = req.body;
+      console.log({id, note, status, fields });
 
       if (!id || !note || !status || fields) throw BadRequestError('some fields is missing');
 
       const request = { id, reason: note, status, fields };
 
-      const response = await this._adminService.adminUpdateDriverAccountStatus(request);
+      const response = await this._adminService.updateAccountStatus(request);
       res.status(+response.status).json(response);
     } catch (error) {
       _next(error);

@@ -12,11 +12,17 @@ const loginController = container.get<LoginController>(TYPES.LoginController);
 
 const authRouter = express.Router();
 
-authRouter.get('/resubmission/:id', catchAsync(loginController.getResubmissionDocuments));
-authRouter.post('/checkLoginDriver', catchAsync(loginController.checkLogin));
-authRouter.post('/checkGoogleLoginDriver', catchAsync(loginController.checkGoogleLoginDriver));
+authRouter.post('/check-login-number', catchAsync(loginController.checkLogin));
+authRouter.post('/check-login-email', catchAsync(loginController.checkGoogleLoginDriver));
+authRouter.post('/check-registration', catchAsync(registrationController.checkRegisterDriver));
+authRouter.post('/register', catchAsync(registrationController.register));
+//resubmission
+authRouter.get(
+  '/me/documents/resubmission/:id',
+  catchAsync(loginController.getResubmissionDocuments)
+);
 authRouter.post(
-  '/resubmission',
+  '/me/documents/resubmission',
   upload.fields([
     { name: 'aadharFrontImage', maxCount: 1 },
     { name: 'aadharBackImage', maxCount: 1 },
@@ -33,11 +39,10 @@ authRouter.post(
   catchAsync(loginController.postResubmissionDocuments)
 );
 
-authRouter.post('/checkRegisterDriver', catchAsync(registrationController.checkRegisterDriver));
-authRouter.post('/registerDriver', catchAsync(registrationController.register));
-authRouter.post('/location', catchAsync(registrationController.location));
+authRouter.post('/location/register', catchAsync(registrationController.location));
+//documents
 authRouter.post(
-  '/identification',
+  '/identification/register',
   upload.fields([
     { name: 'aadharFrontImage', maxCount: 1 },
     { name: 'aadharBackImage', maxCount: 1 },
@@ -48,13 +53,13 @@ authRouter.post(
 );
 
 authRouter.post(
-  '/uploadDriverImage',
+  '/profile-image/register',
   upload.single('driverImage'),
   catchAsync(registrationController.updateDriverImage)
 );
 
 authRouter.post(
-  '/vehicleDetails',
+  '/vehicle/register',
   upload.fields([
     { name: 'rcFrontImage', maxCount: 1 },
     { name: 'rcBackImage', maxCount: 1 },
@@ -65,7 +70,7 @@ authRouter.post(
 );
 
 authRouter.post(
-  '/insuranceDetails',
+  '/insurance/register',
   upload.fields([
     { name: 'insuranceImage', maxCount: 1 },
     { name: 'pollutionImage', maxCount: 1 },
@@ -74,7 +79,6 @@ authRouter.post(
 );
 
 // authRouter.get('/refresh', catchAsync(registrationController.refreshToken));
-
 // authRouter.delete('/logout', catchAsync(registrationController.logout));
 
 export { authRouter };

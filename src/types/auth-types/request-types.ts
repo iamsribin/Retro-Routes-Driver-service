@@ -66,10 +66,6 @@ export interface VehicleUpdateReq {
   files: {
     [fieldname: string]: Express.Multer.File[];
   };
-  // rcFrondImageUrl: string;
-  // rcBackImageUrl: string;
-  // carFrondImageUrl: string;
-  // carBackImageUrl: string;
 }
 
 export interface VehicleUpdateQuery {

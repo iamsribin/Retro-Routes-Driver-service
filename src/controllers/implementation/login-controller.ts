@@ -44,7 +44,8 @@ export class LoginController implements ILoginController {
     try {
       const email = req.body.email;
       if (!email) throw BadRequestError('Email is required');
-
+       console.log("erem",email);
+       
       const response = await this._loginService.checkGoogleLoginDriver(email);
 
       const { refreshToken, token, ...responseWithoutToken } = response;
