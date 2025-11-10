@@ -6,7 +6,6 @@ import { IAdminRepository } from '../../repositories/interfaces/i-admin-reposito
 import { generateStatusEmail } from '../../utilities/generate-status-email';
 import { AdminUpdateDriverStatusReq } from '../../types';
 import { IDriverRepository } from '../../repositories/interfaces/i-driver-repository';
-import { createDriverConnectAccount } from '../../utilities/createStripeAccount';
 import { TYPES } from '../../types/inversify-types';
 import { inject, injectable } from 'inversify';
 import { AdminDriverDetailsDTO, DriverListDTO, PaginatedUserListDTO } from '../../dto/admin.dto';
@@ -21,6 +20,11 @@ import {
   NotFoundError,
   StatusCode,
 } from '@Pick2Me/shared';
+import {
+  CreateDriverConnectAccountResponse,
+  createDriverConnectAccountRpc,
+} from '../../grpc/clients/paymentClient';
+import { ServiceError } from '@grpc/grpc-js';
 
 @injectable()
 export class AdminService implements IAdminService {
@@ -118,7 +122,7 @@ export class AdminService implements IAdminService {
           insuranceStartDate: response.vehicleDetails.insuranceStartDate.toISOString(),
           insuranceImageUrl: response.vehicleDetails.insuranceImageUrl,
         },
-        joiningDate:new Date(response.joiningDate).toLocaleDateString(),
+        joiningDate: new Date(response.joiningDate).toLocaleDateString(),
         license: {
           validity: response.license.validity.toISOString(),
           backImageUrl: response.license.backImageUrl,
@@ -174,7 +178,6 @@ export class AdminService implements IAdminService {
 
   async updateAccountStatus(request: AdminUpdateDriverStatusReq): Promise<IResponse<boolean>> {
     try {
-
       // add resubmission fields if admin reject the documents
       if (request.status === 'Rejected') {
         if (!request.fields) throw BadRequestError('fields requires');
@@ -201,33 +204,58 @@ export class AdminService implements IAdminService {
 
       if (!driver) throw NotFoundError('Driver not found');
 
-      const updateData = {
-        accountStatus: request.status,
-        ...(request.status === 'Good' && driver?.email && driver?._id && !driver.accountId
-          ? await createDriverConnectAccount(driver.email, driver._id.toString())
-          : {}),
-      };
+      if (!driver?.email) {
+        throw NotFoundError('Driver email not found');
+      }
 
       const redisService = await getRedisService();
       const isOnline = await redisService.isDriverOnline(request.id);
 
-      // checks driver currently online or not
-      if (isOnline && request.status === 'Blocked')
+      if (isOnline && request.status === 'Blocked') {
         throw ConflictError('Driver is currently on a ride. Block after ride completion');
-
-      const response = await this._driverRepo.update(request.id, updateData);
-
-      if (request.status == 'Blocked') {
-        redisService.addBlacklistedToken(request.id, 180);
       }
 
-      if (!response?.email) {
-        throw NotFoundError('Driver email not found');
+      let connectResult: CreateDriverConnectAccountResponse | null = null;
+
+      const shouldCreateAccount =
+        request.status === 'Good' && !!driver.email && !!driver._id && !driver.accountId;
+
+      if (shouldCreateAccount) {
+        console.log("calling");
+        
+        try {
+          // call payment-service RPC (idempotency handled by payment service)
+          connectResult = await createDriverConnectAccountRpc({
+            email: driver.email,
+            driverId: driver._id.toString(),
+          });
+        } catch (err) {
+          const grpcErr = err as ServiceError;
+          console.error('Failed to create connect account', {
+            driverId: driver._id,
+            error: grpcErr.message,
+          });
+          throw InternalError('Failed to create payment account for driver');
+        }
       }
 
-      const subjectAndText = generateStatusEmail(request.status, response.name, request.reason);
+      const updateData = {
+        accountStatus: request.status,
+        ...(connectResult?.accountId
+          ? { accountId: connectResult.accountId, accountLinkUrl: connectResult.accountLinkUrl }
+          : {}),
+      };
+console.log("dssddf",updateData);
 
-      await sendMail(response.email, subjectAndText.subject, subjectAndText.text);
+      // await this._driverRepo.update(request.id, updateData);
+
+      // if (request.status == 'Blocked') {
+      //   redisService.addBlacklistedToken(request.id, 180);
+      // }
+
+      // const subjectAndText = generateStatusEmail(request.status, driver.name, request.reason);
+
+      // await sendMail(driver.email, subjectAndText.subject, subjectAndText.text);
       return {
         status: StatusCode.OK,
         message: 'Success',

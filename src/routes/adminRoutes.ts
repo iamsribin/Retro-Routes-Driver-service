@@ -14,10 +14,4 @@ adminRouter.get('/drivers', catchAsync(adminDriverController.getDriversList));
 adminRouter.get('/drivers/:id', catchAsync(adminDriverController.GetDriverDetails));
 adminRouter.patch('/drivers/:driverId/status', catchAsync(adminDriverController.updateAccountStatus));
 
-// adminRouter.get('/driverDetails/:id', catchAsync(adminDriverController.adminGetDriverDetailsById));
-// adminRouter.post(
-//   '/driver/verify/:id',
-//   catchAsync(adminDriverController.adminUpdateDriverAccountStatus)
-// );
-
 export { adminRouter };

@@ -32,3 +32,10 @@ export async function createDriverConnectAccount(email: string, driverId: string
     throw new Error('Stripe account creation failed');
   }
 }
+
+
+
+// accountId
+// "acct_1SRUUs1slcl31WDQ"
+// accountLinkUrl
+// "https://connect.stripe.com/setup/e/acct_1SRUUs1slcl31WDQ/yKKbGOFMQO2Y"
