@@ -1,11 +1,10 @@
 import express from 'express';
-
-import { catchAsync } from '@Pick2Me/shared';
-import { RegisterController } from '../controllers/implementation/register-controller';
-import { LoginController } from '../controllers/implementation/login-controller';
-import { container } from '../config/inversify.config';
-import { TYPES } from '../types/inversify-types';
-import { upload } from '../middleware/multer';
+import { catchAsync } from '@Pick2Me/shared/utils';
+import { RegisterController } from '@/controllers/implementation/register-controller';
+import { LoginController } from '@/controllers/implementation/login-controller';
+import { container } from '@/config/inversify.config';
+import { TYPES } from '@/types/inversify-types';
+import { upload } from '@/middleware/multer';
 
 const registrationController = container.get<RegisterController>(TYPES.RegisterController);
 const loginController = container.get<LoginController>(TYPES.LoginController);
@@ -17,12 +16,10 @@ authRouter.post('/check-login-email', catchAsync(loginController.checkGoogleLogi
 authRouter.post('/check-registration', catchAsync(registrationController.checkRegisterDriver));
 authRouter.post('/register', catchAsync(registrationController.register));
 //resubmission
-authRouter.get(
-  '/documents/resubmission/:id',
-  catchAsync(loginController.getResubmissionDocuments)
-);
+authRouter.get('/documents/resubmission/:id', catchAsync(loginController.getResubmissionDocuments));
 authRouter.put(
-  '/documents/resubmission/:id',upload.any(),
+  '/documents/resubmission/:id',
+  upload.any(),
   catchAsync(loginController.postResubmissionDocuments)
 );
 

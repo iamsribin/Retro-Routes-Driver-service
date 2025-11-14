@@ -1,25 +1,19 @@
 import mongoose, { UpdateQuery } from 'mongoose';
 import { ILoginService } from '../interfaces/i-login-service';
-import { ResubmissionInterface } from '../../interface/resubmission.interface';
-import { IDriverRepository } from '../../repositories/interfaces/i-driver-repository';
+import { ResubmissionInterface } from '@/interface/resubmission.interface';
+import { IDriverRepository } from '@/repositories/interfaces/i-driver-repository';
 import { inject, injectable } from 'inversify';
-import { TYPES } from '../../types/inversify-types';
-import { postResubmissionDocumentsReq } from '../../types';
-import { AccountStatus, DriverInterface } from '../../interface/driver.interface';
+import { TYPES } from '@/types/inversify-types';
+import { postResubmissionDocumentsReq } from '@/types';
+import { AccountStatus, DriverInterface } from '@/interface/driver.interface';
+import { HttpError, InternalError, NotFoundError } from '@Pick2Me/shared/errors';
+import { commonRes, StatusCode } from '@Pick2Me/shared/interfaces';
+import { AccessPayload, generateJwtToken } from '@Pick2Me/shared/auth';
+import { IMongoBaseRepository } from '@Pick2Me/shared/mongo';
 import {
   CheckLoginDriverRes,
   GetResubmissionDocumentsRes,
-} from '../../types/auth-types/response-types';
-import {
-  AccessPayload,
-  commonRes,
-  generateJwtToken,
-  HttpError,
-  IMongoBaseRepository,
-  InternalError,
-  NotFoundError,
-  StatusCode,
-} from '@Pick2Me/shared';
+} from '@/types/auth-types/response-types';
 
 @injectable()
 export class LoginService implements ILoginService {
@@ -199,7 +193,6 @@ export class LoginService implements ILoginService {
 
       const fields = resubmission.fields;
 
-      // ✅ use UpdateQuery<DriverInterface> instead of Record<string, any>
       const update: UpdateQuery<DriverInterface> = {
         accountStatus: AccountStatus.Pending,
       };

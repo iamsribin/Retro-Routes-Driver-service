@@ -1,16 +1,17 @@
 import { FilterQuery, UpdateQuery } from 'mongoose';
 import { injectable } from 'inversify';
-import { DriverInterface } from '../../interface/driver.interface';
-import { DriverModel } from '../../model/driver.model';
+import { DriverInterface } from '@/interface/driver.interface';
+import { DriverModel } from '@/model/driver.model';
 import { IDriverRepository } from '../interfaces/i-driver-repository';
-import { MongoBaseRepository, NotFoundError } from '@Pick2Me/shared';
+import { NotFoundError } from '@Pick2Me/shared/errors';
+import { MongoBaseRepository } from '@Pick2Me/shared/mongo';
 import {
   AddEarningsRequest,
   IdentificationUpdateQuery,
   InsuranceUpdateQuery,
   LocationUpdateReq,
   VehicleUpdateQuery,
-} from '../../types';
+} from '@/types';
 
 @injectable()
 export class DriverRepository

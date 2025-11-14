@@ -1,5 +1,5 @@
-import { DriverModel } from '../../model/driver.model';
-import { DriverInterface, DriverRideStats } from '../../interface/driver.interface';
+import { DriverModel } from '@/model/driver.model';
+import { DriverInterface, DriverRideStats } from '@/interface/driver.interface';
 import { IRideRepository } from '../interfaces/i-ride-repository';
 import { FilterQuery } from 'mongoose';
 import { injectable } from 'inversify';

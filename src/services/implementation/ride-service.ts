@@ -1,10 +1,10 @@
 import { IRideService } from '../interfaces/i-ride-service';
-import { IDriverRepository } from '../../repositories/interfaces/i-driver-repository';
-import { IRideRepository } from '../../repositories/interfaces/i-ride-repository';
-import { OnlineDriverDTO } from '../../dto/ride.dto';
+import { IDriverRepository } from '@/repositories/interfaces/i-driver-repository';
+import { IRideRepository } from '@/repositories/interfaces/i-ride-repository';
+import { OnlineDriverDTO } from '@/dto/ride.dto';
 import { inject, injectable } from 'inversify';
-import { TYPES } from '../../types/inversify-types';
-import { IResponse, StatusCode } from '@Pick2Me/shared';
+import { TYPES } from '@/types/inversify-types';
+import { IResponse, StatusCode } from '@Pick2Me/shared/interfaces';
 
 @injectable()
 export class RideService implements IRideService {

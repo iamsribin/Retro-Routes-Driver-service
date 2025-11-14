@@ -1,29 +1,27 @@
 import mongoose from 'mongoose';
-import { sendMail } from '../../utilities/node-mailer';
-import { ResubmissionInterface } from '../../interface/resubmission.interface';
+import { ResubmissionInterface } from '@/interface/resubmission.interface';
 import { IAdminService } from '../interfaces/i-admin-service';
-import { IAdminRepository } from '../../repositories/interfaces/i-admin-repository';
-import { generateStatusEmail } from '../../utilities/generate-status-email';
-import { AdminUpdateDriverStatusReq } from '../../types';
-import { IDriverRepository } from '../../repositories/interfaces/i-driver-repository';
-import { TYPES } from '../../types/inversify-types';
+import { IAdminRepository } from '@/repositories/interfaces/i-admin-repository';
+import { AdminUpdateDriverStatusReq } from '@/types';
+import { IDriverRepository } from '@/repositories/interfaces/i-driver-repository';
+import { TYPES } from '@/types/inversify-types';
 import { inject, injectable } from 'inversify';
-import { AdminDriverDetailsDTO, DriverListDTO, PaginatedUserListDTO } from '../../dto/admin.dto';
+import { AdminDriverDetailsDTO, DriverListDTO, PaginatedUserListDTO } from '@/dto/admin.dto';
 import {
   BadRequestError,
   ConflictError,
-  getRedisService,
   HttpError,
-  IMongoBaseRepository,
   InternalError,
-  IResponse,
   NotFoundError,
-  StatusCode,
-} from '@Pick2Me/shared';
+} from '@Pick2Me/shared/errors';
+import { IResponse, StatusCode } from '@Pick2Me/shared/interfaces';
+import { IMongoBaseRepository } from '@Pick2Me/shared/mongo';
+import { getRedisService } from '@Pick2Me/shared/redis';
+
 import {
   CreateDriverConnectAccountResponse,
   createDriverConnectAccountRpc,
-} from '../../grpc/clients/paymentClient';
+} from '@/grpc/clients/paymentClient';
 import { ServiceError } from '@grpc/grpc-js';
 
 @injectable()
@@ -221,8 +219,8 @@ export class AdminService implements IAdminService {
         request.status === 'Good' && !!driver.email && !!driver._id && !driver.accountId;
 
       if (shouldCreateAccount) {
-        console.log("calling");
-        
+        console.log('calling');
+
         try {
           // call payment-service RPC (idempotency handled by payment service)
           connectResult = await createDriverConnectAccountRpc({
@@ -245,7 +243,7 @@ export class AdminService implements IAdminService {
           ? { accountId: connectResult.accountId, accountLinkUrl: connectResult.accountLinkUrl }
           : {}),
       };
-console.log("dssddf",updateData);
+      console.log('dssddf', updateData);
 
       // await this._driverRepo.update(request.id, updateData);
 

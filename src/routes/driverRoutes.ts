@@ -3,7 +3,8 @@ import { upload } from '../middleware/multer';
 import { container } from '../config/inversify.config';
 import { DriverController } from '../controllers/implementation/driver-controller';
 import { TYPES } from '../types/inversify-types';
-import { catchAsync, verifyGatewayJwt } from '@Pick2Me/shared';
+import { verifyGatewayJwt } from '@Pick2Me/shared/auth';
+import { catchAsync } from '@Pick2Me/shared/utils';
 
 const driverController = container.get<DriverController>(TYPES.DriverController);
 
@@ -22,11 +23,7 @@ driverRouter.put(
   catchAsync(driverController.updateDriverProfile)
 );
 
-driverRouter.put(
-  '/me/documents',
-  upload.any(),
-  catchAsync(driverController.updateDriverDocuments)
-);
+driverRouter.put('/me/documents', upload.any(), catchAsync(driverController.updateDriverDocuments));
 
 driverRouter.post(
   '/me/upload-chat-file',

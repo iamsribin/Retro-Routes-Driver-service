@@ -1,10 +1,11 @@
 import { IAdminController } from '../interfaces/i-admin-controller';
-import { IAdminService } from '../../services/interfaces/i-admin-service';
+import { IAdminService } from '@/services/interfaces/i-admin-service';
 import { inject, injectable } from 'inversify';
-import { TYPES } from '../../types/inversify-types';
+import { TYPES } from '@/types/inversify-types';
 import { NextFunction, Request, Response } from 'express';
-import { recursivelySignImageUrls } from '../../utilities/createImageUrl';
-import { BadRequestError, StatusCode } from '@Pick2Me/shared';
+import { recursivelySignImageUrls } from '@/utilities/createImageUrl';
+import { BadRequestError } from '@Pick2Me/shared/errors';
+import { StatusCode } from '@Pick2Me/shared/interfaces';
 
 @injectable()
 export class AdminController implements IAdminController {
@@ -18,12 +19,12 @@ export class AdminController implements IAdminController {
 
       const search = String(req.query.search || '');
 
-        const data ={
-        status: status as "Good" | "Block",
+      const data = {
+        status: status as 'Good' | 'Block',
         page: page as number,
         limit: limit as number,
-        search: search.toString().trim()
-      }
+        search: search.toString().trim(),
+      };
 
       const result = await this._adminService.getDriversList(data);
 
@@ -36,29 +37,29 @@ export class AdminController implements IAdminController {
     }
   };
 
-   GetDriverDetails = async(req: Request, res: Response, _next: NextFunction): Promise<void> => {
+  GetDriverDetails = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
       console.log(id);
-      
+
       if (!id) throw BadRequestError('id required');
 
       const response = await this._adminService.getDriverDetailsById(id);
       if (response.data) {
         await recursivelySignImageUrls(response.data as any);
       }
-      
+
       res.status(+response.status).json(response.data);
     } catch (error: unknown) {
       _next(error);
     }
-  }
+  };
 
-   updateAccountStatus = async(req: Request, res: Response, _next: NextFunction): Promise<void> =>{
+  updateAccountStatus = async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
       const id = req.params.driverId;
       const { note, status, fields } = req.body;
-      console.log({id, note, status, fields });
+      console.log({ id, note, status, fields });
 
       if (!id || !note || !status) throw BadRequestError('some fields is missing');
 
@@ -69,5 +70,5 @@ export class AdminController implements IAdminController {
     } catch (error) {
       _next(error);
     }
-  }
+  };
 }

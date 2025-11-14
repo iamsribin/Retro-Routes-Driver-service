@@ -1,4 +1,3 @@
-
 export enum AccountStatus {
   Good = 'Good',
   Warning = 'Warning',
@@ -17,10 +16,10 @@ export interface DriverRideStats {
   // rideDetails: DriverInterface['rideDetails'];
 }
 
-import { Document, Types } from "mongoose";
+import { Document, Types } from 'mongoose';
 
 // Main driver interface
-export interface DriverInterface extends Document{
+export interface DriverInterface extends Document {
   _id: Types.ObjectId;
 
   name: string;
@@ -89,4 +88,3 @@ export interface DriverInterface extends Document{
   createdAt?: Date;
   updatedAt?: Date;
 }
-

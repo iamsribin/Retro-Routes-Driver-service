@@ -1,13 +1,13 @@
-import { IResponse } from '@Pick2Me/shared';
-import { DriverDocumentDTO, DriverProfileDTO } from '../../dto/driver.dto';
+import { IResponse } from '@Pick2Me/shared/interfaces';
+import { DriverDocumentDTO, DriverProfileDTO } from '@/dto/driver.dto';
 import {
   AddEarningsRequest,
   handleOnlineChangeReq,
   increaseCancelCountReq,
   UpdateDriverDocumentsReq,
   UpdateDriverProfileReq,
-} from '../../types';
-import { PaymentResponse } from '../../types/driver-type/response-type';
+} from '@/types';
+import { PaymentResponse } from '@/types/driver-type/response-type';
 
 export interface IDriverService {
   fetchDriverProfile(id: string): Promise<IResponse<DriverProfileDTO>>;

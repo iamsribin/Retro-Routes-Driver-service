@@ -1,7 +1,7 @@
 import { sendUnaryData, ServerUnaryCall } from '@grpc/grpc-js';
 import { NextFunction, Request, Response } from 'express';
-import { AddEarningsRequest, increaseCancelCountReq } from '../../types';
-import { PaymentResponse } from '../../types/driver-type/response-type';
+import { AddEarningsRequest, increaseCancelCountReq } from '@/types';
+import { PaymentResponse } from '@/types/driver-type/response-type';
 
 export interface IDriverController {
   fetchDriverProfile(req: Request, res: Response, _next: NextFunction): Promise<void>;

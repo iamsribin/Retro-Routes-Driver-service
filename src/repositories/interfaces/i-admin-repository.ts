@@ -1,4 +1,4 @@
-import { DriverInterface } from '../../interface/driver.interface';
+import { DriverInterface } from '@/interface/driver.interface';
 
 export interface IAdminRepository {
   getDriversListByAccountStatus(account_status: string): Promise<DriverInterface[] | []>;
@@ -8,7 +8,7 @@ export interface IAdminRepository {
     limit: number,
     search: string
   ): Promise<{
-        drivers: DriverInterface[];
-        totalItems: number;
-    }>;
+    drivers: DriverInterface[];
+    totalItems: number;
+  }>;
 }

@@ -7,7 +7,7 @@ import {
   LocationUpdateReq,
   VehicleUpdateQuery,
 } from '../../types';
-import { IMongoBaseRepository } from '@Pick2Me/shared';
+import { IMongoBaseRepository } from '@Pick2Me/shared/mongo';
 
 export interface IDriverRepository extends IMongoBaseRepository<DriverInterface> {
   getByEmail(email: string): Promise<DriverInterface | null>;

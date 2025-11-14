@@ -1,5 +1,5 @@
-import { StatusCode } from '@Pick2Me/shared';
-import { ResubmissionInterface } from '../../interface/resubmission.interface';
+import { StatusCode } from '@Pick2Me/shared/interfaces';
+import { ResubmissionInterface } from '@/interface/resubmission.interface';
 
 export interface CheckLoginDriverRes {
   status: StatusCode;

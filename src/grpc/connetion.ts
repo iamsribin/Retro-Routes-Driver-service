@@ -1,7 +1,8 @@
-import { paymentProto } from "@Pick2Me/shared";
-import * as grpc from "@grpc/grpc-js";
+import { paymentProto } from '@Pick2Me/shared/protos';
+import * as grpc from '@grpc/grpc-js';
 
 type PaymentServiceClient = InstanceType<typeof paymentProto.PaymentService>;
+console.log(process.env.PAYMENT_GRPC_URL);
 
 const paymentClient = new paymentProto.PaymentService(
   process.env.PAYMENT_GRPC_URL!,

@@ -1,4 +1,4 @@
-import { commonRes } from '@Pick2Me/shared';
+import { commonRes } from '@Pick2Me/shared/interfaces';
 import {
   CheckRegisterDriverRes,
   IdentificationUpdateReq,
@@ -7,7 +7,7 @@ import {
   RegisterReq,
   UpdateDriverImageReq,
   VehicleUpdateReq,
-} from '../../types';
+} from '@/types';
 
 export interface IRegistrationService {
   register(driverData: RegisterReq): Promise<commonRes>;

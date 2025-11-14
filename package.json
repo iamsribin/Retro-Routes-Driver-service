@@ -4,14 +4,15 @@
   "description": "",
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
-  "main": "server.js",
+  "type": "module",
+  "main": "server.ts",
   "scripts": {
-    "start": "nodemon ./src/server.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc && tsc-alias && tsc-esm-fix",
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
     "format": "prettier --write \"src/**/*.{js,ts,tsx,json,css,md}\"",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix"
   },
   "keywords": [],
   "dependencies": {
@@ -24,11 +25,10 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/nodemailer": "^6.4.17",
     "amqplib": "^0.10.8",
-    "bcryptjs": "^3.0.2",
     "class-transformer": "^0.5.1",
     "cookie-parser": "^1.4.7",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
     "inversify": "^7.10.3",
     "ioredis": "^5.7.0",
     "jsonwebtoken": "^9.0.2",
@@ -37,8 +37,7 @@
     "nodemailer": "^6.10.0",
     "redis": "^5.8.0",
     "reflect-metadata": "^0.2.2",
-    "stripe": "^19.1.0",
-    "tsconfig-paths": "^4.2.0"
+    "stripe": "^19.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
@@ -46,12 +45,18 @@
     "@types/express": "^5.0.0",
     "@types/multer": "^2.0.0",
     "eslint": "^9.36.0",
+    "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.4.0",
     "jiti": "^2.6.0",
     "nodemon": "^3.1.9",
     "prettier": "3.6.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.2",
+    "tsc": "^2.0.4",
+    "tsc-alias": "^1.8.16",
+    "tsc-esm-fix": "^3.1.2",
+    "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
     "typescript-eslint": "^8.44.1"
   }
 }

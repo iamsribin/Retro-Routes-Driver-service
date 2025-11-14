@@ -1,4 +1,4 @@
-import { DriverInterface } from '../../interface/driver.interface';
+import { DriverInterface } from '@/interface/driver.interface';
 
 export interface IRideRepository {
   increaseCancelledRides(driverId: string): Promise<DriverInterface | null>;

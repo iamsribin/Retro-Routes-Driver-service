@@ -1,9 +1,12 @@
-import { refferalCode } from '../../utilities/referral-code';
-import { IDriverRepository } from '../../repositories/interfaces/i-driver-repository';
-import { DriverInterface } from '../../interface/driver.interface';
+import { refferalCode } from '@/utilities/referral-code';
+import { IDriverRepository } from '@/repositories/interfaces/i-driver-repository';
+import { DriverInterface } from '@/interface/driver.interface';
 import { IRegistrationService } from '../interfaces/i-registration-service';
 import { inject, injectable } from 'inversify';
-import { TYPES } from '../../types/inversify-types';
+import { TYPES } from '@/types/inversify-types';
+import { BadRequestError, HttpError, InternalError, NotFoundError } from '@Pick2Me/shared/errors';
+import { commonRes, StatusCode } from '@Pick2Me/shared/interfaces';
+import uploadToS3, { uploadToS3Public } from '@/utilities/s3';
 import {
   CheckRegisterDriverRes,
   IdentificationUpdateReq,
@@ -12,17 +15,7 @@ import {
   RegisterReq,
   UpdateDriverImageReq,
   VehicleUpdateReq,
-} from '../../types';
-import {
-  BadRequestError,
-  bcryptService,
-  commonRes,
-  HttpError,
-  InternalError,
-  NotFoundError,
-  StatusCode,
-} from '@Pick2Me/shared';
-import uploadToS3, { uploadToS3Public } from '../../utilities/s3';
+} from '@/types';
 
 @injectable()
 export class RegistrationService implements IRegistrationService {
@@ -33,13 +26,13 @@ export class RegistrationService implements IRegistrationService {
       const { name, email, mobile, password } = driverData;
 
       const newReferralCode = refferalCode();
-      const hashedPassword = await bcryptService.securePassword(password);
+      // const hashedPassword = await bcryptService.securePassword(password);
 
       const newDriver: Partial<DriverInterface> = {
         name,
         email,
         mobile,
-        password: hashedPassword,
+        // password: hashedPassword,
         referralCode: newReferralCode,
       };
 

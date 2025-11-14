@@ -1,5 +1,5 @@
-import { paymentClient } from "../connetion";
-import { promisify } from "util";
+import { paymentClient } from '../connetion';
+import { promisify } from 'util';
 
 interface CreateDriverConnectAccountRequest {
   email: string;
@@ -7,7 +7,7 @@ interface CreateDriverConnectAccountRequest {
 }
 export interface CreateDriverConnectAccountResponse {
   accountId: string;
-  accountLinkUrl?: string; 
+  accountLinkUrl?: string;
 }
 
 export const createDriverConnectAccountRpc = promisify<

@@ -1,25 +1,20 @@
-import { IDriverRepository } from '../../repositories/interfaces/i-driver-repository';
+import { IDriverRepository } from '@/repositories/interfaces/i-driver-repository';
 import { IDriverService } from '../interfaces/i-driver-service';
-import { DriverDocumentDTO, DriverProfileDTO } from '../../dto/driver.dto';
-import { PaymentResponse } from '../../types/driver-type/response-type';
+import { DriverDocumentDTO, DriverProfileDTO } from '@/dto/driver.dto';
+import { PaymentResponse } from '@/types/driver-type/response-type';
 import { inject, injectable } from 'inversify';
-import { TYPES } from '../../types/inversify-types';
-import { AccountStatus, DriverInterface } from '../../interface/driver.interface';
+import { TYPES } from '@/types/inversify-types';
+import { AccountStatus, DriverInterface } from '@/interface/driver.interface';
+import { HttpError, InternalError, NotFoundError } from '@Pick2Me/shared/errors';
+import { IResponse, StatusCode } from '@Pick2Me/shared/interfaces';
+import { getRedisService } from '@Pick2Me/shared/redis';
 import {
   UpdateDriverDocumentsReq,
   UpdateDriverProfileReq,
   handleOnlineChangeReq,
   increaseCancelCountReq,
   AddEarningsRequest,
-} from '../../types';
-import {
-  getRedisService,
-  HttpError,
-  InternalError,
-  IResponse,
-  NotFoundError,
-  StatusCode,
-} from '@Pick2Me/shared';
+} from '@/types';
 
 @injectable()
 export class DriverService implements IDriverService {

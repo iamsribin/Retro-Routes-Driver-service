@@ -1,9 +1,9 @@
-import { Types } from "mongoose";
+import { Types } from 'mongoose';
 
 export interface DriverDailyStatsInterface {
   _id?: Types.ObjectId;
-  driverId: Types.ObjectId;           
-  date: Date;                         
+  driverId: Types.ObjectId;
+  date: Date;
   onlineMinutes?: number;
   completedRides?: number;
   cancelledRides?: number;

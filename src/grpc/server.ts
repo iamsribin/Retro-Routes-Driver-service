@@ -1,5 +1,5 @@
 import * as grpc from '@grpc/grpc-js';
-import { driverServiceDescriptor } from '@Pick2Me/shared';
+import { driverServiceDescriptor } from '@Pick2Me/shared/protos';
 import { createDriverHandlers } from './handlers';
 import { container } from '../config/inversify.config';
 import { TYPES } from '../types/inversify-types';
@@ -25,10 +25,10 @@ export const startGrpcServer = () => {
 
     // Bind server
     server.bindAsync(
-      process.env.GRPC_URL as string,
+      process.env.DRIVER_GRPC_URL as string,
       grpc.ServerCredentials.createInsecure(),
       () => {
-        console.log(`GRPC server for user service running on port ${process.env.GRPC_URL}`);
+        console.log(`GRPC server for user service running on port ${process.env.DRIVER_GRPC_URL}`);
       }
     );
   } catch (err) {

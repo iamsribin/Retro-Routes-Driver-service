@@ -1,4 +1,4 @@
-import { stripe } from '../config/stripe';
+import { stripe } from '@/config/stripe';
 
 export async function createDriverConnectAccount(email: string, driverId: string) {
   try {
@@ -32,8 +32,6 @@ export async function createDriverConnectAccount(email: string, driverId: string
     throw new Error('Stripe account creation failed');
   }
 }
-
-
 
 // accountId
 // "acct_1SRUUs1slcl31WDQ"

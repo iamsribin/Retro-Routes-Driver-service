@@ -23,9 +23,9 @@ import { AccountStatus } from '../interface/driver.interface';
 
 export interface AdminDriverDetailsDTO {
   // deatils tab
-  id:string;
+  id: string;
   driverImage: string;
-  name:string;
+  name: string;
   email: string;
   mobile: string;
   joiningDate: string;
@@ -34,9 +34,9 @@ export interface AdminDriverDetailsDTO {
   totalCompletedRides: number;
   totalCancelledRides: number;
   accountStatus: AccountStatus;
-  isOnline:boolean;
-  transactionCount:number;
-  feedbackCount:number;
+  isOnline: boolean;
+  transactionCount: number;
+  feedbackCount: number;
   //  documents
   aadhar: {
     id: string;
@@ -65,24 +65,24 @@ export interface AdminDriverDetailsDTO {
     insuranceExpiryDate: string;
   };
 
-  pollution:{
+  pollution: {
     pollutionImageUrl: string;
     pollutionStartDate: string;
     pollutionExpiryDate: string;
-  }
+  };
 
-  vehicle:{
+  vehicle: {
     vehicleNumber: string;
     vehicleColor: string;
     model: string;
     carFrontImageUrl: string;
     carBackImageUrl: string;
-  }
+  };
 
-  walletBalance:number,
-  adminCommission:number,
-  totalRating:number,
-  lifeTimeEarnings:number
+  walletBalance: number;
+  adminCommission: number;
+  totalRating: number;
+  lifeTimeEarnings: number;
 }
 
 export interface PaginatedUserListDTO {

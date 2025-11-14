@@ -1,10 +1,10 @@
-import { ILoginService } from '../../services/interfaces/i-login-service';
+import { ILoginService } from '@/services/interfaces/i-login-service';
 import { ILoginController } from '../interfaces/i-login-controller';
 import { inject, injectable } from 'inversify';
-import { TYPES } from '../../types/inversify-types';
+import { TYPES } from '@/types/inversify-types';
 import { NextFunction, Request, Response } from 'express';
-import uploadToS3, { uploadToS3Public } from '../../utilities/s3';
-import { BadRequestError } from '@Pick2Me/shared';
+import uploadToS3, { uploadToS3Public } from '@/utilities/s3';
+import { BadRequestError } from '@Pick2Me/shared/errors';
 
 @injectable()
 export class LoginController implements ILoginController {

@@ -1,14 +1,15 @@
 import { IDriverController } from '../interfaces/i-driver-controller';
-import { IDriverService } from '../../services/interfaces/i-driver-service';
+import { IDriverService } from '@/services/interfaces/i-driver-service';
 import { inject, injectable } from 'inversify';
-import { TYPES } from '../../types/inversify-types';
+import { TYPES } from '@/types/inversify-types';
 import { NextFunction, Request, Response } from 'express';
-import uploadToS3, { uploadToS3Public } from '../../utilities/s3';
+import uploadToS3, { uploadToS3Public } from '@/utilities/s3';
 import { sendUnaryData, ServerUnaryCall } from '@grpc/grpc-js';
-import { PaymentResponse } from '../../types/driver-type/response-type';
-import { BadRequestError, StatusCode } from '@Pick2Me/shared';
-import { recursivelySignImageUrls } from '../../utilities/createImageUrl';
-import { AddEarningsRequest, increaseCancelCountReq, SectionUpdates } from '../../types';
+import { PaymentResponse } from '@/types/driver-type/response-type';
+import { BadRequestError } from '@Pick2Me/shared/errors';
+import { StatusCode } from '@Pick2Me/shared/interfaces';
+import { recursivelySignImageUrls } from '@/utilities/createImageUrl';
+import { AddEarningsRequest, increaseCancelCountReq, SectionUpdates } from '@/types';
 
 @injectable()
 export class DriverController implements IDriverController {

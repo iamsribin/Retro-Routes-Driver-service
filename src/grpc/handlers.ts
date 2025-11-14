@@ -1,4 +1,4 @@
-import { IDriverController } from '../controllers/interfaces/i-driver-controller';
+import { IDriverController } from '@/controllers/interfaces/i-driver-controller';
 
 type Handlers = {
   driverController: IDriverController;

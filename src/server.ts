@@ -1,10 +1,10 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import 'dotenv/config';
 
 import app from './app';
 import { startGrpcServer } from './grpc/server';
 import { isEnvDefined } from './utilities/envChecker';
-import { connectDB, createRedisService } from '@Pick2Me/shared';
+import { createRedisService } from '@Pick2Me/shared/redis';
+import { connectDB } from '@Pick2Me/shared/mongo';
 
 // server
 const startServer = async () => {
